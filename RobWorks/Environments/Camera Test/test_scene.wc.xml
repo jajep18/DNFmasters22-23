@@ -1,0 +1,42 @@
+<WorkCell name="Test_Scene">
+<Drawable name="Table" refframe="WORLD" colmodel="Enabled">
+    <Pos>0 0 0</Pos>
+    <RPY>0 0 0</RPY>
+    <RGB>0.6 0.6 0.6 </RGB>
+    <Polytope file="table/Sigmund_table.obj"/>
+  </Drawable>
+<Drawable name="Sphere Red" refframe="WORLD" colmodel="Enabled">
+    <Pos>0 0.5 0.159</Pos>
+    <RPY>0 0 0</RPY>
+    <RGB>1 0 0 </RGB>
+    <Sphere radius="0.05" level="20"/>
+  </Drawable>
+
+<Drawable name="Sphere Green" refframe="WORLD" colmodel="Enabled">
+    <Pos>0.2 0.5 0.159</Pos>
+    <RPY>0 0 0</RPY>
+    <RGB>0 1 0 </RGB>
+    <Sphere radius="0.05" level="20"/>
+  </Drawable>
+
+<Drawable name="Sphere Blue" refframe="WORLD" colmodel="Enabled">
+    <Pos>-0.2 0.5 0.159</Pos>
+    <RPY>0 0 0</RPY>
+    <RGB>0 0 1 </RGB>
+    <Sphere radius="0.05" level="20"/>
+  </Drawable>
+
+<Frame name="Camera Left" refframe="WORLD" type="Movable">
+        <Pos>-0.05 0 1.5</Pos>
+        <RPY />
+        <Property name="Camera" desc="[fovy,width,height]">50 640 480</Property>
+</Frame>
+
+<Frame name="Camera Right" refframe="WORLD" type="Movable">
+        <Pos>0.05 0 1.5</Pos>
+        <RPY />
+        <Property name="Camera" desc="[fovy,width,height]">50 640 480</Property>
+</Frame>
+
+
+</WorkCell>
