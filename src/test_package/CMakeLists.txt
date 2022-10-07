@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(test_package)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -17,17 +12,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(gazebo_dev REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-
-add_executable(test_node src/test_node.cpp)
-target_include_directories(test_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-
-install(TARGETS test_node
-  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -40,4 +30,34 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+## Assets (launch files, models, ...)
+install(
+  DIRECTORY
+    launch
+    models
+    worlds
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+## Environment hooks
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
+
 ament_package()
+
+# Include headers (.hpp in includes) as library
+
+# Add executables
+add_executable(my_talker nodes/publisher_member_function.cpp)
+ament_target_dependencies(my_talker rclcpp std_msgs)
+add_executable(my_listener nodes/subscriber_member_function.cpp)
+ament_target_dependencies(my_listener rclcpp std_msgs)
+#target_include_directories(test_node PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#  $<INSTALL_INTERFACE:include>)
+
+install(TARGETS
+  my_talker
+  my_listener
+  DESTINATION lib/${PROJECT_NAME})
+
+

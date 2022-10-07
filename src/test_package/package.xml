@@ -5,12 +5,19 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="jajep18@student.sdu.dk">jacob</maintainer>
-  <license>TODO: License declaration</license>
+  <license>TODO: License declaration - i own this sdhit now thanks bye </license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  
+  <!-- Dependencies -->
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
