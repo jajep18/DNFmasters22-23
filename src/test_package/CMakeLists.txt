@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.5)
 project(test_package)
 
@@ -11,10 +12,21 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # find dependencies
+# find_package(ament_cmake REQUIRED)
+# find_package(rclcpp REQUIRED)
+# find_package(std_msgs REQUIRED)
+# find_package(gazebo_dev REQUIRED)
+
 find_package(ament_cmake REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(image_transport REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS highgui imgcodecs imgproc videoio)
+find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(gazebo_dev REQUIRED)
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -51,6 +63,8 @@ add_executable(my_talker nodes/publisher_member_function.cpp)
 ament_target_dependencies(my_talker rclcpp std_msgs)
 add_executable(my_listener nodes/subscriber_member_function.cpp)
 ament_target_dependencies(my_listener rclcpp std_msgs)
+add_executable(cam_subscriber nodes/camera_subscriber_function.cpp)
+ament_target_dependencies(cam_subscriber rclcpp std_msgs OpenCV image_transport cv_bridge)
 #target_include_directories(test_node PUBLIC
 #  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 #  $<INSTALL_INTERFACE:include>)
@@ -58,6 +72,7 @@ ament_target_dependencies(my_listener rclcpp std_msgs)
 install(TARGETS
   my_talker
   my_listener
+  cam_subscriber
   DESTINATION lib/${PROJECT_NAME})
 
 

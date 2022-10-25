@@ -38,6 +38,11 @@ def generate_launch_description():
     node_talker = Node(
         package=package_name,
         executable='my_talker'
+    )
+
+    node_camsub = Node(
+        package=package_name,
+        executable='cam_subscriber'
     )    
 
     
@@ -50,8 +55,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
           'world',
           default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'dolly_empty.world'), ''],
+          #default_value='test_package/test_package/worlds/dolly_empty.world',
           description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
         gazebo,
         node_listener,
-        node_talker        
+        node_talker,
+        node_camsub        
     ])

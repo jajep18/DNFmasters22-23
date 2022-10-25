@@ -13,9 +13,17 @@
 // limitations under the License.
 
 #include <memory>
-
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+// #include "cv_bridge/cv_bridge.h"
+// #include "image_transport/image_transport.hpp"
+// #include "opencv2/highgui.hpp"
+// #include <opencv2/opencv.hpp>
+// #include "rclcpp/logging.hpp"
+// #include "sensor_msgs/msg/image.hpp"
+
+// using std::placeholders::_1; // MIght not be necessary
+
 using std::placeholders::_1;
 
 class MinimalSubscriber : public rclcpp::Node
@@ -36,10 +44,14 @@ private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
 };
 
+
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MinimalSubscriber>());
+  
+
+
   rclcpp::shutdown();
   return 0;
 }
