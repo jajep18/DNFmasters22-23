@@ -15,8 +15,7 @@ endif()
 # find_package(ament_cmake REQUIRED)
 # find_package(rclcpp REQUIRED)
 # find_package(std_msgs REQUIRED)
-# find_package(gazebo_dev REQUIRED)
-
+find_package(gazebo_dev REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(image_transport REQUIRED)
@@ -59,8 +58,8 @@ ament_package()
 # Include headers (.hpp in includes) as library
 
 # Add executables
-add_executable(cam_funcs src/camera_functions.cpp)
-ament_target_dependencies(cam_funcs OpenCV)
+# add_executable(cam_funcs src/camera_functions.cpp)
+# ament_target_dependencies(cam_funcs OpenCV)
 add_executable(my_talker nodes/publisher_member_function.cpp)
 ament_target_dependencies(my_talker rclcpp std_msgs)
 add_executable(my_listener nodes/subscriber_member_function.cpp)
@@ -72,7 +71,7 @@ ament_target_dependencies(cam_subscriber rclcpp std_msgs OpenCV image_transport 
 #  $<INSTALL_INTERFACE:include>)
 
 install(TARGETS
-  cam_funcs
+  # cam_funcs
   my_talker
   my_listener
   cam_subscriber
