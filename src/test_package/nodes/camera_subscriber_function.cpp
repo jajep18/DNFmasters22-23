@@ -23,10 +23,10 @@ std::vector<cv::Vec3f> detect_circles(cv::Mat &image){
     
     cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1,
                  gray.rows/16,  // change this value to detect circles with different distances to each other
-                 100, 30, 1, 30 // change the last two parameters
-            // (min_radius & max_radius) to detect larger circles
+                 100, 25,
+                  1, 30 // (min_radius & max_radius) to detect larger circles
     );
-
+ 
     //Draw center and outline of all detected circles 
     for( size_t i = 0; i < circles.size(); i++ )
     {
