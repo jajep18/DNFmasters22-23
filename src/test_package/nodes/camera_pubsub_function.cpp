@@ -19,13 +19,15 @@ using namespace std::chrono_literals; //Ugly, yet necessarry
 class Camera_PubSub : public rclcpp::Node
 {    
 public:
-    Camera_PubSub(int x) : Node("camera_pubsub"){
+    Camera_PubSub(image_transport::ImageTransport &it) : Node("camera_pubsub"){
+    //Camera_PubSub() : Node("camera_pubsub"){
     //Camera_PubSub(rclcpp::NodeHandle &nh, image_transport::ImageTransport &it){
-        publisher_ = this->create_publisher<std_msgs::msg::String>("my_cool_ass_topic", 1); //normally 1, queue size qued est 1
+        publisher_ = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
         timer_ = this->create_wall_timer(500ms, std::bind(&Camera_PubSub::timer_callback, this));
 
+        //subscription_ = this->create_subscription<sensor_msgs::msg::Image>("cam_circle_topic", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
         //it(this);
-        //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
+        sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, &Camera_PubSub::imageCallback);
         //image_transport::ImageTransport it(this);
         //image_transport::Subscriber sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
         //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
@@ -34,7 +36,8 @@ public:
 private:
     // Subscriber
     //rclcpp::NodeOptions options;
-    //rclcpp::Node::SharedPtr node;
+    //rclcpp::Node::SharedPtr node_;
+    std::shared_ptr<rclcpp::Node> node_;
     //image_transport::ImageTransport it;
     image_transport::Subscriber sub;
     void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg){
@@ -76,12 +79,12 @@ int main(int argc, char * argv[])
     cv::startWindowThread();
     
     
-    rclcpp::Node:SharedPTR nh;
+    rclcpp::Node::SharedPtr node = shared_from_this();
     
-    image_transport::ImageTransport it(nh);
-    rclcpp::init(argc, argv, "camera_pubsub");
+    image_transport::ImageTransport it(node);
+    rclcpp::init(argc, argv);
 
-    rclcpp::spin(std::make_shared<Camera_PubSub>(it));
+    rclcpp::spin(std::make_shared<Camera_PubSub>(node, it));
     
     cv::destroyWindow("view");
     rclcpp::shutdown();
