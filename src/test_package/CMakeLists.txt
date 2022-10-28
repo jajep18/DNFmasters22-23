@@ -64,8 +64,8 @@ add_executable(my_talker nodes/publisher_member_function.cpp)
 ament_target_dependencies(my_talker rclcpp std_msgs)
 add_executable(my_listener nodes/subscriber_member_function.cpp)
 ament_target_dependencies(my_listener rclcpp std_msgs)
-add_executable(cam_subscriber nodes/camera_subscriber_function.cpp)
-ament_target_dependencies(cam_subscriber rclcpp std_msgs OpenCV image_transport cv_bridge)
+add_executable(cam_pubsub nodes/camera_pubsub_function.cpp)
+ament_target_dependencies(cam_pubsub rclcpp std_msgs OpenCV image_transport cv_bridge)
 #target_include_directories(test_node PUBLIC
 #  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 #  $<INSTALL_INTERFACE:include>)
@@ -74,7 +74,7 @@ install(TARGETS
   # cam_funcs
   my_talker
   my_listener
-  cam_subscriber
+  cam_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
 

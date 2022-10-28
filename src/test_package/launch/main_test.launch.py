@@ -40,9 +40,9 @@ def generate_launch_description():
         executable='my_talker'
     )
 
-    node_camsub = Node(
+    node_campubsub = Node(
         package=package_name,
-        executable='cam_subscriber'
+        executable='cam_pubsub'
     )    
 
     
@@ -60,5 +60,5 @@ def generate_launch_description():
         gazebo,
         node_listener,
         node_talker,
-        node_camsub        
+        node_campubsub        
     ])

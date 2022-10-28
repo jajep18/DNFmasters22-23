@@ -9,23 +9,33 @@
 #include "sensor_msgs/msg/image.hpp"
 //Includes for publishing
 #include <chrono> //for 500ms
+using namespace std::chrono_literals; //Ugly, yet necessarry
+
 
 //Include our own source libraries
 #include "../src/vision.cpp"
 
+
 class Camera_PubSub : public rclcpp::Node
 {    
 public:
-    Camera_PubSub() : Node("camera_pubsub"){
+    Camera_PubSub(int x) : Node("camera_pubsub"){
+    //Camera_PubSub(rclcpp::NodeHandle &nh, image_transport::ImageTransport &it){
         publisher_ = this->create_publisher<std_msgs::msg::String>("my_cool_ass_topic", 1); //normally 1, queue size qued est 1
         timer_ = this->create_wall_timer(500ms, std::bind(&Camera_PubSub::timer_callback, this));
+
+        //it(this);
+        //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
+        //image_transport::ImageTransport it(this);
+        //image_transport::Subscriber sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
+        //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
     }
 
 private:
     // Subscriber
-    rclcpp::NodeOptions options;
-    rclcpp::Node::SharedPtr node;
-    image_transport::ImageTransport it;
+    //rclcpp::NodeOptions options;
+    //rclcpp::Node::SharedPtr node;
+    //image_transport::ImageTransport it;
     image_transport::Subscriber sub;
     void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg){
         std::vector<cv::Vec3f> circles;
@@ -56,30 +66,24 @@ private:
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
         publisher_->publish(message);
     }
-
-  
-}
-
 };
 
-camera_pubsub::camera_pubsub(/* args */) : Node("cam_pubsub")
-{   
-    rclcpp::init(argc, argv);
-    node = rclcpp::Node::make_shared("cam_pubsub", options);
-    it(node);
-    sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallbackCircleDetect);
-}
-
-
-camera_pubsub::~camera_pubsub()
-{
-}
 
 int main(int argc, char * argv[])
 {
-    rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Camera_PubSub>());
+    // Create CV Window    
+    cv::namedWindow("view");
+    cv::startWindowThread();
+    
+    
+    rclcpp::Node:SharedPTR nh;
+    
+    image_transport::ImageTransport it(nh);
+    rclcpp::init(argc, argv, "camera_pubsub");
 
+    rclcpp::spin(std::make_shared<Camera_PubSub>(it));
+    
+    cv::destroyWindow("view");
     rclcpp::shutdown();
     return 0;
 }
