@@ -3,51 +3,18 @@
 #include "std_msgs/msg/string.hpp"
 #include "cv_bridge/cv_bridge.h"
 #include "image_transport/image_transport.hpp"
-#include "opencv2/highgui.hpp"
-#include <opencv2/opencv.hpp>
 #include "rclcpp/logging.hpp"
 #include "sensor_msgs/msg/image.hpp"
-#include <vector>
 #include <iostream>
+#include <chrono> //500ms
 
+#include "../src/vision.cpp"
 
+using namespace std::chrono_literals; //Ugly, yet necessarry
+// Create publisher (For hough circle data)
+rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
 
-using std::placeholders::_1; // MIght not be necessary
-
-std::vector<cv::Vec3f> detect_circles(cv::Mat &image){
-
-    std::vector<cv::Vec3f> circles;
-    cv::Mat gray;
-    cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-    cv::medianBlur(gray, gray, 5);
-    
-    cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1,
-                 gray.rows/16,  // change this value to detect circles with different distances to each other
-                 100, 25,
-                  1, 30 // (min_radius & max_radius) to detect larger circles
-    );
- 
-    //Draw center and outline of all detected circles 
-    for( size_t i = 0; i < circles.size(); i++ )
-    {
-        cv::Vec3i c = circles[i];
-        cv::Point center = cv::Point(c[0], c[1]);
-
-        // circle center
-        cv::circle( image, center, 1, cv::Scalar(0,100,100), 3, cv::LINE_AA);
-        
-        // circle outline
-        int radius = c[2];
-        cv::circle( image, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
-    }
-  //Return detected circles
-
-  return circles;
-
-}
-
-
-void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg) //Image::ConstSharedPtr & msg //Image::SharedPtr  msg
+void imageCallbackCircleDetect(const sensor_msgs::msg::Image::ConstSharedPtr & msg) //Image::ConstSharedPtr & msg //Image::SharedPtr  msg
 {
 
   std::vector<cv::Vec3f> circles;
@@ -55,25 +22,50 @@ void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg) //Image:
   try {
 
     circles = detect_circles(src);
+
+
+    cv::putText(src, //target image
+          "Detected " + std::to_string(circles.size() ) + " circles" , //text
+          cv::Point(10, src.rows / 10), //top-left position
+          cv::FONT_HERSHEY_DUPLEX,
+          0.6,
+          CV_RGB(225, 255, 255), //font color
+          2);
+
     cv::imshow("view", src);
+
     // cv::waitKey(10);
   } catch (const cv_bridge::Exception & e) {
     auto logger = rclcpp::get_logger("my_subscriber");
     RCLCPP_ERROR(logger, "Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
   }
+}
 
-  cv::putText(src, //target image
-            "Detected " + std::to_string(circles.size() ) + " circles" , //text
-            cv::Point(10, src.rows / 10), //top-left position
-            cv::FONT_HERSHEY_DUPLEX,
-            0.6,
-            CV_RGB(225, 255, 255), //font color
-            2);
 
-  cv::imshow("view", src);
+void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg) //Image::ConstSharedPtr & msg //Image::SharedPtr  msg
+{
 
+  cv::Mat src = cv_bridge::toCvShare(msg, "bgr8")->image;
+  try {
+    cv::imshow("view", src);
+  } catch (const cv_bridge::Exception & e) {
+    auto logger = rclcpp::get_logger("my_subscriber");
+    RCLCPP_ERROR(logger, "Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+  }
 
 }
+
+void timer_callback(rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_)
+{
+  size_t count_ = 0;
+  auto message = std_msgs::msg::String();
+  message.data = "Hello, world! " + std::to_string(count_++);
+  // RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+  auto logger = rclcpp::get_logger("my_publisher");
+  RCLCPP_INFO(logger, "Publishing: '%s'", message.data.c_str());
+  publisher_->publish(message);
+}
+
 
 
 
@@ -89,7 +81,13 @@ int main(int argc, char * argv[])
     
     // Image transport
     image_transport::ImageTransport it(node);//it(nh);
-    image_transport::Subscriber sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
+    image_transport::Subscriber sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallbackCircleDetect);
+
+    // Create publisher (For hough circle data)
+    rclcpp::TimerBase::SharedPtr timer_;
+    publisher_ = node->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1
+    timer_ = node->create_wall_timer(500ms, std::bind(&timer_callback, node));
+    //timer_ = node->create_wall_timer(500ms, []() -> void { timer_callback(publisher_); });
 
     //Start node
     rclcpp::spin(node);
