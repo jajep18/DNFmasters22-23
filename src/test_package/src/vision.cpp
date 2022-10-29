@@ -32,8 +32,15 @@ std::vector<cv::Vec3f> detect_circles(cv::Mat &image){
         int radius = c[2];
         cv::circle( image, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
     }
-  //Return detected circles
+  cv::putText(image, //target image
+                "Detected " + std::to_string(circles.size() ) + " circles" ,    // Text
+                cv::Point(10, image.rows / 10),   // Top-left position
+                cv::FONT_HERSHEY_DUPLEX,
+                0.6,
+                CV_RGB(225, 255, 255),  // Font color
+                2);
 
+  //Return detected circles
   return circles;
 
 }

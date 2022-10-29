@@ -29,11 +29,10 @@ using std::placeholders::_1;
 class MinimalSubscriber : public rclcpp::Node
 {
 public:
-  MinimalSubscriber()
-  : Node("minimal_subscriber")
+  MinimalSubscriber() : Node("minimal_subscriber")
   {
     subscription_ = this->create_subscription<std_msgs::msg::String>(
-      "cam_circle_topic", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+      "my_cool_ass_topic", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
   }
 
 private:

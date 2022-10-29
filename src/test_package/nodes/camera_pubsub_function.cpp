@@ -9,19 +9,23 @@
 #include "sensor_msgs/msg/image.hpp"
 //Includes for publishing
 #include <chrono> //for 500ms
-using namespace std::chrono_literals; //Ugly, yet necessarry
+#include "custom_msgs/msg/circle_info.hpp" //Custom message type for circles
+#include "custom_msgs/msg/circle_info_arr.hpp" //Custom message type for array of circles
+
 #include <string>
 
 
 //Include our own source libraries
 #include "../src/vision.cpp"
+using namespace std::chrono_literals; //Ugly, yet necessarry
 
 
 class Camera_PubSub : public rclcpp::Node
 {    
 public:
     Camera_PubSub() : Node("camera_pubsub"){
-        publisher_    = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
+        //publisher_    = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
+        publisher_    = this->create_publisher<custom_msgs::msg::CircleInfoArr>("cam_circle_topic", 1); //normally 1, queue size qued est 1
         timer_        = this->create_wall_timer(5000ms, std::bind(&Camera_PubSub::timer_callback, this));
         subscription_ = this->create_subscription<sensor_msgs::msg::Image>("top_down_cam/custom_rgb/image_raw", 
                                                                             1, 
@@ -33,18 +37,12 @@ public:
 private:
     // Subscriber
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
+    std::vector<cv::Vec3f> circles; // Detected circles
     void topic_callback(const sensor_msgs::msg::Image::SharedPtr msg_image)
     {
         cv::Mat src = cv_bridge::toCvShare(msg_image, "bgr8")->image;
         try {
             circles = detect_circles(src);
-            cv::putText(src, //target image
-                "Detected " + std::to_string(circles.size() ) + " circles" ,    // Text
-                cv::Point(10, src.rows / 10),   // Top-left position
-                cv::FONT_HERSHEY_DUPLEX,
-                0.6,
-                CV_RGB(225, 255, 255),  // Font color
-                2);
             cv::imshow("view", src);
         } catch (const cv_bridge::Exception & e) {
             auto logger = rclcpp::get_logger("my_subscriber");
@@ -52,17 +50,26 @@ private:
         }
     }
 
-    std::vector<cv::Vec3f> circles; // Detected circles
-
     //Publisher
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+    rclcpp::Publisher<custom_msgs::msg::CircleInfoArr>::SharedPtr publisher_;
     size_t count_ = 0;
     std::string circleStr;
     void timer_callback(){
-        auto message = std_msgs::msg::String();
-        message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+        auto message = custom_msgs::msg::CircleInfoArr();
+        for(size_t i = 0; i < circles.size(); i++){
+            auto circle = custom_msgs::msg::CircleInfo();
+            circle.x = circles[i][0];
+            circle.y = circles[i][1];
+            circle.r = circles[i][2];
+            circle.bgr[0] = 0;
+            circle.bgr[1] = 0;
+            circle.bgr[2] = 0;
+            message.circles.push_back(circle);
+        }
+        //message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
+        // RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+        // RCLCPP_INFO_STREAM(this->get_logger(), "hello" << " world" << i);
         publisher_->publish(message);
     }
 };

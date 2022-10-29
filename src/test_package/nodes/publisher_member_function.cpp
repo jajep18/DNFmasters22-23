@@ -26,8 +26,7 @@ using namespace std::chrono_literals;
 class MinimalPublisher : public rclcpp::Node
 {
 public:
-  MinimalPublisher()
-  : Node("minimal_publisher"), count_(0)
+  MinimalPublisher() : Node("minimal_publisher"), count_(0)
   {
     publisher_ = this->create_publisher<std_msgs::msg::String>("my_cool_ass_topic", 1); //normally 1, queue size qued est 1
     timer_ = this->create_wall_timer(
