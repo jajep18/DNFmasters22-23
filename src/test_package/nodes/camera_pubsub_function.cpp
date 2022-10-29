@@ -10,6 +10,8 @@
 //Includes for publishing
 #include <chrono> //for 500ms
 using namespace std::chrono_literals; //Ugly, yet necessarry
+#include <string>
+
 
 
 //Include our own source libraries
@@ -20,12 +22,12 @@ class Camera_PubSub : public rclcpp::Node
 {    
 public:
     Camera_PubSub() : Node("camera_pubsub"){
-    //Camera_PubSub(image_transport::ImageTransport &it) : Node("camera_pubsub"){
     //Camera_PubSub(rclcpp::NodeHandle &nh, image_transport::ImageTransport &it){
         publisher_ = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
         timer_ = this->create_wall_timer(5000ms, std::bind(&Camera_PubSub::timer_callback, this));
 
         //subscription_ = this->create_subscription<sensor_msgs::msg::Image>("cam_circle_topic", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+        // subscription_ = this->create_subscription<sensor_msgs::msg::Image>("top_down_cam/custom_rgb/image_raw", 1, std::bind(&Camera_PubSub::topic_callback, this, std::placeholders::_1));
         // it(this);
         //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, &Camera_PubSub::imageCallback);
         //image_transport::ImageTransport it(this);
@@ -64,17 +66,55 @@ private:
         }
     }
 
+    // void topic_callback(const sensor_msgs::msg::Image::ConstSharedPtr & msg){}
+
     std::vector<cv::Vec3f> circles; // Detected circles
 
     //Publisher
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
     size_t count_ = 0;
+    std::string circleStr;
     void timer_callback(){
         auto message = std_msgs::msg::String();
-        message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
+        if (!circles.empty())
+            circleStr = vec3fToString(circles);
+        stringToVec3f(circleStr);
+        message.data = "Detected " + std::to_string(circles.size() ) + " circles!" +"dividerCounter = "+ std::to_string(dividerCounter) + testStr +" \n" + circleStr;
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
         publisher_->publish(message);
+    }
+
+    std::string vec3fToString(std::vector<cv::Vec3f> vec){
+        std::string vecStr;
+        for (size_t i = 0; i < vec.size(); i++)
+        {
+            vecStr.append(std::to_string(vec[i][0])+','+std::to_string(vec[i][1])+','+std::to_string(vec[i][2])+";");
+        }
+        return vecStr;
+    }
+
+    int dividerCounter = 0; //Delete this later!
+    std::string testStr;
+
+    //std::vector<cv::Vec3f> 
+    void stringToVec3f(std::string str){
+        dividerCounter = 0;
+
+        // cv::Vec3f 3fvec;
+        size_t pos = 0;  
+        std::string tempString; // define a string variable  
+        
+        // use find() function to get the position of the delimiters  
+        while ( ( pos = str.find(";") ) != std::string::npos)  
+        {  
+            tempString = str.substr(0, pos); // store the substring   
+            str.erase(0, pos + 1);  /* erase() function store the current positon and move to next token. */  
+            dividerCounter++; 
+            testStr.append(tempString);
+        }  
+
+        // return 3fvec;
     }
 };
 
