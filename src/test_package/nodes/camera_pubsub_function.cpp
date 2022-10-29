@@ -19,29 +19,34 @@ using namespace std::chrono_literals; //Ugly, yet necessarry
 class Camera_PubSub : public rclcpp::Node
 {    
 public:
-    Camera_PubSub(image_transport::ImageTransport &it) : Node("camera_pubsub"){
-    //Camera_PubSub() : Node("camera_pubsub"){
+    Camera_PubSub() : Node("camera_pubsub"){
+    //Camera_PubSub(image_transport::ImageTransport &it) : Node("camera_pubsub"){
     //Camera_PubSub(rclcpp::NodeHandle &nh, image_transport::ImageTransport &it){
         publisher_ = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
-        timer_ = this->create_wall_timer(500ms, std::bind(&Camera_PubSub::timer_callback, this));
+        timer_ = this->create_wall_timer(5000ms, std::bind(&Camera_PubSub::timer_callback, this));
 
         //subscription_ = this->create_subscription<sensor_msgs::msg::Image>("cam_circle_topic", 1, std::bind(&MinimalSubscriber::topic_callback, this, _1));
-        //it(this);
-        sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, &Camera_PubSub::imageCallback);
+        // it(this);
+        //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, &Camera_PubSub::imageCallback);
         //image_transport::ImageTransport it(this);
         //image_transport::Subscriber sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
         //sub = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, imageCallback);
     }
 
+    void set_subscription(image_transport::ImageTransport &it){
+        subscriber_ = it.subscribe("top_down_cam/custom_rgb/image_raw", 1, &Camera_PubSub::imageCallback, this);
+        // Subscriber image_transport::ImageTransport::subscribe 	( 	const std::string &  	base_topic,
+		// uint32_t  	queue_size,
+		// void(T::*)(const sensor_msgs::ImageConstPtr &)  	fp,
+		// const boost::shared_ptr< T > &  	obj,
+		// const TransportHints &  	transport_hints = TransportHints() 
+	// )
+    }
+
 private:
     // Subscriber
-    //rclcpp::NodeOptions options;
-    //rclcpp::Node::SharedPtr node_;
-    std::shared_ptr<rclcpp::Node> node_;
-    //image_transport::ImageTransport it;
-    image_transport::Subscriber sub;
+    image_transport::Subscriber subscriber_;
     void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr & msg){
-        std::vector<cv::Vec3f> circles;
         cv::Mat src = cv_bridge::toCvShare(msg, "bgr8")->image;
         try {
             circles = detect_circles(src);
@@ -59,13 +64,15 @@ private:
         }
     }
 
+    std::vector<cv::Vec3f> circles; // Detected circles
+
     //Publisher
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-    size_t count_;
+    size_t count_ = 0;
     void timer_callback(){
         auto message = std_msgs::msg::String();
-        message.data = "Hello, world! " + std::to_string(count_++);
+        message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
         publisher_->publish(message);
     }
@@ -74,17 +81,19 @@ private:
 
 int main(int argc, char * argv[])
 {
+    rclcpp::init(argc, argv);
+
     // Create CV Window    
     cv::namedWindow("view");
     cv::startWindowThread();
-    
-    
-    rclcpp::Node::SharedPtr node = shared_from_this();
+
+    std::shared_ptr<Camera_PubSub> node = std::make_shared<Camera_PubSub>();
     
     image_transport::ImageTransport it(node);
-    rclcpp::init(argc, argv);
-
-    rclcpp::spin(std::make_shared<Camera_PubSub>(node, it));
+    node->set_subscription(it);
+    
+    rclcpp::spin(node);
+    //rclcpp::spin(std::make_shared<Camera_PubSub>());
     
     cv::destroyWindow("view");
     rclcpp::shutdown();
