@@ -37,7 +37,7 @@ public:
 private:
     // Subscriber
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
-    std::vector<cv::Vec3f> circles; // Detected circles
+    std::vector<cv::Vec6f> circles; // Detected circles [ x y r B G R]
     void topic_callback(const sensor_msgs::msg::Image::SharedPtr msg_image)
     {
         cv::Mat src = cv_bridge::toCvShare(msg_image, "bgr8")->image;
@@ -54,17 +54,18 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<custom_msgs::msg::CircleInfoArr>::SharedPtr publisher_;
     size_t count_ = 0;
-    std::string circleStr;
+
+    
     void timer_callback(){
         auto message = custom_msgs::msg::CircleInfoArr();
         for(size_t i = 0; i < circles.size(); i++){
             auto circle = custom_msgs::msg::CircleInfo();
-            circle.x = circles[i][0];
-            circle.y = circles[i][1];
-            circle.r = circles[i][2];
-            circle.bgr[0] = 0;
-            circle.bgr[1] = 0;
-            circle.bgr[2] = 0;
+            circle.x        = circles[i][0];
+            circle.y        = circles[i][1];
+            circle.r        = circles[i][2];
+            circle.bgr[0]   = circles[i][3];
+            circle.bgr[1]   = circles[i][4];
+            circle.bgr[2]   = circles[i][5];
             message.circles.push_back(circle);
         }
         //message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
