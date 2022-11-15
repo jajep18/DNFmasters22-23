@@ -30,9 +30,12 @@ private:
             circle_log += " x=" + std::to_string(msg->circles[i].x);
             circle_log += " y=" + std::to_string(msg->circles[i].y);
             circle_log += " r=" + std::to_string(msg->circles[i].r);
-            circle_log += " b/g/r = " + std::to_string(msg->circles[i].bgr[0]) + "/"
-                                      + std::to_string(msg->circles[i].bgr[1]) + "/"
-                                      + std::to_string(msg->circles[i].bgr[2]);
+            circle_log += " b/g/r means = " + std::to_string(msg->circles[i].bgr_mean[0]) + "/"
+                                            + std::to_string(msg->circles[i].bgr_mean[1]) + "/"
+                                            + std::to_string(msg->circles[i].bgr_mean[2]);
+            circle_log += " b/g/r var = "   + std::to_string(msg->circles[i].bgr_var [0]) + "/"
+                                            + std::to_string(msg->circles[i].bgr_var [1]) + "/"
+                                            + std::to_string(msg->circles[i].bgr_var [2]);
         }
         RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!" << circle_log);
     } else {

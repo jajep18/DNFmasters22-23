@@ -26,7 +26,7 @@ public:
     Camera_PubSub() : Node("camera_pubsub"){
         //publisher_    = this->create_publisher<std_msgs::msg::String>("cam_circle_topic", 1); //normally 1, queue size qued est 1
         publisher_    = this->create_publisher<custom_msgs::msg::CircleInfoArr>("cam_circle_topic", 1); //normally 1, queue size qued est 1
-        timer_        = this->create_wall_timer(5000ms, std::bind(&Camera_PubSub::timer_callback, this));
+        timer_        = this->create_wall_timer(8000ms, std::bind(&Camera_PubSub::timer_callback, this));
         subscription_ = this->create_subscription<sensor_msgs::msg::Image>("top_down_cam/custom_rgb/image_raw", 
                                                                             1, 
                                                                             std::bind(&Camera_PubSub::topic_callback, 
@@ -37,12 +37,13 @@ public:
 private:
     // Subscriber
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
-    std::vector<cv::Vec6f> circles; // Detected circles [ x y r B G R]
+    //std::vector<cv::Vec6f> circles; // Detected circles [ x y r B G R]
+    custom_msgs::msg::CircleInfoArr m_circleInfoArr;
     void topic_callback(const sensor_msgs::msg::Image::SharedPtr msg_image)
     {
         cv::Mat src = cv_bridge::toCvShare(msg_image, "bgr8")->image;
         try {
-            circles = detect_circles(src);
+            m_circleInfoArr = detect_circles(src);
             cv::imshow("view", src);
         } catch (const cv_bridge::Exception & e) {
             auto logger = rclcpp::get_logger("my_subscriber");
@@ -57,17 +58,18 @@ private:
 
     
     void timer_callback(){
-        auto message = custom_msgs::msg::CircleInfoArr();
-        for(size_t i = 0; i < circles.size(); i++){
-            auto circle = custom_msgs::msg::CircleInfo();
-            circle.x        = circles[i][0];
-            circle.y        = circles[i][1];
-            circle.r        = circles[i][2];
-            circle.bgr[0]   = circles[i][3];
-            circle.bgr[1]   = circles[i][4];
-            circle.bgr[2]   = circles[i][5];
-            message.circles.push_back(circle);
-        }
+        auto message = m_circleInfoArr;
+        //auto message = custom_msgs::msg::CircleInfoArr();
+        // for(size_t i = 0; i < circles.size(); i++){
+        //     auto circle = custom_msgs::msg::CircleInfo();
+        //     circle.x        = circles[i][0];
+        //     circle.y        = circles[i][1];
+        //     circle.r        = circles[i][2];
+        //     // circle.bgr[0]   = circles[i][3];
+        //     // circle.bgr[1]   = circles[i][4];
+        //     // circle.bgr[2]   = circles[i][5];
+        //     message.circles.push_back(circle);
+        // }
         //message.data = "Detected " + std::to_string(circles.size() ) + " circles!";
         // RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
         // RCLCPP_INFO_STREAM(this->get_logger(), "hello" << " world" << i);
