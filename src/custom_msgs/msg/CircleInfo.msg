@@ -1,4 +1,5 @@
 int16 x
 int16 y
 float64 r
-int8[3] bgr
+float32[3] bgr_mean
+float32[3] bgr_var
