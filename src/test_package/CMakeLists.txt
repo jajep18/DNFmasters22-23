@@ -11,6 +11,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# Add torch library to CMAKE prefix path
+list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch")
+#set(CMAKE_PREFIX_PATH "~/Documents/libtorch/share/cmake/Torch")
+
 # find dependencies
 find_package(gazebo_dev REQUIRED)
 find_package(ament_cmake REQUIRED)
@@ -23,6 +27,11 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
+find_package(Torch REQUIRED)
+
+# Torch setup
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+#target_link_libraries(test_package "${TORCH_LIBRARIES}")
 
 ## Assets (launch files, models, ...)
 install(
@@ -49,6 +58,12 @@ add_executable(cam_pubsub nodes/camera_pubsub_function.cpp)
 ament_target_dependencies(cam_pubsub custom_msgs rclcpp std_msgs OpenCV image_transport cv_bridge)
 add_executable(circle_listener nodes/circle_subscriber_function.cpp)
 ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs)
+add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
+ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
+
+# Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch
+target_link_libraries(dnf_pubsub "${TORCH_LIBRARIES}")
+
 
 install(TARGETS
   # cam_funcs
@@ -56,6 +71,7 @@ install(TARGETS
   my_listener
   cam_pubsub
   circle_listener
+  dnf_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
 

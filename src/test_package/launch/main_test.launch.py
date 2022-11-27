@@ -50,7 +50,11 @@ def generate_launch_description():
         executable='circle_listener'
     )      
 
-    
+    node_dnf = Node(
+        package=package_name,
+        executable="dnf_pubsub"
+    )
+
 
     return LaunchDescription([
         # DeclareLaunchArgument(
@@ -66,5 +70,6 @@ def generate_launch_description():
         #node_listener,
         #node_talker,
         node_campubsub,   
-        node_circlesub     
+        node_circlesub,
+        node_dnf     
     ])

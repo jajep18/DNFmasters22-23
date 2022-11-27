@@ -19,8 +19,8 @@ custom_msgs::msg::CircleInfo calcColorInfo(cv::Mat image, cv::Vec3f circle){
   //Calculate mean color of ROI
   std::vector<cv::Vec3b> pixels;
   float bgr_mean[3] = {0, 0, 0};
-  for (size_t row = 0; row < image.rows; row++){
-    for (size_t col = 0; col < image.cols; col++){
+  for (int row = 0; row < image.rows; row++){
+    for (int col = 0; col < image.cols; col++){
       // Check if pixel is inside circle
       if( ( sqrt( pow(col-circle[0],2) + pow(row-circle[1],2) ) <= circle[2]-2 ) ) { //Todo optimize sqrt, -2 because no outlier removal yet
         // Get pixel in image
@@ -94,7 +94,7 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
         cv::Point center = cv::Point(circle[0], circle[1]);
 
         //Circle color
-        cv::Vec3b color = image.at<cv::Vec3b>(center);
+        //cv::Vec3b color = image.at<cv::Vec3b>(center);
         auto circleInfo = calcColorInfo(og_image, circle);
         circleInfoArr.circles.push_back(circleInfo);
 
@@ -106,7 +106,7 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
         cv::circle( image, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
 
         cv::putText(image, //target image
-              std::to_string(i),    // Text
+              std::to_string(i),    // Text½
               center,
               cv::FONT_HERSHEY_DUPLEX,
               0.6,
