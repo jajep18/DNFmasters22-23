@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Add torch library to CMAKE prefix path
+# Add torch library to CMAKE prefix path //Needed in clean builds
 list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch")
 #set(CMAKE_PREFIX_PATH "~/Documents/libtorch/share/cmake/Torch")
 
@@ -31,7 +31,6 @@ find_package(Torch REQUIRED)
 
 # Torch setup
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-#target_link_libraries(test_package "${TORCH_LIBRARIES}")
 
 ## Assets (launch files, models, ...)
 install(
@@ -59,10 +58,16 @@ ament_target_dependencies(cam_pubsub custom_msgs rclcpp std_msgs OpenCV image_tr
 add_executable(circle_listener nodes/circle_subscriber_function.cpp)
 ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs)
 add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
+#ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV)
 ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
 
 # Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch
-target_link_libraries(dnf_pubsub "${TORCH_LIBRARIES}")
+if(NOT Torch_FOUND)
+  message(FATAL_ERROR "Torch not found!")
+endif(NOT Torch_FOUND)
+message(STATUS "Pytorch status:")
+message(STATUS "    libraries: ${TORCH_LIBRARIES}")
+target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES})
 
 
 install(TARGETS

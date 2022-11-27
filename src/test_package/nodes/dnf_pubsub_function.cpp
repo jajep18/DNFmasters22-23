@@ -1,9 +1,9 @@
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "rclcpp/logging.hpp" //For "get_logger"
 
 // Highly experimental (because cmake is nuclear)
-#include <torch/torch.h>
 #include <iostream>
 #include "../src/dnf.cpp"
 
@@ -19,6 +19,7 @@ public:
   DNFNode() : Node("dnf_pubsub"){
     subscription_ = this->create_subscription<custom_msgs::msg::CircleInfoArr>(
       "cam_circle_topic", 1, std::bind(&DNFNode::topic_callback, this, _1));
+    DNFinit();
   }
 
 private:
@@ -38,10 +39,10 @@ private:
         //                                     + std::to_string(msg->circles[i].bgr_var [2]);
         // }
         // RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!" << circle_log);
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.\n");
+        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!");
     } else {
         //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.\n");
+        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.");
     }
     
   }
@@ -52,9 +53,6 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  torch::Tensor myTensor = torch::rand({2,3});
-  std::cout << "Here is the example tensor: " << myTensor << std::endl;
-
   rclcpp::spin(std::make_shared<DNFNode>());
 
   rclcpp::shutdown();

@@ -40,7 +40,7 @@ private:
         RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!" << circle_log);
     } else {
         //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.\n");
+        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.");
     }
     
   }

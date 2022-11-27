@@ -70,6 +70,6 @@ def generate_launch_description():
         #node_listener,
         #node_talker,
         node_campubsub,   
-        node_circlesub,
+        #node_circlesub,
         node_dnf     
     ])
