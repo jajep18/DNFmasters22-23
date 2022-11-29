@@ -39,13 +39,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 install(
   DIRECTORY
     launch
-    models
-    worlds
   DESTINATION share/${PROJECT_NAME}/
 )
-
-## Environment hooks
-ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
 
 ## Include headers (.hpp in includes) as library
 
@@ -67,11 +62,6 @@ target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES})
 #####################################################################################################
 # ------------------------------ Install Target & Ament dependencies ------------------------------ #
 install(TARGETS
-  # cam_funcs
-  my_talker
-  my_listener
-  cam_pubsub
-  circle_listener
   dnf_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
