@@ -19,7 +19,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    package_name = 'test_package'
+    package_name = 'main_package'
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     pkg_dolly_gazebo = get_package_share_directory(package_name)
 
