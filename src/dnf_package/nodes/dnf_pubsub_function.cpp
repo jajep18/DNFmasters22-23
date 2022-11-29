@@ -2,10 +2,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "rclcpp/logging.hpp" //For "get_logger"
-
-// Highly experimental (because cmake is nuclear)
 #include <iostream>
-#include "../src/dnf.cpp"
+#include "../src/dnf_lib.cpp"
 
 // Custom messages
 #include "custom_msgs/msg/circle_info.hpp"

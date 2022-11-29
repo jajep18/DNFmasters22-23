@@ -43,6 +43,7 @@ install(
 )
 
 ## Include headers (.hpp in includes) as library
+include_directories(include)
 
 #####################################################################################################
 # ---------------------------------------- Add Executables ---------------------------------------- #
@@ -60,11 +61,14 @@ message(STATUS "    libraries: ${TORCH_LIBRARIES}")
 target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES})
 
 #####################################################################################################
-# ------------------------------ Install Target & Ament dependencies ------------------------------ #
+# ------------------------------- Install Target, Directory, Ament -------------------------------- #
 install(TARGETS
   dnf_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY include/
+  DESTINATION include)
+ament_export_include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

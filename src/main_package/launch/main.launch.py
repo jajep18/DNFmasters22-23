@@ -19,8 +19,9 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    package_name = 'main_package'
-    pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
+    package_name     = 'main_package'
+    dnf_package_name = 'dnf_package'
+    pkg_gazebo_ros   = get_package_share_directory('gazebo_ros')
     pkg_dolly_gazebo = get_package_share_directory(package_name)
 
     # Gazebo launch
@@ -30,15 +31,15 @@ def generate_launch_description():
         )
     )
 
-    node_listener = Node(
-        package=package_name,
-        executable='my_listener'
-    )
+    # node_listener = Node(
+    #     package=package_name,
+    #     executable='my_listener'
+    # )
 
-    node_talker = Node(
-        package=package_name,
-        executable='my_talker'
-    )
+    # node_talker = Node(
+    #     package=package_name,
+    #     executable='my_talker'
+    # )
 
     node_campubsub = Node(
         package=package_name,
@@ -51,7 +52,7 @@ def generate_launch_description():
     )      
 
     node_dnf = Node(
-        package=package_name,
+        package=dnf_package_name,
         executable="dnf_pubsub"
     )
 
