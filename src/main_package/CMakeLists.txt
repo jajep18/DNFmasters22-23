@@ -11,13 +11,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 #####################################################################################################
-# ------------------------------------- Append Prefix Path ---------------------------------------- #
-
-# Add torch library to CMAKE prefix path //Needed in clean builds //Change to local libtorch installation
-list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
-#list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Floe
-
-#####################################################################################################
 # ------------------------------------- Find Dependencies ----------------------------------------- #
 find_package(gazebo_dev REQUIRED)
 find_package(ament_cmake REQUIRED)
@@ -30,10 +23,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
-find_package(Torch REQUIRED)
-
-# Torch setup
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+#find_package(dnf_package)
 
 ## Assets (launch files, models, ...)
 install(
@@ -68,18 +58,6 @@ ament_target_dependencies(cam_pubsub custom_msgs rclcpp std_msgs OpenCV image_tr
 add_executable(circle_listener nodes/circle_subscriber_function.cpp)
 ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs)
 
-## DNF publisher/subscriber
-add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
-ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
-
-# Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch
-if(NOT Torch_FOUND)
-  message(FATAL_ERROR "Torch not found!")
-endif(NOT Torch_FOUND)
-message(STATUS "Pytorch status:") #Debug to events.log
-message(STATUS "    libraries: ${TORCH_LIBRARIES}")
-target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES})
-
 #####################################################################################################
 # ------------------------------ Install Target & Ament dependencies ------------------------------ #
 install(TARGETS
@@ -88,7 +66,6 @@ install(TARGETS
   my_listener
   cam_pubsub
   circle_listener
-  dnf_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
 
