@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>main_package</name>
+  <name>dnf_package</name>
   <version>0.0.0</version>
-  <description>TODO: This package handles the simulation and sensor topics</description>
+  <description>TODO: This package handles the dnf architecture</description>
   <maintainer email="jajep18@student.sdu.dk">jacob</maintainer>
   <license>TODO: License declaration - This project is for a masters thesis by Jajep18 and Ercos18. </license>
 

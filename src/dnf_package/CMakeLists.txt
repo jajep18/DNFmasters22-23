@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(main_package)
+project(dnf_package)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -52,22 +52,6 @@ ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.d
 #####################################################################################################
 # ---------------------------------------- Add Executables ---------------------------------------- #
 
-## Talker node
-add_executable(my_talker nodes/publisher_member_function.cpp)
-ament_target_dependencies(my_talker rclcpp std_msgs)
-
-## Listener node
-add_executable(my_listener nodes/subscriber_member_function.cpp)
-ament_target_dependencies(my_listener rclcpp std_msgs)
-
-## Camera publisher/subscriber node
-add_executable(cam_pubsub nodes/camera_pubsub_function.cpp)
-ament_target_dependencies(cam_pubsub custom_msgs rclcpp std_msgs OpenCV image_transport cv_bridge)
-
-## Circle information subscriber node
-add_executable(circle_listener nodes/circle_subscriber_function.cpp)
-ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs)
-
 ## DNF publisher/subscriber
 add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
 ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
@@ -76,7 +60,7 @@ ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
 if(NOT Torch_FOUND)
   message(FATAL_ERROR "Torch not found!")
 endif(NOT Torch_FOUND)
-message(STATUS "Pytorch status:") #Debug to events.log
+message(STATUS "Pytorch status:")
 message(STATUS "    libraries: ${TORCH_LIBRARIES}")
 target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES})
 
