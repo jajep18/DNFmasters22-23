@@ -1,7 +1,8 @@
 <?xml version="1.0" ?>
 
-
+<!-- SDF language version -->
 <sdf version="1.6">
+  <!-- World -->
   <world name="Environment v2.0">
 
     <!-- Add sun to world -->
