@@ -64,7 +64,7 @@ def generate_launch_description():
         #     description='Extra runtime info.'),
         DeclareLaunchArgument(
           'world',
-          default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'env_v1_0.world'), ''],
+          default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
           #default_value='test_package/test_package/worlds/dolly_empty.world',
           description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
         gazebo,
