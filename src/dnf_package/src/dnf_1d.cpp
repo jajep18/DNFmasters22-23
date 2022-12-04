@@ -9,7 +9,7 @@
 
 
 // Constructor
-DNF_1D::DNF_1D(int _dimensions, bool debug=true) {
+DNF_1D::DNF_1D(int _dimensions, bool debug) {
     // Set dimensions
     m_dimensions = _dimensions;
 

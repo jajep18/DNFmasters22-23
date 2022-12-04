@@ -3,7 +3,7 @@
 #include "std_msgs/msg/string.hpp"
 #include "rclcpp/logging.hpp" //For "get_logger"
 #include <iostream>
-//#include "../src/dnf_lib.cpp"
+#include "../src/dnf_lib.cpp"
 #include <torch/torch.h>//
 
 // Custom messages
@@ -18,7 +18,7 @@ public:
   DNFNode() : Node("dnf_pubsub"){
     subscription_ = this->create_subscription<custom_msgs::msg::CircleInfoArr>(
       "cam_circle_topic", 1, std::bind(&DNFNode::topic_callback, this, _1));
-    //DNFinit();
+    DNFinit();
   }
 
 private:
