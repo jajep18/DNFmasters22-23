@@ -1,7 +1,11 @@
 # DNFmasters22-23
 DNF master project between Erik Lindby and Jacob Fløe Jeppesen
 
-#Quickguide: Terminal 1:
+# Launch Files
+ros2 launch main_package main.launch.py
+This launch files sets up a world with a table, camera and 3 balls.
+
+# Quickguide to ros2: Terminal 1:
 sfoxy
 sgz
 colcon build
