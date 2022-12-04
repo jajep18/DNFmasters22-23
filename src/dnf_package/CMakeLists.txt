@@ -14,8 +14,8 @@ endif()
 # ------------------------------------- Append Prefix Path ---------------------------------------- #
 
 # Add torch library to CMAKE prefix path //Needed in clean builds //Change to local libtorch installation
-list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
-#list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Floe
+#list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
+list(APPEND CMAKE_PREFIX_PATH "/home/jacob/libtorch/share/cmake/Torch") #Floe
 
 #####################################################################################################
 # ------------------------------------- Find Dependencies ----------------------------------------- #
@@ -43,7 +43,7 @@ install(
 )
 
 ## Include headers (.hpp in includes) as library
-include_directories(include)
+#include_directories(include)
 
 #####################################################################################################
 # ---------------------------------------- Add Executables ---------------------------------------- #
@@ -66,9 +66,9 @@ install(TARGETS
   dnf_pubsub
   DESTINATION lib/${PROJECT_NAME})
 
-install(DIRECTORY include/
-  DESTINATION include)
-ament_export_include_directories(include)
+#install(DIRECTORY include/
+#  DESTINATION include)
+#ament_export_include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
