@@ -31,16 +31,6 @@ def generate_launch_description():
         )
     )
 
-    # node_listener = Node(
-    #     package=package_name,
-    #     executable='my_listener'
-    # )
-
-    # node_talker = Node(
-    #     package=package_name,
-    #     executable='my_talker'
-    # )
-
     node_campubsub = Node(
         package=package_name,
         executable='cam_pubsub'
@@ -68,8 +58,6 @@ def generate_launch_description():
           #default_value='test_package/test_package/worlds/dolly_empty.world',
           description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
         gazebo,
-        #node_listener,
-        #node_talker,
         node_campubsub,   
         #node_circlesub,
         node_dnf     
