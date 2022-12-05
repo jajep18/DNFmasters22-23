@@ -16,17 +16,20 @@ sfoxy
 rviz2
 
 # Notes on libtorch
-When clean building the cmakelist needs to be given the path to the pre-built libtorch library
-At runtime the OS also needs to know where the dynamic library is, so we need to give the path to LD_LIBRARY_PATH
+When clean building the cmakelist needs to be given your path to the pre-built libtorch library. Change it in the CMakeLists.txt in dnf_package.
+At runtime the OS also needs to know where the dynamic library is, so you need to append the path to LD_LIBRARY_PATH (set it up in .bashrc)
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/Qt/5.15.2/gcc_64/lib:/Yourpath/libtorch/lib
+
 
 # Notes on compiling ROS2 in general
 Can run single nodes: ros2 run main_package dnf_pubsub
+pkg select (sic?) to build specific packages only
 Can compile specific packages instead of all packages: colcon build --packages-select <pkg_name> --symlink-install
 colcon build --packages-select main_package
 
 # Notes. on rename
 delete build, install and log on renaming, and re-run 'colcon build'
-pkg select (sic?) to build specific packages only
+
 
 # Topics, services actions
 ros2 topic list
