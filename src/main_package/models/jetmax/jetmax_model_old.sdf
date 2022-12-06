@@ -1,0 +1,46 @@
+<?xml version="1.0" ?>
+<sdf version='1.7'>
+  <!-- Model -->
+  <model name='jetmax'>
+    <!-- Base joint -->
+    <joint name='base_joint' type='fixed'>
+      <pose relative_to='__model__'>0 0 0 0 -0 0</pose>
+      <parent>world</parent>
+      <child>Base</child>
+    </joint>
+    <!-- Base -->
+    <link name='Base'>
+      <pose relative_to='base_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.010476 0.000747 0.035226 0 -0 0</pose>
+        <mass>1.886</mass>
+        <inertia>
+          <ixx>0.00119622</ixx>
+          <ixy>-2.9358e-05</ixy>
+          <ixz>1.4859e-05</ixz>
+          <iyy>0.001148</iyy>
+          <iyz>1.6274e-05</iyz>
+          <izz>0.00142562</izz>
+        </inertia>
+      </inertial>
+      <collision name='Base_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax_description/meshes/Base.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Base_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax_description/meshes/Base.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link> <!-- Base end -->
+  </model>
+</sdf>

@@ -1,0 +1,538 @@
+<?xml version="1.0"?>
+<sdf version='1.7'>
+  <model name='jetmax'>
+    <joint name='base_joint' type='fixed'>
+      <pose relative_to='__model__'>0 0 0 0 -0 0</pose>
+      <parent>world</parent>
+      <child>Base</child>
+    </joint>
+    <!-- Base link -->
+    <link name='Base'>
+      <pose relative_to='base_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.010476 0.000747 0.035226 0 -0 0</pose>
+        <mass>1.886</mass>
+        <inertia>
+          <ixx>0.00119622</ixx>
+          <ixy>-2.9358e-05</ixy>
+          <ixz>1.4859e-05</ixz>
+          <iyy>0.001148</iyy>
+          <iyz>1.6274e-05</iyz>
+          <izz>0.00142562</izz>
+        </inertia>
+      </inertial>
+      <collision name='Base_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Base.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Base_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Base.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <!-- End of Base link -->
+    
+    <joint name='Joint1' type='revolute'>
+      <pose relative_to='Base'>0 0 0.064273 0 -0 0</pose>
+      <parent>Base</parent>
+      <child>Link1</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link1'>
+      <pose relative_to='Joint1'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.000135 0.001093 0.018311 0 -0 0</pose>
+        <mass>0.0728933</mass>
+        <inertia>
+          <ixx>2.14299e-05</ixx>
+          <ixy>-2.89607e-07</ixy>
+          <ixz>-2.50233e-07</ixz>
+          <iyy>2.91749e-05</iyy>
+          <iyz>-4.66708e-07</iyz>
+          <izz>3.69554e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link1_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link1.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link1_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link1.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint2' type='revolute'>
+      <pose relative_to='Link1'>-0.00414 -0.008135 0.021592 0 -0 0</pose>
+      <parent>Link1</parent>
+      <child>Link2</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link2'>
+      <pose relative_to='Joint2'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.007653 -0.00564 0.06457 0 -0 0</pose>
+        <mass>0.00784724</mass>
+        <inertia>
+          <ixx>1.22077e-05</ixx>
+          <ixy>-2.56626e-12</ixy>
+          <ixz>2.18721e-11</ixz>
+          <iyy>1.20635e-05</iyy>
+          <iyz>-8.37811e-09</iyz>
+          <izz>1.85111e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link2_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link2.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link2_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link2.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint3' type='revolute'>
+      <pose relative_to='Link2'>-0.003388 0 0.12845 -0.001179 0 0</pose>
+      <parent>Link2</parent>
+      <child>Link3</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.45</lower>
+          <upper>1.45</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link3'>
+      <pose relative_to='Joint3'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.011102 -0.051072 0.010583 0 -0 0</pose>
+        <mass>0.0132978</mass>
+        <inertia>
+          <ixx>3.54887e-05</ixx>
+          <ixy>5.12462e-10</ixy>
+          <ixz>-2.37661e-12</ixz>
+          <iyy>4.55006e-07</iyy>
+          <iyz>-8.87585e-09</iyz>
+          <izz>3.52739e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link3_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link3.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link3_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link3.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint8' type='revolute'>
+      <pose relative_to='Link3'>0 -0.138 -0.000164 0.001179 -0 0</pose>
+      <parent>Link3</parent>
+      <child>Link8</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link8'>
+      <pose relative_to='Joint8'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.008556 -0.030592 -0.01668 0 -0 0</pose>
+        <mass>0.0255415</mass>
+        <inertia>
+          <ixx>3.45278e-06</ixx>
+          <ixy>6.51983e-08</ixy>
+          <ixz>-2.2265e-07</ixz>
+          <iyy>2.56448e-06</iyy>
+          <iyz>1.51485e-07</iyz>
+          <izz>4.22998e-06</izz>
+        </inertia>
+      </inertial>
+      <visual name='Link8_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Suction.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint9' type='revolute'>
+      <pose relative_to='Link8'>0.031695 -0.034122 0.024493 0 -0 0</pose>
+      <parent>Link8</parent>
+      <child>Link9</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link9'>
+      <pose relative_to='Joint9'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.003121 0.069 3e-06 0 -0 0</pose>
+        <mass>0.0050595</mass>
+        <inertia>
+          <ixx>1.31458e-05</ixx>
+          <ixy>-6.34741e-13</ixy>
+          <ixz>-3.75233e-12</ixz>
+          <iyy>4.9636e-08</iyy>
+          <iyz>-3.0191e-11</iyz>
+          <izz>1.3114e-05</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link9_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link9.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link9_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link9.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='virtual_end_joint' type='revolute'>
+      <pose relative_to='Link8'>0.01 -0.017 -0.075 0 -0 0</pose>
+      <parent>Link8</parent>
+      <child>virtual_end_effector</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>1</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='virtual_end_effector'>
+      <pose relative_to='virtual_end_joint'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>3.333e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>3.333e-08</iyy>
+          <iyz>0</iyz>
+          <izz>5e-08</izz>
+        </inertia>
+      </inertial>
+      <visual name='virtual_end_effector_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.01</length>
+            <radius>0.008</radius>
+          </cylinder>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint4' type='revolute'>
+      <pose relative_to='Link2'>0.032307 5.3e-05 0.12853 0 -0 0</pose>
+      <parent>Link2</parent>
+      <child>Link4</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link4'>
+      <pose relative_to='Joint4'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.002066 6e-05 0.01783 0 -0 0</pose>
+        <mass>0.00488472</mass>
+        <inertia>
+          <ixx>3.14009e-06</ixx>
+          <ixy>6.90853e-12</ixy>
+          <ixz>2.09167e-09</ixz>
+          <iyy>4.48678e-07</iyy>
+          <iyz>7.62877e-09</iyz>
+          <izz>2.70569e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link4_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link4.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link4_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link4.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint5' type='revolute'>
+      <pose relative_to='Link1'>0.018067 0.026256 0.045902 0 -0 0</pose>
+      <parent>Link1</parent>
+      <child>Link5</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link5'>
+      <pose relative_to='Joint5'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.002972 0.008256 0.063479 0 -0 0</pose>
+        <mass>0.00876654</mass>
+        <inertia>
+          <ixx>1.61136e-05</ixx>
+          <ixy>-2.03743e-09</ixy>
+          <ixz>1.60154e-08</ixz>
+          <iyy>1.58015e-05</iyy>
+          <iyz>-5.24435e-08</iyz>
+          <izz>3.38493e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link5_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link5.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link5_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link5.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint6' type='revolute'>
+      <pose relative_to='Link1'>-0.006028 -0.008135 0.021592 0 -0 0</pose>
+      <parent>Link1</parent>
+      <child>Link6</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link6'>
+      <pose relative_to='Joint6'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.001566 0.017067 -0.001427 0 -0 0</pose>
+        <mass>0.00299124</mass>
+        <inertia>
+          <ixx>1.09498e-06</ixx>
+          <ixy>-2.89208e-08</ixy>
+          <ixz>2.41724e-09</ixz>
+          <iyy>1.24276e-07</iyy>
+          <iyz>1.0852e-07</iyz>
+          <izz>9.79183e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link6_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link6.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link6_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link6.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name='Joint7' type='revolute'>
+      <pose relative_to='Link6'>0 0.0432 0 0 -0 0</pose>
+      <parent>Link6</parent>
+      <child>Link7</child>
+      <axis>
+        <xyz>-1 0 0</xyz>
+        <limit>
+          <lower>-3</lower>
+          <upper>3</upper>
+          <effort>10</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='Link7'>
+      <pose relative_to='Joint7'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.0031 0 0.0642 0 -0 0</pose>
+        <mass>0.00558675</mass>
+        <inertia>
+          <ixx>1.18311e-05</ixx>
+          <ixy>-1.63254e-19</ixy>
+          <ixz>-2.33506e-19</ixz>
+          <iyy>1.17903e-05</iyy>
+          <iyz>-6.97204e-11</iyz>
+          <izz>5.97082e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='Link7_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link7.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='Link7_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://jetmax/meshes/Link7.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

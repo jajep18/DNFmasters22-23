@@ -32,17 +32,6 @@ def generate_launch_description():
         )
     )
 
-
-    # node_listener = Node(
-    #     package=package_name,
-    #     executable='my_listener'
-    # )
-
-    # node_talker = Node(
-    #     package=package_name,
-    #     executable='my_talker'
-    # )
-
     node_campubsub = Node(
         package=package_name,
         executable='cam_pubsub'
@@ -87,25 +76,23 @@ def generate_launch_description():
         #     description='Extra runtime info.'),
         DeclareLaunchArgument(
         'world',
-        default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
+        default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'jetmax_empty.world'), ''],
         description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
-        gazebo,
+        gazebo
         #node_listener,
         #node_talker,
-        node_campubsub,   
+        #node_campubsub,   
         #node_circlesub,
         # spawn_entity,
-        node_dnf,
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher',
-            # description='Publishes the state of the JetMax robot',
-            output='screen',
-            parameters=[{'use_sim_time': True}],
-            # arguments=['src/main_package/jetmax_gazebo/jetmax_description/launch/jetmax_description.xml'] #src/main_package/jetmax_gazebo/jetmax_description/launch$ 
-            arguments=['src/main_package/models/jetmax_description/urdf/jetmax.xacro'] 
-
-        )
-            
+        #node_dnf,
+        # Node(
+        #     package='robot_state_publisher',
+        #     executable='robot_state_publisher',
+        #     name='jetmax',
+        #     # description='Publishes the state of the JetMax robot',
+        #     output='screen',
+        #     parameters=[{'use_sim_time': True}],
+        #     # arguments=['src/main_package/jetmax_gazebo/jetmax_description/launch/jetmax_description.xml'] #src/main_package/jetmax_gazebo/jetmax_description/launch$ 
+        #     arguments=['src/main_package/models/jetmax_description/urdf/jetmax_model.urdf'] 
+        # )
     ])

@@ -11,8 +11,8 @@
     </include>
     <include>
       <pose>0 0 0.33 0 0 0</pose>
-      <name>dolly1_name</name>
-      <uri>model://dolly</uri>
+      <name>jetmax1_name</name>
+      <uri>model://jetmax</uri>
     </include>
     
   </world>
