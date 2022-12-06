@@ -104,7 +104,7 @@ def generate_launch_description():
             output='screen',
             parameters=[{'use_sim_time': True}],
             # arguments=['src/main_package/jetmax_gazebo/jetmax_description/launch/jetmax_description.xml'] #src/main_package/jetmax_gazebo/jetmax_description/launch$ 
-            arguments=['src/main_package/jetmax_gazebo/jetmax_description/urdf/jetmax.xacro'] 
+            arguments=['src/main_package/models/jetmax_description/urdf/jetmax.xacro'] 
 
         )
             
