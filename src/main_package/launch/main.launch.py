@@ -17,6 +17,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+
 def generate_launch_description():
 
     package_name     = 'main_package'
@@ -30,6 +31,17 @@ def generate_launch_description():
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py'),
         )
     )
+
+
+    # node_listener = Node(
+    #     package=package_name,
+    #     executable='my_listener'
+    # )
+
+    # node_talker = Node(
+    #     package=package_name,
+    #     executable='my_talker'
+    # )
 
     node_campubsub = Node(
         package=package_name,
@@ -46,6 +58,27 @@ def generate_launch_description():
         executable="dnf_pubsub"
     )
 
+    # include the launch file for the robot
+    # robot_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
+    #     ),
+    #     launch_arguments={
+    #         'gazebo_models_path': 'jetmax_gazebo/jetmax_description/urdf/jetmax.xacro',
+    #         'robot_name_in_model': 'jetmax',
+    #         'rviz_config_file_path': 'jetmax_gazebo/jetmax_description/config/jetmax.rviz',
+    #         'urdf_file_path': "jetmax_gazebo/jetmax_description/urdf",
+    #         'spawn_x_val': 1.0,
+    #         'spawn_y_val': 1.0,
+    #         'spawn_z_val': 1.0,
+    #         'spawn_yaw_val': 0.0
+    #     }.items()
+    # )
+
+
+
+
+
 
     return LaunchDescription([
         # DeclareLaunchArgument(
@@ -53,12 +86,26 @@ def generate_launch_description():
         #     default_value='true',
         #     description='Extra runtime info.'),
         DeclareLaunchArgument(
-          'world',
-          default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
-          #default_value='test_package/test_package/worlds/dolly_empty.world',
-          description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
+        'world',
+        default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
+        description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
         gazebo,
+        #node_listener,
+        #node_talker,
         node_campubsub,   
         #node_circlesub,
-        node_dnf     
+        # spawn_entity,
+        node_dnf,
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            # description='Publishes the state of the JetMax robot',
+            output='screen',
+            parameters=[{'use_sim_time': True}],
+            # arguments=['src/main_package/jetmax_gazebo/jetmax_description/launch/jetmax_description.xml'] #src/main_package/jetmax_gazebo/jetmax_description/launch$ 
+            arguments=['src/main_package/jetmax_gazebo/jetmax_description/urdf/jetmax.xacro'] 
+
+        )
+            
     ])
