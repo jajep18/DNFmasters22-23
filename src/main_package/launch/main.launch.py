@@ -3,6 +3,7 @@ Launch package nodes.
 '''
 
 from launch import LaunchDescription
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch_ros.actions import Node
 
 import os
@@ -14,6 +15,9 @@ from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch.substitutions import TextSubstitution
+from launch.substitutions import PythonExpression
+from launch.substitutions import LocalSubstitution
 from launch_ros.actions import Node
 
 
@@ -31,6 +35,22 @@ def generate_launch_description():
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py'),
         )
     )
+
+    jetmax_include = IncludeLaunchDescription(
+            XMLLaunchDescriptionSource(
+                os.path.join(
+                    "src/main_package/jetmax_gazebo/jetmax_control/launch/jetmax_control.launch",             
+                )
+            ),
+            launch_arguments={
+                "use_sim_time": True,
+                "name": "TestName"
+            }.items()
+
+
+
+        )
+        
 
     node_campubsub = Node(
         package=package_name,
@@ -78,6 +98,7 @@ def generate_launch_description():
         'world',
         default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'jetmax_empty.world'), ''],
         description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
+        jetmax_include,
         gazebo
         #node_listener,
         #node_talker,
