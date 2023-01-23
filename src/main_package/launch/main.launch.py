@@ -13,14 +13,12 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, FrontendLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch.substitutions import TextSubstitution
 from launch.substitutions import PythonExpression
 from launch.substitutions import LocalSubstitution
-from launch_ros.actions import Node
-
-
+from launch.substitutions import ThisLaunchFileDir, EnvironmentVariable
 
 def generate_launch_description():
 
@@ -35,39 +33,23 @@ def generate_launch_description():
             os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py'),
         )
     )
-
-    jetmax_include = IncludeLaunchDescription(
-            XMLLaunchDescriptionSource(
-                os.path.join(
+    
+    ### # De metoder jeg har arbejdet på: ######
+    jetmax_include = IncludeLaunchDescription( 
+            # XMLLaunchDescriptionSource(
+            #FrontendLaunchDescriptionSource(
                     "src/main_package/jetmax_gazebo/jetmax_control/launch/jetmax_control.launch",             
-                )
-            ),
-            launch_arguments={
-                "use_sim_time": True,
-                "name": "TestName"
-            }.items()
-
-
-
+            #)
         )
-        
 
-    node_campubsub = Node(
-        package=package_name,
-        executable='cam_pubsub'
-    )
+    # def jetMaxInclude():
+    #     jetmax_include = IncludeLaunchDescription(
+    #         FrontendLaunchDescriptionSource(['/home/jacob/DNFmasters22-23/src/main_package/jetmax_gazebo/jetmax_control/launch/inc/jetmax_spawner.xml']),
+            
+    #     )
+    #     return LaunchDescription([ jetmax_include ])
 
-    node_circlesub = Node(
-        package=package_name,
-        executable='circle_listener'
-    )      
-
-    node_dnf = Node(
-        package=dnf_package_name,
-        executable="dnf_pubsub"
-    )
-
-    # include the launch file for the robot
+        # include the launch file for the robot
     # robot_launch = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
     #         os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')
@@ -84,9 +66,22 @@ def generate_launch_description():
     #     }.items()
     # )
 
+        ### End of metoder ###
 
+    node_campubsub = Node(
+        package=package_name,
+        executable='cam_pubsub'
+    )
 
+    node_circlesub = Node(
+        package=package_name,
+        executable='circle_listener'
+    )      
 
+    node_dnf = Node(
+        package=dnf_package_name,
+        executable="dnf_pubsub"
+    )
 
 
     return LaunchDescription([
@@ -106,14 +101,4 @@ def generate_launch_description():
         #node_circlesub,
         # spawn_entity,
         #node_dnf,
-        # Node(
-        #     package='robot_state_publisher',
-        #     executable='robot_state_publisher',
-        #     name='jetmax',
-        #     # description='Publishes the state of the JetMax robot',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': True}],
-        #     # arguments=['src/main_package/jetmax_gazebo/jetmax_description/launch/jetmax_description.xml'] #src/main_package/jetmax_gazebo/jetmax_description/launch$ 
-        #     arguments=['src/main_package/models/jetmax_description/urdf/jetmax_model.urdf'] 
-        # )
     ])

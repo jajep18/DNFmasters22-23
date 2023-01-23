@@ -9,11 +9,11 @@
     <include>
       <uri>model://ground_plane</uri>
     </include>
-    <include>
+    <!-- <include>
       <pose>1 0 0 0 0 0</pose>
       <name>jetmax1_name</name>
       <uri>model://jetmax</uri>
-    </include>
+    </include> -->
     
   </world>
 </sdf>
