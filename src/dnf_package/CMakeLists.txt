@@ -16,8 +16,8 @@ endif()
 # --------------------------------------- Append Prefix Path -------------------------------------- #
 
 # Add torch library to CMAKE prefix path //Needed in clean builds //Change to local libtorch installation
-#list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
-list(APPEND CMAKE_PREFIX_PATH "/home/jacob/libtorch/share/cmake/Torch") #Floe
+list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
+#list(APPEND CMAKE_PREFIX_PATH "/home/jacob/libtorch/share/cmake/Torch") #Floe
 
 #####################################################################################################
 # --------------------------------------- Find Dependencies --------------------------------------- #

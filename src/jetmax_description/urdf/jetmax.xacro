@@ -13,89 +13,6 @@
 		<child link="Base" />
 	</joint>
 
-	<!-- Bitxh ass joints - dont delete from here. MOdel wont work without it-->
-	<joint name="Joint1" type="revolute">
-        <axis xyz="0 0 1" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Base" />
-        <child link="Link1" />
-        <origin xyz="0 0 0.064273" rpy=" 0 0 0" />
-    </joint>
-
-    <joint name="Joint2" type="revolute">
-        <axis xyz="-1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link1" />
-        <child link="Link2" />
-        <origin xyz="-0.0041395 -0.0081353 0.021592" rpy="0 0 0" />
-    </joint>
-
-    <joint name="Joint3" type="revolute">
-        <axis xyz="1 0 0" />
-        <parent link="Link2" />
-        <child link="Link3" />
-        <limit effort="10" lower="-1.45" upper="1.45" velocity="0.0" />
-        <origin xyz="-0.0033882 0 0.12845" rpy="-0.0011788 0 0" />
-    </joint>
-
-    <joint name="Joint4" type="revolute">
-        <axis xyz="1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link2" />
-        <child link="Link4" />
-        <origin xyz="0.032307 5.2901E-05 0.12853" rpy="0 0 0" />
-    </joint>
-
-    <joint name="Joint5" type="revolute">
-        <axis xyz="-1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link1" />
-        <child link="Link5" />
-        <origin xyz="0.018067 0.026256 0.045902" rpy="0 0 0" />
-    </joint>
-
-    <joint name="Joint6" type="revolute">
-        <axis xyz="-1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link1" />
-        <child link="Link6" />
-        <origin xyz="-0.0060277 -0.0081353 0.021592" rpy="0 0 0" />
-    </joint>
-
-    <joint name="Joint7" type="revolute">
-        <axis xyz="-1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link6" />
-        <child link="Link7" />
-        <origin xyz="0 0.0432 0" rpy="0 0 0" />
-    </joint>
-
-    <joint name="Joint8" type="revolute">
-        <axis xyz="1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link3" />
-        <child link="Link8" />
-        <origin xyz="0 -0.138 -0.00016405" rpy="0.0011788 0 0" />
-    </joint>
-
-    <joint name="Joint9" type="revolute">
-        <axis xyz="-1 0 0" />
-        <limit effort="10" lower="-3" upper="3" velocity="0.0" />
-        <parent link="Link8" />
-        <child link="Link9" />
-        <origin xyz="0.031695 -0.034122 0.024493" rpy="0 0 0" />
-    </joint>
-
-    <!-- virtual joints needed for vacuum_gripper plugin -->
-    <joint name="virtual_end_joint" type="revolute">
-        <axis xyz="0 0 1" />
-        <parent link="Link8" />
-        <child link="virtual_end_effector" />
-        <origin xyz="0.01 -0.017 -0.075" rpy=" 0 0 0" />
-        <limit effort="1" lower="0" upper="0" velocity="0.0" />
-    </joint>
-	<!--  End of bitxh asss joints -->
-
 	<link name="Base">
 		<inertial>
 			<origin xyz="0.010476 0.000747 0.035226" rpy="0 0 0" />
@@ -104,7 +21,7 @@
 		</inertial>
 		<visual>
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Base.STL" />
+				<mesh filename="package://jetmax_description/meshes/Base.STL" />
 			</geometry>
 			<origin xyz="0 0 0 " rpy="0 0 0" />
 			<material name="">
@@ -113,7 +30,7 @@
 		</visual>
 		<collision>
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Base.STL" />
+				<mesh filename="package://jetmax_description/meshes/Base.STL" />
 			</geometry>
 			<origin xyz="0 0 0 " rpy="0 0 0" />
 			<material name="">
@@ -132,7 +49,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link1.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link1.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.8 0.3 1" />
@@ -140,7 +57,7 @@
 		</visual>
 		<collision>
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link1.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link1.STL" />
 			</geometry>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<material name="">
@@ -159,7 +76,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link2.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link2.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.8 0.3 1" />
@@ -167,7 +84,7 @@
 		</visual>
 		<collision>
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link2.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link2.STL" />
 			</geometry>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<material name="">
@@ -186,7 +103,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link3.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link3.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -194,7 +111,7 @@
 		</visual>
 		<collision>
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link3.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link3.STL" />
 			</geometry>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<material name="">
@@ -213,7 +130,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link4.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link4.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -222,7 +139,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link4.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link4.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -240,7 +157,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link5.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link5.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -249,7 +166,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link5.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link5.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -267,7 +184,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link6.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link6.STL" />
 			</geometry>
 
 			<material name="">
@@ -277,7 +194,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link6.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link6.STL" />
 			</geometry>
 
 			<material name="">
@@ -296,7 +213,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link7.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link7.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -305,7 +222,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link7.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link7.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -323,7 +240,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Suction.STL" />
+				<mesh filename="package://jetmax_description/meshes/Suction.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -351,7 +268,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link9.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link9.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -360,7 +277,7 @@
 		<collision>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
-				<mesh filename="package://src/main_package/models/jetmax_description/jetmax_description/meshes/Link9.STL" />
+				<mesh filename="package://jetmax_description/meshes/Link9.STL" />
 			</geometry>
 			<material name="">
 				<color rgba="0.3 0.3 0.3 1" />
@@ -386,5 +303,4 @@
 			<inertia ixx="0.00000003333" ixy="0" ixz="0" iyy="0.00000003333" iyz="0" izz="0.00000005" />
 		</inertial>
 	</link>
-
 </robot>

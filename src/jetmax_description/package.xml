@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="3">
+  <name>jetmax_description</name>
+  <version>1.0.0</version>
+  <description>
+    <p>URDF Description package for jetmax</p>
+    <p>This package contains configuration data, 3D models and launch files for jetmax_description robot</p>
+  </description>
+  <author>Lucas Lu</author>
+  <maintainer email="lyplucas@foxmail.com"></maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

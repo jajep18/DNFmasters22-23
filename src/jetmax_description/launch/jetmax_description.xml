@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-  
   <!--Load urdf to param server-->
-  <include file = "/home/jacob/DNFmasters22-23/src/main_package/models/jetmax_description/urdf/jetmax.xacro"/>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find jetmax_description)/urdf/jetmax.xacro'" />
+  
   <!--GUI used to send fake joint values--> <!-- <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/> -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="false" />
@@ -12,4 +12,4 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
     <remap from="/joint_states" to="/jetmax/joint_states" />
   </node>
-</launch> 
+</launch>

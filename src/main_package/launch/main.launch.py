@@ -25,7 +25,7 @@ def generate_launch_description():
     package_name     = 'main_package'
     dnf_package_name = 'dnf_package'
     pkg_gazebo_ros   = get_package_share_directory('gazebo_ros')
-    pkg_dolly_gazebo = get_package_share_directory(package_name)
+    pkg_share_dir    = get_package_share_directory(package_name)
 
     # Gazebo launch
     gazebo = IncludeLaunchDescription(
@@ -35,12 +35,12 @@ def generate_launch_description():
     )
     
     ### # De metoder jeg har arbejdet på: ######
-    jetmax_include = IncludeLaunchDescription( 
-            # XMLLaunchDescriptionSource(
-            #FrontendLaunchDescriptionSource(
-                    "src/main_package/jetmax_gazebo/jetmax_control/launch/jetmax_control.launch",             
-            #)
-        )
+    # jetmax_include = IncludeLaunchDescription( 
+    #         # XMLLaunchDescriptionSource(
+    #         #FrontendLaunchDescriptionSource(
+    #                 "src/main_package/jetmax_gazebo/jetmax_control/launch/jetmax_control.launch",             
+    #         #)
+    #     )
 
     # def jetMaxInclude():
     #     jetmax_include = IncludeLaunchDescription(
@@ -68,6 +68,17 @@ def generate_launch_description():
 
         ### End of metoder ###
 
+    # Spawn robot
+    spawn_robot = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py', # Gazebo script der kan spawne entity
+        name='jetmax_0',
+        namespace='jetmax_0',
+        arguments=['-database', 'jetmax', '-entity', 'jetmax_0',
+                   '-x', '0', '-y', '0', '-z', '0', '-R', '0', '-P', '0', '-Y', '0'],
+        output='screen'
+    )
+
     node_campubsub = Node(
         package=package_name,
         executable='cam_pubsub'
@@ -91,10 +102,11 @@ def generate_launch_description():
         #     description='Extra runtime info.'),
         DeclareLaunchArgument(
         'world',
-        default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'jetmax_empty.world'), ''],
+        default_value=[os.path.join(pkg_share_dir, 'worlds', 'jetmax_empty.world'), ''],
         description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
-        jetmax_include,
-        gazebo
+        # jetmax_include,
+        gazebo,
+        spawn_robot,
         #node_listener,
         #node_talker,
         #node_campubsub,   

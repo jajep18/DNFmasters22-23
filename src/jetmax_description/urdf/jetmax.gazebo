@@ -3,16 +3,16 @@
   <!-- ros_control plugin -->
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/jetmax</robotNamespace>
-      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <robot_namespace>/jetmax</robot_namespace>
+      <robot_hw_sim_type>gazebo_ros_control/DefaultRobotHWSim</robot_hw_sim_type>
     </plugin>
   </gazebo>
 
   <gazebo>
     <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
-      <robotNamespace>/jetmax/vacuum_gripper</robotNamespace>
-      <bodyName>virtual_end_effector</bodyName>
-      <topicName>grasping</topicName>
+      <robot_namespace>/jetmax/vacuum_gripper</robot_namespace>
+      <link_name>virtual_end_effector</link_name>
+      <topic>grasping</topic>
       <maxForce>10</maxForce>
       <maxDistance>0.05</maxDistance>
       <minDistance>0.01</minDistance>
