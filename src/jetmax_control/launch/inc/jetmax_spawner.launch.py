@@ -44,9 +44,9 @@ def generate_launch_description():
              )
 
     #xacro_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.xacro'
-    urdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.urdf'
-    sdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.sdf'
-    urdf = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.urdf')
+    #urdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.urdf'
+    #sdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.sdf'
+    #urdf = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.urdf')
 
     xacro_file = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.xacro')
     doc = xacro.parse(open(xacro_file))
@@ -114,12 +114,12 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        # RegisterEventHandler( #When the gazebo process is finished, load the joint state controller
-        #     event_handler=OnProcessExit(
-        #         target_action=spawn_entity_robot,
-        #         on_exit=[load_joint_state_controller],
-        #     )
-        # ),
+        RegisterEventHandler( #When the gazebo process is finished, load the joint state controller
+            event_handler=OnProcessExit(
+                target_action=spawn_entity_robot,
+                on_exit=[load_joint_state_controller],
+            )
+        ),
         # RegisterEventHandler( #When the joint state controller is loaded, load the joint trajectory controller
         #     event_handler=OnProcessExit(
         #         target_action=load_joint_state_controller,
@@ -127,7 +127,7 @@ def generate_launch_description():
         #     )
         # ),
         gazebo,
-        x, y, z, roll, pitch, yaw,  # Launch argumentes
+        #x, y, z, roll, pitch, yaw,  # Launch argumentes
         #urdf_jetmax_action
         robot_state_publisher,
         spawn_entity_robot

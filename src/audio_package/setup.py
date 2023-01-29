@@ -16,7 +16,7 @@ setup(
     maintainer='student',
     maintainer_email='erik.lindby@gmail.com',
     description='Handles Keyword Spotting and other audio related features of the project.',
-    license='his project is for a masters thesis by Jajep18 and Ercos18.',
+    license='This project is for a masters thesis by Jajep18 and Ercos18.',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
