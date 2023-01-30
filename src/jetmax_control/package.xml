@@ -3,7 +3,7 @@
   <name>jetmax_control</name>
   <version>1.0.0</version>
   <description>The jetmax_control package</description>
-  <author>Lucas Lu</author>
+  <author>Lucas Lu (ROS1), Ercos18 and Jajep18 (ROS2)</author>
   <maintainer email="lyplucas@foxmail.com">exx0</maintainer>
   <license>TODO</license>
 
@@ -26,8 +26,3 @@
   </export>
 
 </package>
-
-
-
-
-

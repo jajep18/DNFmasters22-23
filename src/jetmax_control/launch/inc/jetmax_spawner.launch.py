@@ -93,42 +93,69 @@ def generate_launch_description():
     #                '-Y', LaunchConfiguration('yaw')],
     # )
 
-
-    # spawn_jetmax = Node(
-    #     package='gazebo_ros',
-    #     executable='spawn_entity.py',
-    #     name='jetmax_spawner',
-    #     namespace='jetmax',
-    #     arguments=['-database', 'urdf_jetmax', '-entity', 'jetmax',
-    #                '-x', '0', '-y', '0', '-z', '0', '-R', '0', '-P', '0', '-Y', '0'],
-    #     output='screen')
+    # load_joint_state_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+    #          'joint_state_broadcaster'],
+    #     output='screen'
+    # )
+    # load_joint_trajectory_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'effort_controllers'],
+    #     output='screen'
+    # )
 
     load_joint_state_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'joint_state_broadcaster'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+             'joint_state_controller'],
         output='screen'
     )
     load_joint_trajectory_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'effort_controllers'],
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start', 'joint_trajectory_controller'],
         output='screen'
     )
+
+#     control = IncludeLaunchDescription(
+#     launch.launch_description_sources.PythonLaunchDescriptionSource(
+#         os.path.join(pkg_prefix, 'B.launch.py')),
+#     launch_arguments={
+#         'parameter_name1': 'parameter_value1',
+#         'parameter_name2': 'parameter_value2'
+#     }.items()
+# )
+
+    # Launch another launch file inside this one
+    robot_control = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('jetmax_control'), 'launch', 'inc'), '/jetmax_control.launch.py']),
+    )
+    
+
+
     
     return LaunchDescription([
-        RegisterEventHandler( #When the gazebo process is finished, load the joint state controller
-            event_handler=OnProcessExit(
-                target_action=spawn_entity_robot,
-                on_exit=[load_joint_state_controller],
-            )
-        ),
+        # RegisterEventHandler( #When the gazebo process is finished, load the joint state controller
+        #     event_handler=OnProcessExit(
+        #         target_action=spawn_entity_robot,
+        #         on_exit=[load_joint_state_controller],
+        #     )
+        # ),
         # RegisterEventHandler( #When the joint state controller is loaded, load the joint trajectory controller
         #     event_handler=OnProcessExit(
         #         target_action=load_joint_state_controller,
         #         on_exit=[load_joint_trajectory_controller],
         #     )
         # ),
+        # RegisterEventHandler( #When the control spawner is finished, load the joint state controller
+        #     event_handler= OnProcessExit(
+        #         target_action=spawn_entity_robot,
+        #         on_exit=[load_joint_state_controller],
+        #     )
+        # ),
         gazebo,
         #x, y, z, roll, pitch, yaw,  # Launch argumentes
         #urdf_jetmax_action
         robot_state_publisher,
-        spawn_entity_robot
+        spawn_entity_robot,
+        load_joint_state_controller,
+        robot_control
+        
     ])

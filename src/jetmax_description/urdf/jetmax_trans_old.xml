@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot>
-  <ros2_control name="jetmax_trans">
-    <hardware>
-      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-    </hardware>
-    <!-- Joint -->
-    <joint name="Joint1">
-      <command_interface name="velocity">
-        <param name="min">-1</param>
-        <param name="max">1</param>
-      </command_interface>
-      <state_interface name="velocity"/>
-    </joint>
-    <!-- Transmission -->
-    <transmission name="transmission1">
-      <plugin>transmission_interface/SimpleTransmission</plugin>
-      <joint name="joint1" role="joint1">
-        <mechanical_reduction>325.949</mechanical_reduction>
-      </joint>
-    </transmission>
-  </ros2_control>
-
-
-
   <transmission name="tran1">
     <type>transmission_interface/SimpleTransmission</type>
     <actuator name="motor1">

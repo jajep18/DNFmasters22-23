@@ -15,6 +15,12 @@ ros2 launch main_package main.launch.py
 sfoxy
 rviz2
 
+# Requirements:
+Install controller manager packages for FOXY: https://control.ros.org/foxy/doc/getting_started/getting_started.html
+Torch
+Ros2
+Gazebo + ROS2 packages
+
 # Notes on libtorch
 When clean building the cmakelist needs to be given your path to the pre-built libtorch library. Change it in the CMakeLists.txt in dnf_package.
 At runtime the OS also needs to know where the dynamic library is, so you need to append the path to LD_LIBRARY_PATH (set it up in .bashrc)
