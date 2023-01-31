@@ -1,7 +1,11 @@
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command
+
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+
+
 from launch_ros.actions import Node
 import os
 from launch.substitutions import LaunchConfiguration
@@ -54,6 +58,29 @@ def generate_launch_description():
     params = {'robot_description': doc.toxml()}
 
 
+
+
+    robot_controllers = PathJoinSubstitution(
+        [
+            FindPackageShare("jetmax_control"),
+            "config",
+            "controllers.yaml",
+        ]
+    )
+
+    controller_manager = Node( ## Comment this out to run gazebo without controller issues
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[params, robot_controllers],
+        output={
+            "stdout": "screen",
+            "stderr": "screen",
+        },
+    )
+
+ 
+
+
 	# Robot State Publisher 
     robot_state_publisher = Node(package    ='robot_state_publisher',
 								 executable ='robot_state_publisher',
@@ -62,7 +89,7 @@ def generate_launch_description():
 								#  parameters =[{'robot_description': Command(['xacro', ' ', xacro_file])           
                                 #  parameters =[{'robot_description': urdf}]
                                 #  arguments=[urdf]
-                                 parameters=[params]
+                                 parameters=[params] # Old version
                                 #  arguments=['-x', LaunchConfiguration('x'),
                                 #             '-y', LaunchConfiguration('y'),
                                 #             '-z', LaunchConfiguration('z'),
@@ -128,6 +155,12 @@ def generate_launch_description():
             get_package_share_directory('jetmax_control'), 'launch', 'inc'), '/jetmax_control.launch.py']),
     )
     
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+    )
+    
 
 
     
@@ -150,12 +183,12 @@ def generate_launch_description():
         #         on_exit=[load_joint_state_controller],
         #     )
         # ),
+        controller_manager,
         gazebo,
         #x, y, z, roll, pitch, yaw,  # Launch argumentes
         #urdf_jetmax_action
-        robot_state_publisher,
         spawn_entity_robot,
-        load_joint_state_controller,
+        robot_state_publisher,
         robot_control
-        
+        # robot_controller_spawner        
     ])

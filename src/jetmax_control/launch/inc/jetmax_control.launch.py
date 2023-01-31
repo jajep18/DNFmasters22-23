@@ -3,12 +3,6 @@ from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 
 
-
-
-
-
-
-
 def generate_launch_description():
     control_spawner = Node(package='controller_manager',
                             executable='spawner.py',

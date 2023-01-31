@@ -10,6 +10,14 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+## Depencies referenced in https://control.ros.org/foxy/doc/ros2_controllers/doc/writing_new_controller.html
+find_package(controller_interface)
+find_package(hardware_interface)
+find_package(pluginlib)
+find_package(rclcpp_lifecycle)
+find_package(controller_manager)
+
+
 
 ## Service files
 rosidl_generate_interfaces(${PROJECT_NAME}
