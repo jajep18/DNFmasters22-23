@@ -71,6 +71,26 @@ custom_msgs::msg::CircleInfo calcColorInfo(cv::Mat image, cv::Vec3f circle){
   return circleInfo;
 }
 
+
+// Function to transform image coordinates to real world coordinates
+// cv::Point transform(cv::Point2d image_point, cv::Mat camera_matrix, cv::Mat dist_coeffs, cv::Mat rvec, cv::Mat tvec){
+cv::Point transform(cv::Point image_point, cv::Mat camera_matrix, cv::Mat rvec, cv::Mat tvec){
+  
+  cv::Mat image_point_mat = cv::Mat::zeros(3, 1, CV_64F);
+  cv::Mat real_point_mat = cv::Mat::zeros(3, 1, CV_64F);
+  image_point_mat.at<double>(0, 0) = image_point.x;
+  image_point_mat.at<double>(1, 0) = image_point.y;
+  image_point_mat.at<double>(2, 0) = 1.0;
+  cv::Mat rotation_matrix = cv::Mat::zeros(3, 3, CV_64F);
+  cv::Rodrigues(rvec, rotation_matrix);
+  // real_point_mat = rotation_matrix.inv() * (camera_matrix.inv() * image_point_mat - tvec);
+  real_point_mat = rotation_matrix.inv() * (camera_matrix.inv() * image_point_mat - tvec);
+  cv::Point  real_point;
+  real_point.x = real_point_mat.at<double>(0, 0);
+  real_point.y = real_point_mat.at<double>(1, 0);
+  return real_point;
+}
+
 custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
     std::vector<cv::Vec3f> circles;
     //std::vector<cv::Vec6f> circleInfo;
@@ -86,32 +106,58 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
                   1, 30 // (min_radius & max_radius) to detect larger circles
     );
 
+
+    cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << 
+      277.19135641132203,
+      0.0,
+      160.5,
+      0.0,
+      277.19135641132203,
+      120.5,
+      0.0,
+      0.0,
+      1.0);
+
+    cv::Mat dist_coeffs = (cv::Mat_<double>(5,1) << 0.0, 0.0, 0.0, 0.0, 0.0); // Assuming no lens distortion - Maybe add later
+
+    cv::Mat rvec = (cv::Mat_<double>(3,1) <<  1.0, 1.0, 1.0);
+    cv::Mat tvec = (cv::Mat_<double>(3,1) << 1, 1, 2.3);
+
+
     //Draw center and outline of all detected circles 
     for( size_t i = 0; i < circles.size(); i++ )
     {
-        //auto circleInfo = custom_msgs::msg::CircleInfo();
-        cv::Vec3i circle = circles[i];
-        cv::Point center = cv::Point(circle[0], circle[1]);
+      //auto circleInfo = custom_msgs::msg::CircleInfo();
+      cv::Vec3i circle = circles[i];
+      cv::Point center = cv::Point(circle[0], circle[1]);
 
-        //Circle color
-        //cv::Vec3b color = image.at<cv::Vec3b>(center);
-        auto circleInfo = calcColorInfo(og_image, circle);
-        circleInfoArr.circles.push_back(circleInfo);
+      //Circle color
+      //cv::Vec3b color = image.at<cv::Vec3b>(center);
+      auto circleInfo = calcColorInfo(og_image, circle);
+      circleInfoArr.circles.push_back(circleInfo);
 
-        // circle center
-        cv::circle( image, center, 1, cv::Scalar(0,100,100), 3, cv::LINE_AA);
-        
-        // circle outline
-        int radius = circle[2];
-        cv::circle( image, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
+      // circle center
+      cv::circle( image, center, 1, cv::Scalar(0,100,100), 3, cv::LINE_AA);
+      
+      // circle outline
+      int radius = circle[2];
+      cv::circle( image, center, radius, cv::Scalar(255,0,255), 3, cv::LINE_AA);
 
-        cv::putText(image, //target image
-              std::to_string(i),    // Text½
-              center,
-              cv::FONT_HERSHEY_DUPLEX,
-              0.6,
-              CV_RGB(225, 255, 255),  // Font color
-              2);
+ 
+
+    
+
+      cv::Point Q = transform(center, camera_matrix, rvec, tvec);
+
+      
+
+      cv::putText(image, //target image
+            std::to_string(Q.x) + ", " + std::to_string(Q.y),    // Text
+            center, // Point
+            cv::FONT_HERSHEY_DUPLEX,
+            0.4,
+            CV_RGB(225, 255, 255),  // Font color
+            2);
     }
   cv::putText(image, //target image
                 "Detected " + std::to_string(circles.size() ) + " circles" ,    // Text
@@ -124,5 +170,8 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
   return circleInfoArr;
 
 }
+
+
+
 
 
