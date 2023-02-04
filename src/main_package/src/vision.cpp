@@ -147,12 +147,12 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
 
     
 
-      cv::Point Q = transform(center, camera_matrix, rvec, tvec);
+      // cv::Point Q = transform(center, camera_matrix, rvec, tvec);
 
       
 
       cv::putText(image, //target image
-            std::to_string(Q.x) + ", " + std::to_string(Q.y),    // Text
+            std::to_string(i), // std::to_string(Q.x) + ", " + std::to_string(Q.y),    // Text
             center, // Point
             cv::FONT_HERSHEY_DUPLEX,
             0.4,
