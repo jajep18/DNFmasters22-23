@@ -53,7 +53,7 @@ ament_target_dependencies(cam_pubsub custom_msgs rclcpp std_msgs OpenCV image_tr
 
 ## Circle information subscriber node
 add_executable(circle_listener nodes/circle_subscriber_function.cpp)
-ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs)
+ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs OpenCV sensor_msgs)
 
 #####################################################################################################
 # ------------------------------ Install Target & Ament dependencies ------------------------------ #

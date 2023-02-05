@@ -49,7 +49,7 @@ private:
     // Subscriber
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscriptionLeftCam_;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscriptionRightCam_;
-    rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_;
+    
     //std::vector<cv::Vec6f> circles; // Detected circles [ x y r B G R]
     custom_msgs::msg::CircleInfoArr m_circleInfoArr_left;
     custom_msgs::msg::CircleInfoArr m_circleInfoArr_right;
