@@ -23,6 +23,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/CircleInfo.msg"
   "msg/CircleInfoArr.msg"
   "msg/CircleInfoArrStereo.msg"
+  "msg/TriangulatedCircleInfo.msg"
+  "msg/TriangulatedCircleInfoArr.msg"
   DEPENDENCIES builtin_interfaces OpenCV
 )
 
