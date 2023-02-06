@@ -21,18 +21,23 @@ def generate_launch_description():
 
     package_name     = 'audio_package'
 
-    node_listener = Node(
-        package=package_name,
-        executable='my_listener'
-    )
+    # node_listener = Node(
+    #     package=package_name,
+    #     executable='my_listener'
+    # )
 
-    node_talker = Node(
-        package=package_name,
-        executable='my_talker'
-    )
+    # node_talker = Node(
+    #     package=package_name,
+    #     executable='my_talker'
+    # )
 
+    node_pocketsphinx = Node(
+        package=package_name,
+        executable='pocketsphinx_pubsub'
+    )
 
     return LaunchDescription([
-        node_listener,
-        node_talker 
+        # node_listener,
+        # node_talker 
+        node_pocketsphinx
     ])

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Sensor specific publisher node. 
 #   Publishes the data from the microphone sensor. 
 #   Currently set up with an example from a accelerometer sensor.

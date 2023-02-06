@@ -14,15 +14,16 @@
   
   <!-- Dependencies -->
   <depend>rclcpp</depend>
+  <depend>rclpy</depend>
   <depend>std_msgs</depend>
-  <depend>custom_msgs</depend>
+  <!-- <depend>custom_msgs</depend> COMMENT THIS IN LATER--> 
 
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>gazebo_ros_pkgs</exec_depend>
   <exec_depend>rviz2</exec_depend>
 
   <!-- Dependencies from EI package -->
-  <depend>rclpy</depend>
+  <!-- <depend>rclpy</depend>
   <depend>board</depend>
   <depend>os</depend>
   <depend>adafruit_mpu6050</depend>
@@ -30,7 +31,7 @@
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-pytest</test_depend> -->
 
   <export>
     <!-- <build_type>ament_cmake</build_type> -->
