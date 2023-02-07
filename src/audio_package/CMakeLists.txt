@@ -22,6 +22,7 @@ endif()
 # --------------------------------------- Find Dependencies --------------------------------------- #
 find_package(gazebo REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
@@ -48,8 +49,8 @@ add_executable(my_listener nodes/subscriber_member_function.cpp)
 ament_target_dependencies(my_listener rclcpp std_msgs)
 
 ## PocketSphinx node
-add_executable(pocketsphinx_node nodes/pocketsphinx_pubsub.py)
-ament_target_dependencies(pocketsphinx_node rclpy std_msgs)
+# add_executable(pocketsphinx_node nodes/pocketsphinx_pubsub.py)
+# ament_target_dependencies(pocketsphinx_node rclpy std_msgs)
 
 #####################################################################################################
 # ------------------------------ Install Target & Ament dependencies ------------------------------ #
@@ -59,16 +60,17 @@ ament_target_dependencies(pocketsphinx_node rclpy std_msgs)
 ## Install Libraries
 
 ## Install programs (Python scripts, etc.)
-install(PROGRAMS  
-  nodes/pocketsphinx_pubsub.py
-  DESTINATION lib/${PROJECT_NAME} 
-)
+# ament_python_install_package(${PROJECT_NAME})
+# install(PROGRAMS  
+#   nodes/pocketsphinx_pubsub.py
+#   DESTINATION lib/${PROJECT_NAME} 
+# )
 
 ## Install Nodes
 install(TARGETS
   my_talker
   my_listener
-  pocketsphinx_node
+  #pocketsphinx_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

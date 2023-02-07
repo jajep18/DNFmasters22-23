@@ -4,9 +4,9 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
-from pocketsphinx import Decoder
-import argparse
-import wave
+# from pocketsphinx import Decoder
+# import argparse
+# import wave
 
 
 class Pocketsphinx_Pubsub(Node):
