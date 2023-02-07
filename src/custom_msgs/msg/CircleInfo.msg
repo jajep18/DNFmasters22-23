@@ -1,3 +1,4 @@
+string cam
 int16 x
 int16 y
 float64 r
