@@ -1,4 +1,4 @@
-system: # This is the namespace? of the controller yaml file
+controller_manager: # This is the namespace? of the controller yaml file
   ros__parameters:
     update_rate: 100  # Hz
 
