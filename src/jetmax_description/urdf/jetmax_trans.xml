@@ -1,124 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot>
-  <ros2_control name="jetmax">
+  <ros2_control name="jetmax" type="system">
     <hardware>
-      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <plugin>fake_components/GenericSystem</plugin>
     </hardware>
-    <!-- Joint -->
+
+    <!-- Joints -->
     <joint name="Joint1">
-      <command_interface name="velocity">
+      <command_interface name="effort">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
-      <state_interface name="velocity"/>
     </joint>
+
+    <joint name="Joint2">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+
+    <joint name="Joint3">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+
+    <joint name="Joint4">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+    
+    <joint name="Joint5">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+
+    <joint name="Joint6">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+    
+    <joint name="Joint7">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>  
+
+    <joint name="Joint8">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+
+    <joint name="Joint9">
+      <command_interface name="effort">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+    </joint>
+
     <!-- Transmission -->
-    <transmission name="transmission1">
+    <!-- <transmission name="transmission1">
       <plugin>transmission_interface/SimpleTransmission</plugin>
       <joint name="joint1" role="joint1">
         <mechanical_reduction>325.949</mechanical_reduction>
       </joint>
-    </transmission>
+    </transmission> -->
   </ros2_control>
-
-
-
-  <transmission name="tran1">
-    <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="motor1">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-    <joint name="Joint1">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-  </transmission>
-
-  <transmission name="tran2">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint2">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor2">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran3">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint3">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor3">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran4">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint4">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor4">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran5">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint5">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor5">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran6">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint6">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor6">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran7">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint7">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor7">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran8">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint8">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor8">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-
-  <transmission name="tran9">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="Joint9">
-      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="motor9">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
 </robot>

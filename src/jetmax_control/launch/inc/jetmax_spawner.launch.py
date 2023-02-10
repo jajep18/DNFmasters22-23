@@ -51,14 +51,10 @@ def generate_launch_description():
     #urdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.urdf'
     #sdf_file = get_package_share_directory('jetmax_description') + '/urdf/jetmax.sdf'
     #urdf = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.urdf')
-
     xacro_file = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.xacro')
     doc = xacro.parse(open(xacro_file))
     xacro.process_doc(doc)
     params = {'robot_description': doc.toxml()}
-
-
-
 
     robot_controllers = PathJoinSubstitution(
         [
@@ -68,18 +64,15 @@ def generate_launch_description():
         ]
     )
 
-    controller_manager = Node( ## Comment this out to run gazebo without controller issues
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[params, robot_controllers],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
-    )
-
- 
-
+    # controller_manager = Node( ## Comment this out to run gazebo without controller issues
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     parameters=[params, robot_controllers],
+    #     output={
+    #         "stdout": "screen",
+    #         "stderr": "screen",
+    #     },
+    # )
 
 	# Robot State Publisher 
     robot_state_publisher = Node(package    ='robot_state_publisher',
@@ -97,6 +90,8 @@ def generate_launch_description():
                                 #             '-P', LaunchConfiguration('pitch'),
                                 #             '-Y', LaunchConfiguration('yaw')]
                                 )
+        # This node publishes the entity from the jetmax urdf to the topic robot_description
+        # This topic is used by the spawn_entity.py node to spawn the robot in Gazebo
 
 
 	# Spawn the robot in Gazebo
@@ -104,62 +99,31 @@ def generate_launch_description():
 							  executable  ='spawn_entity.py', 
 							  arguments   = ['-entity', 'jetmax', '-topic', 'robot_description'],
 							  output      ='screen')
-
-    # urdf_jetmax_action = Node(
-    #     package='gazebo_ros',
-    #     executable='spawn_entity.py',
-    #     name='urdf_jetmax',
-    #     output='screen',
-    #     arguments=['-entity', 'jetmax',
-    #                '-file', urdf_file, #'$(find jetmax_description)/urdf/jetmax.urdf',
-    #                '-x', LaunchConfiguration('x'),
-    #                '-y', LaunchConfiguration('y'),
-    #                '-z', LaunchConfiguration('z'),
-    #                '-R', LaunchConfiguration('roll'),
-    #                '-P', LaunchConfiguration('pitch'),
-    #                '-Y', LaunchConfiguration('yaw')],
-    # )
+        # Spawn the robot in Gazebo, loads the entity published in the topic robot_description
+        # The robot should be published in the topic robot_description before this node is executed
+        # This is done using the robot_state_publisher node
 
     # load_joint_state_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-    #          'joint_state_broadcaster'],
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+    #          'joint_state_controller'],
     #     output='screen'
     # )
     # load_joint_trajectory_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 'effort_controllers'],
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start', 'joint_trajectory_controller'],
     #     output='screen'
     # )
 
-    load_joint_state_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
-             'joint_state_controller'],
-        output='screen'
-    )
-    load_joint_trajectory_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start', 'joint_trajectory_controller'],
-        output='screen'
-    )
-
-#     control = IncludeLaunchDescription(
-#     launch.launch_description_sources.PythonLaunchDescriptionSource(
-#         os.path.join(pkg_prefix, 'B.launch.py')),
-#     launch_arguments={
-#         'parameter_name1': 'parameter_value1',
-#         'parameter_name2': 'parameter_value2'
-#     }.items()
-# )
-
     # Launch another launch file inside this one
-    robot_control = IncludeLaunchDescription(
+    robot_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory('jetmax_control'), 'launch', 'inc'), '/jetmax_control.launch.py']),
+            get_package_share_directory('jetmax_control'), 'launch', 'inc'), '/robot_control.launch.py']),
     )
     
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
-    )
+    # joint_state_broadcaster_spawner = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+    # )
     
 
 
@@ -183,12 +147,12 @@ def generate_launch_description():
         #         on_exit=[load_joint_state_controller],
         #     )
         # ),
-        controller_manager,
+        #controller_manager,
         gazebo,
         #x, y, z, roll, pitch, yaw,  # Launch argumentes
         #urdf_jetmax_action
-        spawn_entity_robot,
         robot_state_publisher,
-        robot_control
+        spawn_entity_robot,
+        robot_control_launch
         # robot_controller_spawner        
     ])
