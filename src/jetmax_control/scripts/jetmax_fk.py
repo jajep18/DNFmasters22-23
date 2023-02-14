@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import math
-import rospy
+import rclpy
 from rospy.topics import Publisher
 from std_msgs.msg import Float64
 import jetmax_kinematics

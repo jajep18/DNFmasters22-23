@@ -1,6 +1,6 @@
-controller_manager: # This is the namespace? of the controller yaml file
+controller_manager: # Has to be named "controller_manager" in ROS 2
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 10  # Hz
 
     joint_state_broadcaster:
         type: joint_state_broadcaster/JointStateBroadcaster
@@ -12,6 +12,10 @@ controller_manager: # This is the namespace? of the controller yaml file
     joints_effort_controller:
       type: effort_controllers/JointGroupEffortController
       #The joint effort controller commands a group of joints through the effort interface
+
+    joints_position_controller:
+      type: position_controllers/JointGroupPositionController 
+      #The joint position controller commands a group of joints through position
 
 joints_effort_controller:
   ros__parameters:
@@ -28,18 +32,31 @@ joints_effort_controller:
 
     command_interfaces:
       - effort
-      # - Joint1/effort
-      # - Joint2/effort
-      # - Joint3/effort
-      # - Joint4/effort
-      # - Joint5/effort
-      # - Joint6/effort
-      # - Joint7/effort
-      # - Joint8/effort
-      # - Joint9/effort
-    
 
     state_interfaces:
       - position
       - velocity
       - effort
+
+joints_position_controller:
+  ros__parameters:
+    joints:
+      - Joint1
+      - Joint2
+      - Joint3
+      - Joint4
+      - Joint5
+      - Joint6
+      - Joint7
+      - Joint8
+      - Joint9
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+      - effort
+    
+    interface_name: position

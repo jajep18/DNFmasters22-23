@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This used to be a file for handling transmissions in ROS1, it is now a ros2_control description -->
 <robot>
-  <ros2_control name="jetmax" type="system">
+  <ros2_control name="GazeboSystem" type="system"> <!-- Name old: jetmax -->
     <hardware>
       <plugin>fake_components/GenericSystem</plugin>
+      <!-- <plugin>gazebo_ros_control/DefaultRobotHWSim</plugin> -->
+       <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
     </hardware>
 
     <!-- Joints -->
     <joint name="Joint1">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -17,7 +21,8 @@
     </joint>
 
     <joint name="Joint2">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -27,7 +32,8 @@
     </joint>
 
     <joint name="Joint3">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -37,7 +43,8 @@
     </joint>
 
     <joint name="Joint4">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -47,7 +54,8 @@
     </joint>
     
     <joint name="Joint5">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -57,7 +65,8 @@
     </joint>
 
     <joint name="Joint6">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -67,7 +76,8 @@
     </joint>
     
     <joint name="Joint7">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -77,7 +87,8 @@
     </joint>  
 
     <joint name="Joint8">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -87,7 +98,8 @@
     </joint>
 
     <joint name="Joint9">
-      <command_interface name="effort">
+      <!-- <command_interface name="effort"> -->
+      <command_interface name="position">
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>

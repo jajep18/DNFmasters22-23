@@ -1,6 +1,7 @@
 <launch>
   <!-- Include some relevant files  -->
-  <include file="$(find jetmax_control)/launch/inc/jetmax_spawner.xml" />
+  <!-- <include file="$(find jetmax_control)/launch/inc/jetmax_spawner.xml" /> -->
+  <include file="$(find jetmax_control)/launch/inc/robot_spawner.xml" />
   <include file="$(find jetmax_control)/launch/inc/robot_control.xml" />
 
   <!-- Launch Gazebo World -->

@@ -9,43 +9,14 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    # control_spawner = Node(package='controller_manager',
-    #                         executable='spawner.py',
-    #                         name='controller_spawner',
-    #                         output='screen',
-    #                         # parameters=[{
-    #                         #     'file': "$(find jetmax_control)/config/controllers.yaml",
-    #                         #     'command': "load"
-    #                         # }],
-    #                         arguments=["joint_state_broadcaster"#,
-    #                                 #"joints_effort_controllers"
-    #                                 # "joint2",
-    #                                 # "joint3",
-    #                                 # "joint4",
-    #                                 # "joint5",
-    #                                 # "joint6"
-    #                                 ],
-    #                         namespace='/jetmax'
-    #                         )
-
-    # controller_manager_node = Node(
-    #     package="controller_manager",
-    #     executable="ros2_control_node",
-    #     parameters=[robot_description, diffbot_diff_drive_controller],
-    #     output={
-    #         "stdout": "screen",
-    #         "stderr": "screen",
-    #     },
-    # )
-
-    # Get URDF via xacro
+    # Generate URDF file via xacro
     xacro_file = os.path.join(get_package_share_directory('jetmax_description'), 'urdf', 'jetmax.xacro')
     doc = xacro.parse(open(xacro_file)) # This is where the URDF is parsed
     xacro.process_doc(doc) # This is where the URDF is generated
     robot_description = {"robot_description": doc.toxml()}
 
-    # Description: This node is responsible for loading the controllers specified in the controllers.yaml file
-    jetmax_controllers = PathJoinSubstitution(
+    # Description: This variable is the path for loading the controllers.yaml file
+    jetmax_controllers_yaml = PathJoinSubstitution(
         [
             FindPackageShare("jetmax_control"),
             "config",
@@ -53,23 +24,12 @@ def generate_launch_description():
         ]
     )
 
-    # Description: This node is responsible for publishing the state of the robot to the topic "robot_description"
-    node_robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="screen",
-        parameters=[robot_description],
-    )
-
-    # print("robot_description: ", robot_description)
-    # print("jetmax_controllers: ", jetmax_controllers)
-
     # Description: This node is responsible for loading the controllers specified in the config file
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         #name="jetmax_controller_manager_node",
-        parameters=[robot_description, jetmax_controllers],
+        parameters=[robot_description, jetmax_controllers_yaml],
         output={
             "stdout": "screen",
             "stderr": "screen",
@@ -83,6 +43,16 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster"],
         namespace='jetmax',
         output="screen",
+        # arguments=["joint_state_broadcaster",
+        # "Joints_effort_controllers",
+        # "Joint2",
+        # "Joint3",
+        # "Joint4",
+        # "Joint5",
+        # "Joint6",
+        # "Joint7",
+        # "Joint8",
+        # "Joint9"]
     )
 
     # Description: This node spawns the controller named "joints_effort_controller"
@@ -94,10 +64,20 @@ def generate_launch_description():
         output="screen",
     )
 
+    # Description: This node spawns the controller named "joints_position_controller"
+    control_spawner_position = Node(
+        package="controller_manager",
+        executable="spawner.py",
+        arguments=["joints_position_controller"],
+        #namespace='/jetmax',
+        output="screen",
+    )
 
+    # Description: This is were all the nodes are used to create the launch file
     return LaunchDescription([
-        node_robot_state_publisher, # Publish urdf to topic 'robot_description'
+        #robot_state_publisher_node, # Publish urdf to topic 'robot_description'
         controller_manager_node,    # Start the controller manager, using config and urdf
         control_spawner_jsb,        # Spawn the joint_state_broadcaster controller
         #control_spawner_effort,     # Spawn the joints_effort_controller controller
+        control_spawner_position,   # Spawn the joints_position_controller controller
     ])

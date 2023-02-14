@@ -16,6 +16,7 @@ find_package(hardware_interface)
 find_package(pluginlib)
 find_package(rclcpp_lifecycle)
 find_package(controller_manager)
+find_package(gazebo_ros)
 
 
 

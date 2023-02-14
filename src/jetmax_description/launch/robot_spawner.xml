@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>  
   <!--Include description and control launch files-->
-  <include file="$(find jetmax_description)/launch/jetmax_description.xml"/>
+  <include file="$(find jetmax_description)/launch/robot_description.xml"/>
+  <!-- <include file="$(find jetmax_description)/launch/jetmax_description.xml"/> -->
 
   <!-- Robot pose -->
   <arg name="x" default="0"/>

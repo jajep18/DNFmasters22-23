@@ -20,6 +20,7 @@ Install controller manager packages for FOXY: https://control.ros.org/foxy/doc/g
 Torch
 Ros2
 Gazebo + ROS2 packages
+Ros Foxy gazebo_ros2_control; Install with: sudo apt-get install ros-foxy-gazebo-ros2-control
 
 # Notes on libtorch
 When clean building the cmakelist needs to be given your path to the pre-built libtorch library. Change it in the CMakeLists.txt in dnf_package.
