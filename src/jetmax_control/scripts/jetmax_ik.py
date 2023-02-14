@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import sys
 import math
-import rospy
-from rospy.topics import Publisher
+import rclpy
 from std_msgs.msg import Float64
 import jetmax_kinematics
-from jetmax_control.srv import IK, IKRequest, IKResponse
+from jetmax_control.srv import IK #, IKRequest, IKResponse
 
 NUM_OF_JOINTS = 9
 joints_publishers = []
@@ -29,17 +28,19 @@ def ik_callback(req):
 
 def main():
     global joints_publishers, fk_service
-    rospy.init_node('ik_jetmax', log_level=rospy.DEBUG)
+    rclpy.init()
+    node = rclpy.create_node('ik_jetmax')
+    
     for i in range(NUM_OF_JOINTS):
-        pub = rospy.Publisher("/jetmax/joint{}_position_controller/command".format(i + 1),Float64, queue_size=10)
+        pub = node.create_publisher(np.float64, "/jetmax/joint{}_position_controller/command".format(i + 1))
         joints_publishers.append(pub)
 
-    fk_service = rospy.Service("/jetmax_control/inverse_kinematics", IK, ik_callback)
-    rospy.loginfo("Ready to send joint angles")
+    fk_service = node.create_service(IK, "/jetmax_control/inverse_kinematics", ik_callback)
+    node.get_logger().info("Ready to send joint angles")
     try:
-        rospy.spin()
+        rclpy.spin()
     except Exception as e:
-        rospy.logerr(e)
+        rclpy.logerr(e)
         sys.exit(-1)
     
 if __name__ == "__main__":

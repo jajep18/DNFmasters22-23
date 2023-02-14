@@ -39,9 +39,9 @@ def forward_kinematics(angle):
         print(joint_angle)
         return joint_angle
     else:
-        rospy.logerr("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
+        rclpy.logerr("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
             AngleRotateRange, AngleLeftRange, AngleRightRange))
-        rospy.logwarn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
+        rclpy.logwarn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
             alpha1, alpha2, alpha3))
         return None
 
@@ -60,7 +60,7 @@ def inverse_kinematics(position):
         elif x > 0:
             theta1 = 90
         else:
-            rospy.logerr('Invalid coordinate x:{} y:{} z:{}'.format(x, y, z))
+            rclpy.logerr('Invalid coordinate x:{} y:{} z:{}'.format(x, y, z))
             return None
     else:
         theta1 = math.atan(x / y)
