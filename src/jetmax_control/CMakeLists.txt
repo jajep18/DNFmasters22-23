@@ -24,6 +24,7 @@ find_package(gazebo_ros)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/FK.srv"
   "srv/IK.srv"
+  "srv/FKRequest.srv"
 )
 
 ## Install Python scripts

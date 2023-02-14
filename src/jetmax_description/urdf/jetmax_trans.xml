@@ -5,7 +5,7 @@
     <hardware>
       <plugin>fake_components/GenericSystem</plugin>
       <!-- <plugin>gazebo_ros_control/DefaultRobotHWSim</plugin> -->
-       <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
+      <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
     </hardware>
 
     <!-- Joints -->
