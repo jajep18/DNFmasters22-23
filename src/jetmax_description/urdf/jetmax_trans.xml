@@ -3,9 +3,10 @@
 <robot>
   <ros2_control name="GazeboSystem" type="system"> <!-- Name old: jetmax -->
     <hardware>
-      <plugin>fake_components/GenericSystem</plugin>
+      <!-- <plugin>fake_components/GenericSystem</plugin> -->
       <!-- <plugin>gazebo_ros_control/DefaultRobotHWSim</plugin> -->
-      <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <!--  <plugin>ros2_control_hardware_gazebo/GazeboSystem</plugin> -->
     </hardware>
 
     <!-- Joints -->

@@ -19,9 +19,19 @@
 			<robotNamespace>/jetmax</robotNamespace>
 		</plugin>
 	</gazebo> -->
-	<hardware>
+	<!-- <hardware>
       <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-  	</hardware>
+  	</hardware> -->
+
+	<gazebo>
+		<plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+			<robot_param>robot_description</robot_param>
+			<robot_param_node>robot_state_publisher</robot_param_node>
+			<robot_sim_type>gazebo_ros2_control/GazeboSystem</robot_sim_type>
+			<parameters>$(find jetmax_control)/config/controllers.yaml</parameters>
+		</plugin>
+	</gazebo>
+
 
 	<link name="Base">
 		<inertial>

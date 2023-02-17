@@ -31,7 +31,7 @@ class JetmaxFKService(Node):
         
         if fk_result:
             self.get_logger().info("FK succeeded! Result: {}".format(fk_result))
-            # joint_angles = [deg * math.pi / 180 for deg in fk_result]
+            joint_angles = [deg * math.pi / 180 for deg in fk_result]
             # for i in range(NUM_OF_JOINTS):
             #     joints_publishers[i].publish(np.float64(joint_angles[i]))
             self.res.success = True

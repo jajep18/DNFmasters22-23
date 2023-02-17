@@ -28,6 +28,9 @@
   <depend>robot_state_publisher</depend>
   <depend>gazebo_ros_pkgs</depend>
   <depend>ros2launch</depend>
+  <depend>gazebo_ros2_control</depend>
+  <depend>ros2_control</depend>
+  <depend>controller_interface</depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
 
   <!-- ROS2 Service specific includes -->

@@ -28,7 +28,7 @@ def generate_launch_description():
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        #name="jetmax_controller_manager_node",
+        #name="/jetmax_controller_manager",
         parameters=[robot_description, jetmax_controllers_yaml],
         output={
             "stdout": "screen",
@@ -40,7 +40,7 @@ def generate_launch_description():
     control_spawner_jsb = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joint_state_broadcaster"],
+        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
         namespace='jetmax',
         output="screen",
         # arguments=["joint_state_broadcaster",
@@ -59,7 +59,7 @@ def generate_launch_description():
     control_spawner_effort = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joints_effort_controller"],
+        arguments=["joints_effort_controller", "--controller-manager", "/controller_manager"],
         #namespace='/jetmax',
         output="screen",
     )
@@ -68,7 +68,7 @@ def generate_launch_description():
     control_spawner_position = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["joints_position_controller"],
+        arguments=["joints_position_controller", "--controller-manager", "/controller_manager"],
         #namespace='/jetmax',
         output="screen",
     )
