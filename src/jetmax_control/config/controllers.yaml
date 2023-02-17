@@ -1,6 +1,6 @@
 controller_manager: # Has to be named "controller_manager" in ROS 2
   ros__parameters:
-    update_rate: 10  # Hz
+    update_rate: 100  # Hz
 
     joint_state_broadcaster:
         type: joint_state_broadcaster/JointStateBroadcaster
@@ -9,15 +9,43 @@ controller_manager: # Has to be named "controller_manager" in ROS 2
         #differentiate between true controllers and simple data broadcasters.
         #The joint state broadcaster publishes the current states from ros2_control system.
 
-    joints_effort_controller:
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+      # The
+
+    joint_effort_controller:
       type: effort_controllers/JointGroupEffortController
       #The joint effort controller commands a group of joints through the effort interface
 
-    joints_position_controller:
+    joint_position_controller:
       type: position_controllers/JointGroupPositionController 
       #The joint position controller commands a group of joints through position
 
-joints_effort_controller:
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - Joint1
+      - Joint2
+      - Joint3
+      - Joint4
+      - Joint5
+      - Joint6
+      - Joint7
+      - Joint8
+      - Joint9
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+      # - effort DAS IS VERBOTEN >:(
+    
+    interface_name: position
+
+
+joint_effort_controller:
   ros__parameters:
     joints:
       - Joint1
@@ -38,7 +66,7 @@ joints_effort_controller:
       - velocity
       - effort
 
-joints_position_controller:
+joint_position_controller:
   ros__parameters:
     joints:
       - Joint1

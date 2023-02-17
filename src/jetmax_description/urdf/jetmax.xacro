@@ -23,6 +23,7 @@
       <plugin>gazebo_ros2_control/GazeboSystem</plugin>
   	</hardware> -->
 
+
 	<gazebo>
 		<plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
 			<robot_param>robot_description</robot_param>

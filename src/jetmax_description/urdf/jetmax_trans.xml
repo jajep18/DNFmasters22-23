@@ -11,8 +11,8 @@
 
     <!-- Joints -->
     <joint name="Joint1">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -20,10 +20,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans1">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint2">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -31,10 +34,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans2">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint3">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -42,10 +48,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans3">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint4">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -53,10 +62,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
-    
+    <transmission name="trans4">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
+
     <joint name="Joint5">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -64,10 +76,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans5">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint6">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -75,10 +90,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans6">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
     
     <joint name="Joint7">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -86,10 +104,13 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>  
+    <transmission name="trans7">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint8">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
@@ -97,17 +118,23 @@
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans8">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <joint name="Joint9">
-      <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
+      <command_interface name="effort">
+      <!-- <command_interface name="position"> -->
         <param name="min">-1</param>
         <param name="max">1</param>
       </command_interface>
-      <state_interface name="effort"/>
+       <state_interface name="effort"/> 
       <state_interface name="velocity"/>
       <state_interface name="position"/>
     </joint>
+    <transmission name="trans9">
+      <plugin>transmission_interface/SimpleTransmission</plugin>
+    </transmission>
 
     <!-- Transmission -->
     <!-- <transmission name="transmission1">
