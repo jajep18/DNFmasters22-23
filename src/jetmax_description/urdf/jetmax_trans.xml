@@ -12,9 +12,9 @@
     <!-- Joints -->
     <joint name="Joint1">
       <!-- <command_interface name="effort"> -->
-      <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+      <command_interface name="position"> <!-- Loose around pi -->
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -27,8 +27,8 @@
     <joint name="Joint2">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -41,8 +41,8 @@
     <joint name="Joint3">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -55,8 +55,8 @@
     <joint name="Joint4">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -69,8 +69,8 @@
     <joint name="Joint5">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -83,8 +83,8 @@
     <joint name="Joint6">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -97,8 +97,8 @@
     <joint name="Joint7">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -111,8 +111,8 @@
     <joint name="Joint8">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
       <state_interface name="effort"/>
       <state_interface name="velocity"/>
@@ -125,8 +125,8 @@
     <joint name="Joint9">
       <!-- <command_interface name="effort"> -->
       <command_interface name="position">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-3.15</param>
+        <param name="max">3.15</param>
       </command_interface>
        <state_interface name="effort"/> 
       <state_interface name="velocity"/>

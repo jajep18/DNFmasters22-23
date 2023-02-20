@@ -49,25 +49,25 @@ def main(args=None):
     # node.get_logger().info("Response: %s" % response.success)
 
     # Send a series of request with increasing joint angles
-    for i in range(0, 240, 5):
+    for i in range(0, 240, 1):
         node.get_logger().info("Sending request on joint 1...")
         response = node.send_request(i, 90, 0)
         # Wait for some time / Delay
-        time.sleep(0.5)
+        time.sleep(0.05)
     
     # Repeat with second joint angle
-    for i in range(0, 180, 5):
+    for i in range(30, 160, 1):
         node.get_logger().info("Sending request on joint 2...")
         response = node.send_request(90, i, 0)
         # Wait for some time / Delay
-        time.sleep(0.5)
+        time.sleep(0.05)
 
     # Repeat with third joint angle
-    for i in range(-20, 160, 5):
+    for i in range(-20, 90, 1):
         node.get_logger().info("Sending request on joint 3...")
         response = node.send_request(90, 90, i)
         # Wait for some time / Delay
-        time.sleep(0.5)
+        time.sleep(0.05)
         
 
     # Spin the node
