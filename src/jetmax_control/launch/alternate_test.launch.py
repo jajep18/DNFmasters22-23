@@ -77,17 +77,17 @@ def generate_launch_description():
     )
 
     # Description: This is were all the nodes are used to create the launch file
-    return LaunchDescription([
+    return LaunchDescription([ # Load joint_state_broadcaster when robot is spawned
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=spawn_entity_robot,
                 on_exit=[load_joint_state_broadcaster],
             ),
         ),
-        RegisterEventHandler(
+        RegisterEventHandler( # Load joint_trajectory_controller when joint_state_broadcaster is loaded
             event_handler=OnProcessExit(
                 target_action=load_joint_state_broadcaster,
-                on_exit=[load_joint_effort_controller],
+                on_exit=[load_joint_position_controller],
             ),
         ),
         # RegisterEventHandler(

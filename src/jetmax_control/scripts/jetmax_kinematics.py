@@ -1,4 +1,5 @@
 import rclpy
+import rclpy.logging
 import math
 
 AngleRotateRange = 0, 240
@@ -39,9 +40,9 @@ def forward_kinematics(angle):
         print(joint_angle)
         return joint_angle
     else:
-        rclpy.logerr("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
+        rclpy.logging.get_logger('jetmax_fk_service').error("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
             AngleRotateRange, AngleLeftRange, AngleRightRange))
-        rclpy.logwarn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
+        rclpy.logging.get_logger('jetmax_fk_service').warn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
             alpha1, alpha2, alpha3))
         return None
 

@@ -6,6 +6,7 @@ import jetmax_kinematics
 from jetmax_control.srv import FK
 import numpy as np
 from rclpy.node import Node
+from std_msgs.msg import Float64MultiArray
 
 NUM_OF_JOINTS = 9
 joints_publishers = []
@@ -18,6 +19,11 @@ class JetmaxFKService(Node):
         self.get_logger().info("Jetmax FK service created")
         self.res = FK.Response()
 
+        # Create a publisher to /joint_position_controller/commands with type std_msgs/msg/Float64MultiArray
+        self.pub = self.create_publisher(Float64MultiArray, '/joint_position_controller/commands', 1)
+        self.get_logger().info("Publisher created")
+        # # Create empty joint_angles member variable
+        # self.joint_angles = []
 
     def fk_callback(self, request, response):
         """
@@ -25,7 +31,6 @@ class JetmaxFKService(Node):
         @param request: FKRequest
         @return: FKResponse
         """
-        global joints_publishers
         angles = [request.angle_rotate, request.angle_left, request.angle_right]
         fk_result = jetmax_kinematics.forward_kinematics(angles)
         
@@ -34,6 +39,7 @@ class JetmaxFKService(Node):
             joint_angles = [deg * math.pi / 180 for deg in fk_result]
             # for i in range(NUM_OF_JOINTS):
             #     joints_publishers[i].publish(np.float64(joint_angles[i]))
+            self.publish_joint_angles(joint_angles)
             self.res.success = True
             # self.res.angle_rotate = fk_result[0]
             # self.res.angle_left = fk_result[1]
@@ -44,6 +50,28 @@ class JetmaxFKService(Node):
             self.res.success = False
 
         return self.res
+    
+    def publish_joint_angles(self, joint_angles):
+        # Behaviour (intended lol): When there is a new joint_angles, publish it
+        # # When joint angles is empty, do nothing
+        # if not self.joint_angles:
+        #     self.get_logger
+        #     return
+        
+        self.get_logger().info("Publishing...")
+        msg = Float64MultiArray()
+        msg.data = joint_angles
+        self.pub.publish(msg)
+        self.get_logger().info("Published: %s" % msg.data)
+        #self.joint_angles = None # Reset joint_angles to empty so that it doesn't publish again
+
+
+    def result_response(self, result):
+        self.get_logger().info("Result: %s" % result.result,
+                                 "Status: %s" % result.status)
+        
+        
+                               
 
 
 def main(args=None):
@@ -55,6 +83,9 @@ def main(args=None):
 
     # Spin the node
     rclpy.spin(node)
+    
+    
+    
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically

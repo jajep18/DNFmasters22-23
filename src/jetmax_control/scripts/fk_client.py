@@ -3,6 +3,9 @@ import rclpy
 from rclpy.node import Node
 from jetmax_control.srv import FK # FKRequest, FKResponse (use FK.Request and FK.Response in ROS2)
 #from jetmax_fk import fk_callback
+# Import std_msgs/msg/Float64MultiArray
+from std_msgs.msg import Float64MultiArray
+import time
 
 class JetmaxFKClient(Node):
     def __init__(self):
@@ -17,6 +20,7 @@ class JetmaxFKClient(Node):
 
         # Create a request
         self.req = FK.Request()
+
         
     def send_request(self, _angle_rotate: float, _angle_left: float, _angle_right: float):
         self.req.angle_rotate = float(_angle_rotate)
@@ -29,6 +33,8 @@ class JetmaxFKClient(Node):
         else:
             self.get_logger().info("Service call failed %r" % (self.future.exception(),))
         return self.future.result()
+    
+
         
 def main(args=None):
     # Initialize the node
@@ -38,12 +44,34 @@ def main(args=None):
     node = JetmaxFKClient()
 
     # Send a request using the nodes client
-    node.get_logger().info("Sending request...")
-    response = node.send_request(90, 90, 0)
-    node.get_logger().info("Response: %s" % response.success)
+    # node.get_logger().info("Sending request...")
+    # response = node.send_request(90, 90, 0)
+    # node.get_logger().info("Response: %s" % response.success)
+
+    # Send a series of request with increasing joint angles
+    for i in range(0, 240, 5):
+        node.get_logger().info("Sending request on joint 1...")
+        response = node.send_request(i, 90, 0)
+        # Wait for some time / Delay
+        time.sleep(0.5)
+    
+    # Repeat with second joint angle
+    for i in range(0, 180, 5):
+        node.get_logger().info("Sending request on joint 2...")
+        response = node.send_request(90, i, 0)
+        # Wait for some time / Delay
+        time.sleep(0.5)
+
+    # Repeat with third joint angle
+    for i in range(-20, 160, 5):
+        node.get_logger().info("Sending request on joint 3...")
+        response = node.send_request(90, 90, i)
+        # Wait for some time / Delay
+        time.sleep(0.5)
+        
 
     # Spin the node
-    rclpy.spin(node)
+    #rclpy.spin(node)
 
     # Destroy the node explicitly (optional)
     node.destroy_node()
