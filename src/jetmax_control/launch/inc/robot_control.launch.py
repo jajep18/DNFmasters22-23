@@ -6,6 +6,8 @@ from launch_ros.substitutions import FindPackageShare
 import xacro
 import os
 from ament_index_python.packages import get_package_share_directory
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
@@ -15,69 +17,67 @@ def generate_launch_description():
     xacro.process_doc(doc) # This is where the URDF is generated
     robot_description = {"robot_description": doc.toxml()}
 
-    # Description: This variable is the path for loading the controllers.yaml file
-    jetmax_controllers_yaml = PathJoinSubstitution(
-        [
-            FindPackageShare("jetmax_control"),
-            "config",
-            "controllers.yaml",
-        ]
+	# Description: This node is responsible for publishing the state of the robot (aka the URDF file) to the topic "robot_description"
+    robot_state_publisher = Node(package="robot_state_publisher",
+                                 executable="robot_state_publisher",
+                                 output="screen",
+                                 parameters=[robot_description])
+        # This node publishes the entity from the jetmax urdf to the topic robot_description
+        # This topic is used by the spawn_entity.py node to spawn the robot in Gazebo
+
+
+	# Description: This node will spawn the robot in Gazebo, using the URDF published to the topic robot_description
+    spawn_entity_robot = Node(package     ='gazebo_ros', 
+							  executable  ='spawn_entity.py', 
+							  arguments   = ['-entity', 'jetmax', '-topic', 'robot_description'],
+							  output      ='screen')
+        # Spawn the robot in Gazebo, loads the entity published in the topic robot_description
+        # The robot should be published in the topic robot_description before this node is executed
+        # This is done using the robot_state_publisher node
+    
+    # Description: This cmd loads the controller named "joint_state_broadcaster"
+    load_joint_state_broadcaster = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+             'joint_state_broadcaster'],
+        output='screen',
     )
 
-    # Description: This node is responsible for loading the controllers specified in the config file
-    controller_manager_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        #name="/jetmax_controller_manager",
-        parameters=[robot_description, jetmax_controllers_yaml],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
+    # Description: This cmd loads the controller named "joints_effort_controller"
+    load_joint_effort_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+                'joint_effort_controller'],
+        output='screen',
+    )
+    # Description: This cmd loads the controller named "joints_position_controller"
+    load_joint_position_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+             'joint_position_controller'],
+        output='screen',
     )
 
-    # Description: This node spawns the controller named "joint_state_broadcaster"
-    control_spawner_jsb = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
-        namespace='jetmax',
-        output="screen",
-        # arguments=["joint_state_broadcaster",
-        # "Joints_effort_controllers",
-        # "Joint2",
-        # "Joint3",
-        # "Joint4",
-        # "Joint5",
-        # "Joint6",
-        # "Joint7",
-        # "Joint8",
-        # "Joint9"]
-    )
-
-    # Description: This node spawns the controller named "joints_effort_controller"
-    control_spawner_effort = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["joints_effort_controller", "--controller-manager", "/controller_manager"],
-        #namespace='/jetmax',
-        output="screen",
-    )
-
-    # Description: This node spawns the controller named "joints_position_controller"
-    control_spawner_position = Node(
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["joints_position_controller", "--controller-manager", "/controller_manager"],
-        #namespace='/jetmax',
-        output="screen",
+    # Description: This cmd loads the controller named "joints_effort_controller"
+    load_joint_effort_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+                'joint_effort_controller'],
+        output='screen',
     )
 
     # Description: This is were all the nodes are used to create the launch file
     return LaunchDescription([
-        #robot_state_publisher_node, # Publish urdf to topic 'robot_description'
-        controller_manager_node,    # Start the controller manager, using config and urdf
-        control_spawner_jsb,        # Spawn the joint_state_broadcaster controller
-        #control_spawner_effort,     # Spawn the joints_effort_controller controller
-        control_spawner_position,   # Spawn the joints_position_controller controller
+        # Load the joint_state_broadcaster when the robot is spawned in Gazebo
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=spawn_entity_robot,
+                on_exit=[load_joint_state_broadcaster],
+            ),
+        ),
+        # Load joint_trajectory_controller when joint_state_broadcaster is loaded
+        RegisterEventHandler( 
+            event_handler=OnProcessExit(
+                target_action=load_joint_state_broadcaster,
+                on_exit=[load_joint_position_controller],
+            ),
+        ),
+        robot_state_publisher,      # Publish urdf to topic 'robot_description'
+        spawn_entity_robot,         # Spawn robot in Gazebo
     ])

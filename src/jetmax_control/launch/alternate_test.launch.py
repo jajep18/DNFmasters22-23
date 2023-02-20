@@ -26,11 +26,6 @@ def generate_launch_description():
                     get_package_share_directory('gazebo_ros'), 'launch'), '/gazebo.launch.py']),
                     launch_arguments={'max_step_size': '0.02', 'max_update_rate': '50',}.items(),
              )
-    # gazebo = IncludeLaunchDescription(
-    #             PythonLaunchDescriptionSource(PathJoinSubstitution(
-    #                 ['gazebo_ros', 'launch', 'gazebo.launch.py'])),
-    #                 launch_arguments={'max_step_size': '0.02', 'max_update_rate': '50',}.items(),
-    #          )
 
 	# Description: This node is responsible for publishing the state of the robot (aka the URDF file) to the topic "robot_description"
     robot_state_publisher = Node(
@@ -99,7 +94,6 @@ def generate_launch_description():
         gazebo,                     # Launch Gazebo
         robot_state_publisher,      # Publish urdf to topic 'robot_description'
         spawn_entity_robot,         # Spawn robot in Gazebo
-        # robot_state_publisher_node, # Publish urdf to topic 'robot_description'
         # controller_manager_node,    # Start the controller manager, using config and urdf
         # control_spawner_jsb,        # Spawn the joint_state_broadcaster controller
         # control_spawner_effort,     # Spawn the joints_effort_controller controller

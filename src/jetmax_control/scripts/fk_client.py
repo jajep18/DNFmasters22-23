@@ -58,7 +58,7 @@ def main(args=None):
     # Repeat with second joint angle
     for i in range(30, 160, 1):
         node.get_logger().info("Sending request on joint 2...")
-        response = node.send_request(90, i, 0)
+        response = node.send_request(80, i, 0)
         # Wait for some time / Delay
         time.sleep(0.05)
 
