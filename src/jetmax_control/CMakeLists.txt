@@ -33,8 +33,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ## Install Python scripts
 install(
   PROGRAMS
-    scripts/jetmax_fk.py
-    scripts/jetmax_ik.py
+    scripts/fk_service.py
+    scripts/ik_service.py
     scripts/fk_client.py
     scripts/ik_client.py
     scripts/jetmax_kinematics.py

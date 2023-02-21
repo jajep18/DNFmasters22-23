@@ -40,9 +40,9 @@ def forward_kinematics(angle):
         print(joint_angle)
         return joint_angle
     else:
-        rclpy.logging.get_logger('jetmax_fk_service').error("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
+        rclpy.logging.get_logger('jetmax_fk_kinematics').error("Infeasible angle values!, feasible range is AngleRotate: ({}), AngleLeft: ({}), AngleRight: ({})".format(
             AngleRotateRange, AngleLeftRange, AngleRightRange))
-        rclpy.logging.get_logger('jetmax_fk_service').warn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
+        rclpy.logging.get_logger('jetmax_fk_kinematics').warn("Requested angles are; angleRotate: {:.2f}, angleLeft: {:.2f}, angleRight: {:.2f}".format(
             alpha1, alpha2, alpha3))
         return None
 
@@ -61,7 +61,7 @@ def inverse_kinematics(position):
         elif x > 0:
             theta1 = 90
         else:
-            rclpy.logerr('Invalid coordinate x:{} y:{} z:{}'.format(x, y, z))
+            rclpy.logging.get_logger('jetmax_ik_kinematics').error('Invalid coordinate x:{} y:{} z:{}'.format(x, y, z))
             return None
     else:
         theta1 = math.atan(x / y)
