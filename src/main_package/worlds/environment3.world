@@ -3,7 +3,7 @@
 <!-- SDF language version -->
 <sdf version="1.7">
   <!-- World -->
-  <world name="Environment v2.0">
+  <world name="Environment v3.0">
 
     <!-- Add sun to world -->
     <include>
@@ -16,20 +16,20 @@
 
     <!-- Add a rectangle to serve as a table to the world -->
     <model name="table">
-      <pose>0 0 -1 0 0 0</pose>
+      <pose>0 -0.22 -0.1 0 0 0</pose>
       <link name="table_link">
-        <pose>0 0 -1 0 0 0</pose>
+        <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <box>
-              <size>4 2 0.1</size>
+              <size>0.7 0.3 0.01</size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>4 2 0.1</size>
+              <size>0.7 0.3 0.01</size>
             </box>
           </geometry>
         </visual>
@@ -38,20 +38,20 @@
   
     <!-- Add a red ball to the world -->
     <model name="red_ball">
-      <pose>0 0 0.1 0 0 0</pose>
+      <pose>0 -0.2 0.1 0 0 0</pose>
       <link name="link">
         <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
           <material>
@@ -65,20 +65,20 @@
 
     <!-- Add a green ball to the world -->
     <model name="green_ball">
-      <pose>1 0 0.1 0 0 0</pose>
+      <pose>0.1 -0.2 0.1 0 0 0</pose>
       <link name="link">
         <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
           <material>
@@ -92,20 +92,20 @@
 
     <!-- Add a blue ball to the world -->
     <model name="blue_ball">
-      <pose>-1 0 0.1 0 0 0</pose>
+      <pose>-0.1 -0.2 0.1 0 0 0</pose>
       <link name="link">
         <pose>0 0 0 0 0 0</pose>
         <collision name="collision">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <sphere>
-              <radius>0.1</radius>
+              <radius>0.025</radius>
             </sphere>
           </geometry>
           <material>
@@ -117,16 +117,33 @@
       </link>
     </model>
 
+	<!-- Used for fixing camera to Gazebo 'base_link' -->
+	<link name="world"/>
+	<!-- Creates root link -->
+	<joint name="base_joint_cam" type="fixed">
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<parent link="world" />
+		<child link="cam_link" />
+	</joint>
 
-       <!-- Add a stereo camera with ROS support -->
-  <model name='Stereo camera'>
+  <!-- Add a stereo camera with ROS support -->
+  <model name='Stereo_camera'>
     <!-- <pose>-0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
     <link name='cam_link'>
+    <pose>0.1 0.0 2.3 3.13 1.57 -1.58</pose>
+    <visual name='visual'>
+      <geometry>
+        <box>
+          <size>0.1 0.1 0.1</size>
+        </box>
+      </geometry>
+      <color>0.0 1.0 1.0</color>
+    </visual>
       <gravity>0</gravity>
        <sensor type="multicamera" name="stereo_camera">
-
         <camera name="left">
-          <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose>
+          <!-- <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
+          <pose>0.1 0.0 0.0 0 0 0</pose>
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
@@ -144,7 +161,8 @@
           </noise>
         </camera>
         <camera name="right">
-          <pose>0.2 0.0 2.3 3.13 1.57 -1.58</pose>
+          <pose>-0.1 0.0 0.0 0 0 0</pose>
+         <!-- <pose>0.2 0.0 2.3 3.13 1.57 -1.58</pose> -->
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>

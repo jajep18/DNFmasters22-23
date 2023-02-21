@@ -21,7 +21,7 @@ from launch.substitutions import LocalSubstitution
 from launch.substitutions import ThisLaunchFileDir, EnvironmentVariable
 
 def generate_launch_description():
-
+    # Description: Define the package names and the dnf package name for later use
     package_name     = 'main_package'
     dnf_package_name = 'dnf_package'
     pkg_gazebo_ros   = get_package_share_directory('gazebo_ros')
@@ -35,6 +35,7 @@ def generate_launch_description():
     )
     
     # Description: This is the launch file of the robot control - This is where the controllers are loaded, configured and started
+    # This is also where the robot is spawned in gazebo
     # Launch another launch file inside this one
     robot_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
@@ -53,20 +54,26 @@ def generate_launch_description():
         executable='circle_listener'
     )      
 
-    node_dnf = Node(
-        package=dnf_package_name,
-        executable="dnf_pubsub"
-    )
+    # Description: This is the launch file of the DNF package (not finished)
+    # node_dnf = Node(
+    #     package=dnf_package_name,
+    #     executable="dnf_pubsub"
+    # )
+
+
+
+    # Description: Environment launch file
+    environment = DeclareLaunchArgument(
+        'world',
+        default_value=[os.path.join(pkg_share_dir, 'worlds', 'environment3.world'), ''],
+        description='MY DESCRIPTION, BIG WORLD, BIG DREAMS')
 
 
     return LaunchDescription([
-        DeclareLaunchArgument(
-        'world',
-        default_value=[os.path.join(pkg_share_dir, 'worlds', 'environment3.world'), ''],
-        description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
+        environment,
         gazebo,
         node_campubsub,   
-        node_circlesub,
+        #node_circlesub,
         # node_dnf,
         robot_control_launch    
     ])

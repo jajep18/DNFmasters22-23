@@ -35,6 +35,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
 #find_package(dnf_package)
+find_package(rclpy REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 ## Environment hooks
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
@@ -62,6 +64,14 @@ ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs OpenCV sen
 
 ## Install Libraries
 
+## Install Python scripts
+install(
+  PROGRAMS
+    nodes/transform_pubsub.py
+    #nodes/movement_command_center.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ## Install Nodes
 install(TARGETS
   cam_pubsub
@@ -75,6 +85,7 @@ install(
     launch
     models
     worlds
+    nodes
   DESTINATION share/${PROJECT_NAME}/
 )
 
