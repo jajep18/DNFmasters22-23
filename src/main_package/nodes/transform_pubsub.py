@@ -18,12 +18,12 @@ class FrameListener(Node):
 
         # Define target frame
         self._target_frame = 'Link9'
-        self._source_frame = 'Stereo camera/left'
+        self._source_frame = 'Base'
         self._tf_buffer = Buffer()
         self._tf_listener = TransformListener(self._tf_buffer, self)
 
         # Create a publisher for the transformation result
-        self._publisher = self.create_publisher(TransformStamped, 'cam_TCP_transform', 10)
+        self._publisher = self.create_publisher(TransformStamped, 'base_TCP_transform', 1)
 
         # Create a timer 
         self._timer = self.create_timer(1, self.timer_callback)
@@ -36,7 +36,7 @@ class FrameListener(Node):
             t = self._tf_buffer.lookup_transform(
                 to_frame_rel,
                 from_frame_rel,
-                now,
+                self.get_clock().now(),
                 timeout=rclpy.duration.Duration(seconds=1.0))
         except TransformException as ex:
             self.get_logger().info(
@@ -46,7 +46,8 @@ class FrameListener(Node):
         # Create a TransformStamped message
         msg = TransformStamped()
         # Set the header
-        # Set time stamp to current time to avoid TF error 
+        # Set time stamp to current time to avoid TF error "Lookup would require extrapolation into the future"
+         
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = to_frame_rel
         msg.child_frame_id = from_frame_rel
