@@ -41,6 +41,9 @@ public:
 
     publisher_    = this->create_publisher<custom_msgs::msg::TriangulatedCircleInfoArr>("triangulated_circle_topic", 1);
 
+    triangulation_results_sub_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
+      "triangulated_circle_topic", 10, std::bind(&CircleSubscriber::sub_callback, this, std::placeholders::_1));
+
     timer_ = this->create_wall_timer(
       std::chrono::milliseconds(1000),
       std::bind(&CircleSubscriber::publish, this));
@@ -210,8 +213,8 @@ private:
       std::vector<cv::Mat> transVec;
       cv::Mat TMat_left(3, 1, CV_64F), TMat_right(3, 1, CV_64F);
       rotVec.push_back(cv::Mat::eye(3, 3, CV_64F));
-      TMat_left = (cv::Mat_<double>(3,1) << 0, 0, 2.3);
-      TMat_right = (cv::Mat_<double>(3,1) << 0.2, 0, 2.3);
+      TMat_left = (cv::Mat_<double>(3,1) << 0, 0.1, 0.5);
+      TMat_right = (cv::Mat_<double>(3,1) << 0, -0.1, 0.5);
 
       transVec.push_back(TMat_left);
       transVec.push_back(TMat_right);
@@ -230,13 +233,13 @@ private:
       // If real camera is used remeeber to change the translation matrix to the correct value from calibration
       cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0,
-                                                  0, 1, 0, 0,
-                                                  0, 0, 1, 2.3
+                                                  0, 1, 0, 0.1,
+                                                  0, 0, 1, 0.5
                                                   );
       cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
-                                                  1, 0, 0, 0.2,
-                                                  0, 1, 0, 0,
-                                                  0, 0, 1, 2.3
+                                                  1, 0, 0, 0,
+                                                  0, 1, 0, -0.1,
+                                                  0, 0, 1, 0.5
                                                   );      
       
 
@@ -252,11 +255,19 @@ private:
       cv::Mat left_point_mat(2, 1, CV_64F);
       cv::Mat right_point_mat(2 ,1 , CV_64F);
 
+      
       left_point_mat.at<double>(0,0) = ref_point.x;
       left_point_mat.at<double>(1,0) = ref_point.y;
 
       right_point_mat.at<double>(0,0) = match_point.x;
       right_point_mat.at<double>(1,0) = match_point.y;
+
+
+      // left_point_mat.at<double>(0,0) = ref_point.x;
+      // left_point_mat.at<double>(1,0) = ref_point.y;
+
+      // right_point_mat.at<double>(0,0) = match_point.x;
+      // right_point_mat.at<double>(1,0) = match_point.y;
 
       // RCLCPP_INFO_STREAM(this->get_logger(), "left_point_mat: " << left_point_mat);
       // RCLCPP_INFO_STREAM(this->get_logger(), "right_point_mat: " << right_point_mat);
@@ -270,6 +281,11 @@ private:
       
       // Unhomogenize coordinates
       cv::Mat triangCoords3D = triangCoords4D.rowRange(0,3) / triangCoords4D.row(3);
+
+  
+
+     
+      
 
       triangulated_circles_points3d.push_back(triangCoords3D);
       triangulated_circles_idx.push_back(match_idx);      
@@ -295,8 +311,8 @@ private:
     {
       custom_msgs::msg::TriangulatedCircleInfo triangulated_circles_msg;
       triangulated_circles_msg.color = triangulated_circles_color[i];
-      triangulated_circles_msg.x = triangulated_circles_points3d[i].at<double>(0,0);
-      triangulated_circles_msg.y = triangulated_circles_points3d[i].at<double>(1,0);
+      triangulated_circles_msg.x = triangulated_circles_points3d[i].at<double>(0,0) ;
+      triangulated_circles_msg.y = triangulated_circles_points3d[i].at<double>(1,0) ;
 
       triangulated_circles_arr_msg.circles.push_back(triangulated_circles_msg);
       
@@ -311,11 +327,39 @@ private:
     // RCLCPP_INFO(this->get_logger(), "Publishing triangulated circles");
     publisher_->publish(triangulated_circles_arr_msg);
   }
+
+  void sub_callback(const custom_msgs::msg::TriangulatedCircleInfoArr::SharedPtr msg)
+  {
+    if (msg->circles.size() > 0 ) {
+      RCLCPP_INFO(this->get_logger(), "Received triangulated circles");
+      std::string circle_log = "";
+      for (size_t i = 0; i < msg->circles.size(); i++)
+      {
+        
+        circle_log += "\n Color: " + msg->circles[i].color;
+        circle_log += "\n x: " + std::to_string(msg->circles[i].x);
+        circle_log += "\n y: " + std::to_string(msg->circles[i].y);
+          
+      }
+      
+
+
+      RCLCPP_INFO_STREAM(this->get_logger(), "Triangulations:" << circle_log);
+    }
+    else {
+      RCLCPP_INFO(this->get_logger(), "Received empty triangulated circles");
+    }
+    
+  }
+
+
+
   // Subscribers
   rclcpp::Subscription<custom_msgs::msg::CircleInfoArrStereo>::SharedPtr subscription_;
   rclcpp::Subscription<custom_msgs::msg::CircleInfoArrStereo>::SharedPtr subscriptionTriangulate_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscriber_left_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscriber_right_;
+  rclcpp::Subscription<custom_msgs::msg::TriangulatedCircleInfoArr>::SharedPtr triangulation_results_sub_;
 
   // ************ Publishers ************
   rclcpp::Publisher<custom_msgs::msg::TriangulatedCircleInfoArr>::SharedPtr publisher_;

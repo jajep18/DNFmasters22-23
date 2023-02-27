@@ -1,0 +1,85 @@
+<?xml version ="1.0" encoding ="UTF-8" ?>
+
+<sdf version="1.6">
+
+  <model name='Stereo_camera'>
+    <!-- <pose>-0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
+    <link name='cam_link'>
+      <!-- <pose>-0.1 0.0 0.0 0 0 0</pose> -->
+    <pose>0 0.0 0.5 3.13 1.57 -1.58</pose> 
+    <!-- <visual name='visual'>
+      <geometry>
+        <box>
+          <size>0.1 0.1 0.1</size>
+        </box>
+      </geometry>
+      <color>0.0 1.0 1.0</color>
+    </visual> -->
+      <gravity>0</gravity>
+      <sensor type="multicamera" name="stereo_camera">
+        <camera name="left">
+          <!-- <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
+          <pose>0.0 0.1 0.0 0 0 0</pose>
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <camera name="right">
+          <pose>0.0 -0.1 0.0 0.0 0 0</pose>
+        <!-- <pose>-0.1 0.0 1 3.13 1.57 -1.58</pose> -->
+          <horizontal_fov>1.3962634</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+
+        <!-- Set update_rate only sensor, not on plugin -->
+        <update_rate>1</update_rate>
+
+        <plugin name="plugin_name" filename="libgazebo_ros_camera.so">
+          <!-- Change namespace, camera name and topics so -
+              * Left images are published to: /custom_ns/custom_camera/left/custom_image
+              * Right images are published to: /custom_ns/custom_camera/right/custom_image
+              * Left camera info is published to: /custom_ns/custom_camera/left/custom_camera_info
+              * Right camera info is published to: /custom_ns/custom_camera/right/custom_camera_info
+          -->
+          <ros>
+            <namespace>custom_ns</namespace>
+            <!-- topics need to be prefixed with camera_name for remapping -->
+            <remapping>custom_camera/left/image_raw:=custom_camera/left/custom_image</remapping>
+            <remapping>custom_camera/right/image_raw:=custom_camera/right/custom_image</remapping>
+            <remapping>custom_camera/left/camera_info:=custom_camera/left/custom_camera_info</remapping>
+            <remapping>custom_camera/right/camera_info:=custom_camera/right/custom_camera_info</remapping>
+          </ros>
+
+          <camera_name>custom_camera</camera_name>
+
+          <!-- <frame_name> left_camera_optical_frame </frameName> -->
+        </plugin>
+      </sensor>
+    </link>
+  </model>
+</sdf>

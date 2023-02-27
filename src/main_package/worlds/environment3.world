@@ -130,20 +130,21 @@
   <model name='Stereo_camera'>
     <!-- <pose>-0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
     <link name='cam_link'>
-    <pose>0.1 0.0 2.3 3.13 1.57 -1.58</pose>
-    <visual name='visual'>
+      <!-- <pose>-0.1 0.0 0.0 0 0 0</pose> -->
+    <pose>0 -0.22 0.5 3.13 1.57 -1.58</pose> 
+    <!-- <visual name='visual'>
       <geometry>
         <box>
           <size>0.1 0.1 0.1</size>
         </box>
       </geometry>
       <color>0.0 1.0 1.0</color>
-    </visual>
+    </visual> -->
       <gravity>0</gravity>
-       <sensor type="multicamera" name="stereo_camera">
+      <sensor type="multicamera" name="stereo_camera">
         <camera name="left">
           <!-- <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
-          <pose>0.1 0.0 0.0 0 0 0</pose>
+          <pose>0.0 0.1 0.0 0 0 0</pose>
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
@@ -161,8 +162,8 @@
           </noise>
         </camera>
         <camera name="right">
-          <pose>-0.1 0.0 0.0 0 0 0</pose>
-         <!-- <pose>0.2 0.0 2.3 3.13 1.57 -1.58</pose> -->
+          <pose>0.0 -0.1 0.0 0.0 0 0</pose>
+        <!-- <pose>-0.1 0.0 1 3.13 1.57 -1.58</pose> -->
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
@@ -185,10 +186,10 @@
 
         <plugin name="plugin_name" filename="libgazebo_ros_camera.so">
           <!-- Change namespace, camera name and topics so -
-               * Left images are published to: /custom_ns/custom_camera/left/custom_image
-               * Right images are published to: /custom_ns/custom_camera/right/custom_image
-               * Left camera info is published to: /custom_ns/custom_camera/left/custom_camera_info
-               * Right camera info is published to: /custom_ns/custom_camera/right/custom_camera_info
+              * Left images are published to: /custom_ns/custom_camera/left/custom_image
+              * Right images are published to: /custom_ns/custom_camera/right/custom_image
+              * Left camera info is published to: /custom_ns/custom_camera/left/custom_camera_info
+              * Right camera info is published to: /custom_ns/custom_camera/right/custom_camera_info
           -->
           <ros>
             <namespace>custom_ns</namespace>
