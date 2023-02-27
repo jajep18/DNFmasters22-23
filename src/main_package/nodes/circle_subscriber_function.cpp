@@ -69,10 +69,10 @@ private:
                                             + std::to_string(msg->left.circles[i].bgr_var [1]) + "/"
                                             + std::to_string(msg->left.circles[i].bgr_var [2]);
         }
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->left.circles.size() << " circles!" << circle_log);
+       // RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->left.circles.size() << " circles!" << circle_log);
     } else {
         //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->left.circles.size() << " circles.");
+       // RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->left.circles.size() << " circles.");
     }
 
     if (msg->right.circles.size() > 0){
@@ -89,10 +89,10 @@ private:
                                             + std::to_string(msg->right.circles[i].bgr_var [1]) + "/"
                                             + std::to_string(msg->right.circles[i].bgr_var [2]);
         }
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->right.circles.size() << " circles!" << circle_log);
+       // RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->right.circles.size() << " circles!" << circle_log);
     } else {
         //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->right.circles.size() << " circles.");
+       // RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->right.circles.size() << " circles.");
     } 
   }
 
@@ -127,11 +127,11 @@ private:
     // by finding the circle with the same color as the reference circle
 
     if(msg->left.circles.size() == 0 || msg->right.circles.size() == 0){
-        RCLCPP_INFO_STREAM(this->get_logger(), "No circles found.");
+        //RCLCPP_INFO_STREAM(this->get_logger(), "No circles found.");
         return;
     }
     else{
-        RCLCPP_INFO_STREAM(this->get_logger(), "Triangulating circles.");
+        //RCLCPP_INFO_STREAM(this->get_logger(), "Triangulating circles.");
     }
 
   
@@ -233,12 +233,12 @@ private:
       // If real camera is used remeeber to change the translation matrix to the correct value from calibration
       cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0,
-                                                  0, 1, 0, 0.1,
+                                                  0, 1, 0, 0.32,
                                                   0, 0, 1, 0.5
                                                   );
       cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0,
-                                                  0, 1, 0, -0.1,
+                                                  0, 1, 0, 0.12,
                                                   0, 0, 1, 0.5
                                                   );      
       
@@ -331,7 +331,7 @@ private:
   void sub_callback(const custom_msgs::msg::TriangulatedCircleInfoArr::SharedPtr msg)
   {
     if (msg->circles.size() > 0 ) {
-      RCLCPP_INFO(this->get_logger(), "Received triangulated circles");
+      //RCLCPP_INFO(this->get_logger(), "Received triangulated circles");
       std::string circle_log = "";
       for (size_t i = 0; i < msg->circles.size(); i++)
       {
@@ -344,10 +344,10 @@ private:
       
 
 
-      RCLCPP_INFO_STREAM(this->get_logger(), "Triangulations:" << circle_log);
+     RCLCPP_INFO_STREAM(this->get_logger(), "Triangulations:" << circle_log);
     }
     else {
-      RCLCPP_INFO(this->get_logger(), "Received empty triangulated circles");
+    //  RCLCPP_INFO(this->get_logger(), "Received empty triangulated circles");
     }
     
   }

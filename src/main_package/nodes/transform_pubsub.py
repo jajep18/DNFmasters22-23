@@ -32,13 +32,13 @@ class FrameListener(Node):
         from_frame_rel = self._target_frame
         to_frame_rel = self._source_frame
         try:
-            when = self.get_clock().now() - rclpy.time.Duration(seconds=2.0)
-            t = self.tf_buffer.lookup_transform_full(
-                target_frame=to_frame_rel,
+            when = self.get_clock().now() - rclpy.time.Duration(seconds=2.0) # looks at transformation 2 seconds ago - tune this value later
+            t = self._tf_buffer.lookup_transform_full(
+                target_frame=to_frame_rel, 
                 target_time=rclpy.time.Time(),
                 source_frame=from_frame_rel,
                 source_time=when,
-                fixed_frame='world',
+                fixed_frame=self._source_frame,
                 timeout=rclpy.duration.Duration(seconds=0.05))
         except TransformException as ex:
             self.get_logger().info(

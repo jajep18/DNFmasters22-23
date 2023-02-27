@@ -69,7 +69,14 @@ def main(args=None):
     #     time.sleep(1.5)
     
 
-    # # Home: (0, 150, 50) ?
+    # Home: (0, 150, 50) ?
+    # Send a request to move home
+    node.get_logger().info("Sending request to move home...")
+    position = [0, 100, 200]
+    node.get_logger().info("Position: {}".format(position))
+    response = node.send_request(position[0], position[1], position[2])
+    node.get_logger().info("Response: %s" % response.success)
+
     # # Send a request using the nodes client
     # for i in range(0, 200, 5):
     #     node.get_logger().info("Sending request on axis 1...")
@@ -114,7 +121,7 @@ def main(args=None):
     #         time.sleep(0.8)
 
     # Spin the node
-    rclpy.spin(node)
+    #rclpy.spin(node)
 
     # Destroy the node explicitly (optional)
     node.destroy_node()
