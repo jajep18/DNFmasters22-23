@@ -36,34 +36,85 @@ def main(args=None):
 
     # Create the node
     node = JetmaxIKClient()
-
-    # Home: (0, 150, 50) ?
-    # Send a request using the nodes client
-    for i in range(0, 200, 1):
-        node.get_logger().info("Sending request on axis 1...")
-        response = node.send_request(i, 150, 100)
-        node.get_logger().info("Response: %s" % response.success)
-        # Wait for some time / Delay
-        time.sleep(0.1)
     
-    # Repeat the test on the second axis
-    for i in range(50, 200, 1):
-        node.get_logger().info("Sending request on axis 2...")
-        response = node.send_request(0, i, 100)
-        node.get_logger().info("Response: %s" % response.success)
-        # Wait for some time / Delay
-        time.sleep(0.1)
+    # scale = 1000
+    # yoffset = -15
+    # #while true
+    # while(True):
+    #     # Green ball
+    #     node.get_logger().info("Sending request for green ball...")
+    #     position = [0.1 * scale, -0.2 * scale - yoffset, 0.2 * scale]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     node.get_logger().info("Scale: {}".format(scale))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     time.sleep(1.5)
 
-    # Repeat the test on the third axis
-    for i in range(0, 200, 1):
-        node.get_logger().info("Sending request on axis 3...")
-        response = node.send_request(0, 150, i)
-        node.get_logger().info("Response: %s" % response.success)
-        # Wait for some time / Delay
-        time.sleep(0.1)
+    #     # Red ball
+    #     node.get_logger().info("Sending request for red ball...")
+    #     position = [0.0 * scale, -0.2 * scale - yoffset, 0.2 * scale]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     node.get_logger().info("Scale: {}".format(scale))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     time.sleep(1.5)
+
+    #     # Blue ball
+    #     node.get_logger().info("Sending request for blue ball...")
+    #     position = [-0.1 * scale, -0.2 * scale - yoffset, 0.2 * scale]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     node.get_logger().info("Scale: {}".format(scale))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     time.sleep(1.5)
+    
+
+    # # Home: (0, 150, 50) ?
+    # # Send a request using the nodes client
+    # for i in range(0, 200, 5):
+    #     node.get_logger().info("Sending request on axis 1...")
+    #     position = [i, -100, 100]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     # Wait for some time / Delay
+    #     time.sleep(0.2)
+    
+    # # Repeat the test on the second axis
+    # for i in range(70, 200, 5):
+    #     node.get_logger().info("Sending request on axis 2...")
+    #     position = [0, i, 100]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     # Wait for some time / Delay
+    #     time.sleep(0.2)
+
+    # # Repeat the test on the third axis
+    # for i in range(100, 220, 5):
+    #     node.get_logger().info("Sending request on axis 3...")
+    #     position = [0, 150, i]
+    #     node.get_logger().info("Position: {}".format(position))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+    #     # Wait for some time / Delay
+    #     time.sleep(0.2)
+
+    # # Send request spanning the entire workspace
+    # for i in range(-200, 200, 40):
+    #     for j in range(-200, 200, 50):
+    #         #for k in range(100, 200, 20):
+    #         k = 150
+    #         node.get_logger().info("Sending request on spanning entire workspace...")
+    #         position = [i, j, k]
+    #         node.get_logger().info("Position: {}".format(position))
+    #         response = node.send_request(position[0], position[1], position[2])
+    #         node.get_logger().info("Response: %s" % response.success)
+    #         # Wait for some time / Delay
+    #         time.sleep(0.8)
 
     # Spin the node
-    #rclpy.spin(node)
+    rclpy.spin(node)
 
     # Destroy the node explicitly (optional)
     node.destroy_node()

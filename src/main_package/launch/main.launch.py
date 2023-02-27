@@ -24,6 +24,7 @@ def generate_launch_description():
     # Description: Define the package names and the dnf package name for later use
     package_name     = 'main_package'
     dnf_package_name = 'dnf_package'
+    jc_package_name  = 'jetmax_control'
     pkg_gazebo_ros   = get_package_share_directory('gazebo_ros')
     pkg_share_dir    = get_package_share_directory(package_name)
 
@@ -60,6 +61,16 @@ def generate_launch_description():
     #     executable="dnf_pubsub"
     # )
 
+    node_ik_client = Node(
+        package=jc_package_name,
+        executable="ik_service.py"
+    )
+
+    node_fk_client = Node(
+        package=jc_package_name,
+        executable="fk_service.py"
+    )
+
 
 
     # Description: Environment launch file
@@ -70,10 +81,12 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        environment,
-        gazebo,
-        node_campubsub,   
-        #node_circlesub,
-        # node_dnf,
-        robot_control_launch    
+        environment,                # Set environment world file
+        gazebo,                     # Launch gazebo
+        node_ik_client,             # Launch ik service
+        #node_fk_client,            # Launch fk service
+        #node_campubsub,            # Launch camera publisher and subscriber
+        #node_circlesub,            # Launch circle subscriber
+        # node_dnf,                 # Launch DNF package node
+        robot_control_launch        # Launch robot control launch file and spawn robot in gazebo
     ])

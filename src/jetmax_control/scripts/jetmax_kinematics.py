@@ -76,21 +76,21 @@ def inverse_kinematics(position):
             else:
                 pass
 
-        x = math.sqrt(x * x + y * y) - L1
-        z = z - L0
+    x = math.sqrt(x * x + y * y) - L1
+    z = z - L0
 
-        if math.sqrt(x * x + z * z) > L2 + L3:
-            return None
+    if math.sqrt(x * x + z * z) > L2 + L3:
+        return None
 
-        alpha = math.atan(z / x) * 180.0 / math.pi
-        beta = math.acos((L2 * L2 + L3 * L3 - (x * x + z * z)
-                          ) / (2 * L2 * L3)) * 180.0 / math.pi
-        gama = math.acos((L2 * L2 - L3 * L3 + (x * x + z * z)) /
-                         (2 * L2 * math.sqrt(x * x + z * z))) * 180.0 / math.pi
+    alpha = math.atan(z / x) * 180.0 / math.pi
+    beta = math.acos((L2 * L2 + L3 * L3 - (x * x + z * z)
+                        ) / (2 * L2 * L3)) * 180.0 / math.pi
+    gama = math.acos((L2 * L2 - L3 * L3 + (x * x + z * z)) /
+                        (2 * L2 * math.sqrt(x * x + z * z))) * 180.0 / math.pi
 
-        pos1 = theta1 + 90
-        theta2 = alpha + gama
-        pos2 = 180 - theta2
-        theta3 = beta + theta2
-        pos3 = 180 - theta3
-        return pos1, pos2, pos3
+    pos1 = theta1 + 90
+    theta2 = alpha + gama
+    pos2 = 180 - theta2
+    theta3 = beta + theta2
+    pos3 = 180 - theta3
+    return pos1, pos2, pos3

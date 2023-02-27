@@ -32,12 +32,14 @@ class FrameListener(Node):
         from_frame_rel = self._target_frame
         to_frame_rel = self._source_frame
         try:
-            now = self.get_clock().now()
-            t = self._tf_buffer.lookup_transform(
-                to_frame_rel,
-                from_frame_rel,
-                now,
-                timeout=rclpy.duration.Duration(seconds=1.0))
+            when = self.get_clock().now() - rclpy.time.Duration(seconds=2.0)
+            t = self.tf_buffer.lookup_transform_full(
+                target_frame=to_frame_rel,
+                target_time=rclpy.time.Time(),
+                source_frame=from_frame_rel,
+                source_time=when,
+                fixed_frame='world',
+                timeout=rclpy.duration.Duration(seconds=0.05))
         except TransformException as ex:
             self.get_logger().info(
                 f'Could not transform {to_frame_rel} to {from_frame_rel}: {ex}')
@@ -46,7 +48,7 @@ class FrameListener(Node):
         # Create a TransformStamped message
         msg = TransformStamped()
         # Set the header
-        # Set time stamp to current time to avoid TF error 
+        # Set time stamp to current time
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = to_frame_rel
         msg.child_frame_id = from_frame_rel

@@ -68,7 +68,7 @@ ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs OpenCV sen
 install(
   PROGRAMS
     nodes/transform_pubsub.py
-    #nodes/movement_command_center.py
+    nodes/movement_command_center.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
