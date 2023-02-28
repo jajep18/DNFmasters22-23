@@ -99,9 +99,9 @@ def generate_launch_description():
         gazebo,                     # Launch gazebo
         node_ik_client,             # Launch ik service
         #node_fk_client,            # Launch fk service
-        node_campubsub,            # Launch camera publisher and subscriber
-        node_circlesub,            # Launch circle subscriber
+        node_campubsub,             # Launch camera publisher and subscriber
+        node_circlesub,             # Launch circle subscriber
         # node_dnf,                 # Launch DNF package node
-        # robot_control_launch,        # Launch robot control launch file and spawn robot in gazebo
+        robot_control_launch,       # Launch robot control launch file and spawn robot in gazebo
         #jetmax_tcp_listener         # Launch jetmax tcp listener - get TCP position and orientation from gazebo
     ])

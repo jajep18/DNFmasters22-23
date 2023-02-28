@@ -72,7 +72,9 @@ def main(args=None):
     # Home: (0, 150, 50) ?
     # Send a request to move home
     node.get_logger().info("Sending request to move home...")
-    position = [0, 100, 200]
+    # position = [-100, -238, 100]
+    position = [120, 0, 200]
+    # position = [0, 100, 200]
     node.get_logger().info("Position: {}".format(position))
     response = node.send_request(position[0], position[1], position[2])
     node.get_logger().info("Response: %s" % response.success)

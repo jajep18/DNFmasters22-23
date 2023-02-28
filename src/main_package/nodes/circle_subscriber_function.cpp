@@ -41,8 +41,8 @@ public:
 
     publisher_    = this->create_publisher<custom_msgs::msg::TriangulatedCircleInfoArr>("triangulated_circle_topic", 1);
 
-    triangulation_results_sub_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
-      "triangulated_circle_topic", 10, std::bind(&CircleSubscriber::sub_callback, this, std::placeholders::_1));
+   // triangulation_results_sub_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
+    //  "triangulated_circle_topic", 10, std::bind(&CircleSubscriber::sub_callback, this, std::placeholders::_1));
 
     timer_ = this->create_wall_timer(
       std::chrono::milliseconds(1000),
@@ -233,12 +233,12 @@ private:
       // If real camera is used remeeber to change the translation matrix to the correct value from calibration
       cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0.1,
-                                                  0, 1, 0, -0.22,
+                                                  0, 1, 0, -0.2,
                                                   0, 0, 1, 0.5
                                                   );
       cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, -0.1,
-                                                  0, 1, 0, -0.22,
+                                                  0, 1, 0, -0.2,
                                                   0, 0, 1, 0.5
                                                   );      
       
@@ -345,7 +345,7 @@ private:
       
 
 
-     RCLCPP_INFO_STREAM(this->get_logger(), "Triangulations:" << circle_log);
+     // RCLCPP_INFO_STREAM(this->get_logger(), "Triangulations:" << circle_log);
     }
     else {
     //  RCLCPP_INFO(this->get_logger(), "Received empty triangulated circles");
