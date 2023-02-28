@@ -102,6 +102,6 @@ def generate_launch_description():
         node_campubsub,            # Launch camera publisher and subscriber
         node_circlesub,            # Launch circle subscriber
         # node_dnf,                 # Launch DNF package node
-        robot_control_launch,        # Launch robot control launch file and spawn robot in gazebo
+        # robot_control_launch,        # Launch robot control launch file and spawn robot in gazebo
         #jetmax_tcp_listener         # Launch jetmax tcp listener - get TCP position and orientation from gazebo
     ])

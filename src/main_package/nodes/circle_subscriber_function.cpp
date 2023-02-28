@@ -208,16 +208,16 @@ private:
       // Create matrix for triangulation from points
       cv::Mat qs = (cv::Mat_<int>(4,1) << ref_point.x, ref_point.y, match_point.x, match_point.y);
 
-      // Define rotation matrix and translation vector
-      std::vector<cv::Mat> rotVec;
-      std::vector<cv::Mat> transVec;
-      cv::Mat TMat_left(3, 1, CV_64F), TMat_right(3, 1, CV_64F);
-      rotVec.push_back(cv::Mat::eye(3, 3, CV_64F));
-      TMat_left = (cv::Mat_<double>(3,1) << 0, 0.1, 0.5);
-      TMat_right = (cv::Mat_<double>(3,1) << 0, -0.1, 0.5);
+      // // Define rotation matrix and translation vector
+      // std::vector<cv::Mat> rotVec;
+      // std::vector<cv::Mat> transVec;
+      // cv::Mat TMat_left(3, 1, CV_64F), TMat_right(3, 1, CV_64F);
+      // rotVec.push_back(cv::Mat::eye(3, 3, CV_64F));
+      // TMat_left = (cv::Mat_<double>(3,1) << 0, 0.1, 0.5);
+      // TMat_right = (cv::Mat_<double>(3,1) << 0, -0.1, 0.5);
 
-      transVec.push_back(TMat_left);
-      transVec.push_back(TMat_right);
+      // transVec.push_back(TMat_left);
+      // transVec.push_back(TMat_right);
 
       // Define camera matrix from camera info
       cv::Mat camMat_left = (cv::Mat_<double>(3,3) << camera_info_left->k[0], camera_info_left->k[1], camera_info_left->k[2],
@@ -232,13 +232,13 @@ private:
       // Translation matrix is known for the simulated cameras
       // If real camera is used remeeber to change the translation matrix to the correct value from calibration
       cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
-                                                  1, 0, 0, 0,
-                                                  0, 1, 0, -0.12,
+                                                  1, 0, 0, 0.1,
+                                                  0, 1, 0, -0.22,
                                                   0, 0, 1, 0.5
                                                   );
       cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
-                                                  1, 0, 0, 0,
-                                                  0, 1, 0, -0.32,
+                                                  1, 0, 0, -0.1,
+                                                  0, 1, 0, -0.22,
                                                   0, 0, 1, 0.5
                                                   );      
       
@@ -280,7 +280,7 @@ private:
 
       
       // Unhomogenize coordinates
-      cv::Mat triangCoords3D = triangCoords4D.rowRange(0,3) / triangCoords4D.row(3);
+      cv::Mat triangCoords3D = triangCoords4D.rowRange(0,3) / -(triangCoords4D.row(3));
 
   
 

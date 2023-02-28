@@ -117,26 +117,20 @@
       </link>
     </model>
 
-	<!-- Used for fixing camera to Gazebo 'base_link' -->
-	<link name="world"/>
-	<!-- Creates root link -->
-	<joint name="base_joint_cam" type="fixed">
-		<origin xyz="0 0 0" rpy="0 0 0" />
-		<parent link="world" />
-		<child link="cam_link" />
-	</joint>
+
 
   <!-- Add a stereo camera with ROS support -->
   <model name='Stereo_camera'>
     <!-- <pose>-0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
     <link name='cam_link'>
+      <!-- <pose>0 -0.22 0.5 0 1.571 -1.571 </pose> -->
+      <!-- <pose>0 -0.22 0.5 -3.142 1.571 -1.571 </pose> -->
       <!-- <pose>-0.1 0.0 0.0 0 0 0</pose> -->
-    <!-- <pose>0 -0.22 0.5 0 1.5707 -1.5707</pose>  -->
-    <pose>0 -0.22 0.5 3.1415 1.5707 -1.5707</pose> 
+    <!-- <pose>0 -0.2 0.6 3.13 1.57 -1.58</pose>  -->
     <!-- <visual name='visual'>
       <geometry>
         <box>
-          <size>0.1 0.1 0.1</size>
+          <size>0.01 0.01 0.01</size>
         </box>
       </geometry>
       <color>0.0 1.0 1.0</color>
@@ -144,8 +138,9 @@
       <gravity>0</gravity>
       <sensor type="multicamera" name="stereo_camera">
         <camera name="left">
+          <pose>0.1 -0.22 0.5 0 1.571 -1.571 </pose>
           <!-- <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
-          <pose>0.0 0.1 0.0 0 0 0</pose>
+          <!-- <pose>0.1 -0.2 0.5 0 0 1.55</pose> -->
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
@@ -156,23 +151,16 @@
             <near>0.02</near>
             <far>300</far>
           </clip>
-          <noise>
+          <!-- <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
             <stddev>0.007</stddev>
-          </noise>
-          <visual name='visual'>
-            <geometry>
-              <box>
-                <size>0.1 0.1 0.1</size>
-              </box>
-            </geometry>
-            <color>0.0 1.0 1.0</color>
-          </visual>
+          </noise> -->
         </camera>
         <camera name="right">
-          <pose>0.0 -0.1 0.0 0.0 0 0</pose>
-        <!-- <pose>-0.1 0.0 1 3.13 1.57 -1.58</pose> -->
+          <pose>-0.1 -0.22 0.5 0 1.571 -1.571 </pose>
+          <!-- <pose> -0.1 -0.2 0.5 0 0 1.55</pose> -->
+        <!-- <pose>-0.1 0.0 2.3 3.13 1.57 -1.58</pose> -->
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
             <width>640</width>
@@ -183,19 +171,11 @@
             <near>0.02</near>
             <far>300</far>
           </clip>
-          <noise>
+          <!-- <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
             <stddev>0.007</stddev>
-          </noise>
-          <visual name='visual'>
-            <geometry>
-              <box>
-                <size>0.1 0.1 0.1</size>
-              </box>
-            </geometry>
-            <color>0.3 0.8 0.6</color>
-          </visual>
+          </noise> -->
         </camera>
 
         <!-- Set update_rate only sensor, not on plugin -->
