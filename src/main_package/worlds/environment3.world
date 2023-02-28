@@ -131,7 +131,8 @@
     <!-- <pose>-0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
     <link name='cam_link'>
       <!-- <pose>-0.1 0.0 0.0 0 0 0</pose> -->
-    <pose>0 -0.22 0.5 3.13 1.57 -1.58</pose> 
+    <!-- <pose>0 -0.22 0.5 0 1.5707 -1.5707</pose>  -->
+    <pose>0 -0.22 0.5 3.1415 1.5707 -1.5707</pose> 
     <!-- <visual name='visual'>
       <geometry>
         <box>
@@ -160,6 +161,14 @@
             <mean>0.0</mean>
             <stddev>0.007</stddev>
           </noise>
+          <visual name='visual'>
+            <geometry>
+              <box>
+                <size>0.1 0.1 0.1</size>
+              </box>
+            </geometry>
+            <color>0.0 1.0 1.0</color>
+          </visual>
         </camera>
         <camera name="right">
           <pose>0.0 -0.1 0.0 0.0 0 0</pose>
@@ -179,6 +188,14 @@
             <mean>0.0</mean>
             <stddev>0.007</stddev>
           </noise>
+          <visual name='visual'>
+            <geometry>
+              <box>
+                <size>0.1 0.1 0.1</size>
+              </box>
+            </geometry>
+            <color>0.3 0.8 0.6</color>
+          </visual>
         </camera>
 
         <!-- Set update_rate only sensor, not on plugin -->

@@ -86,6 +86,7 @@ install(
     models
     worlds
     nodes
+    config
   DESTINATION share/${PROJECT_NAME}/
 )
 

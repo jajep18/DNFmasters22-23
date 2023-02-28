@@ -307,6 +307,7 @@ private:
     // }
 
     // Publish triangulated points
+    triangulated_circles_arr_msg.circles.clear();
     for (size_t i = 0; i < triangulated_circles_points3d.size() ; i++)
     {
       custom_msgs::msg::TriangulatedCircleInfo triangulated_circles_msg;

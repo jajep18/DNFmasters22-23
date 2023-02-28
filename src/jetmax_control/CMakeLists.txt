@@ -41,12 +41,21 @@ install(
     scripts/jetmax_kinematics.py
   DESTINATION lib/${PROJECT_NAME})
 
+# ## Install Python libraries
+# install(
+#   DIRECTORY
+#     scripts # This installs the executables also found in the scripts folder twice. 
+#     # Jetmax_kinematics should be moved to a seperate library folder and installed here
+#     # to avoid being installed as an executable as it is now.
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
 ## Install Assets (launch files, models, ...)
 install(
   DIRECTORY
     config
     launch
-    scripts
+    #scripts
 #    srv
   DESTINATION share/${PROJECT_NAME}/
 )

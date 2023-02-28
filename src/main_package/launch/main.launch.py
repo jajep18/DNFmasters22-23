@@ -29,10 +29,19 @@ def generate_launch_description():
     pkg_share_dir    = get_package_share_directory(package_name)
 
     # Gazebo launch
+    # gazebo = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py'),
+    #     )
+    # )
+
+    gazebo_params_path = os.path.join(
+        pkg_share_dir,'config','gazebo_params.yaml')
+
     gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py'),
-        )
+        PythonLaunchDescriptionSource([os.path.join(
+            pkg_gazebo_ros, 'launch', 'gazebo.launch.py')]),
+            launch_arguments={'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_path }.items()
     )
     
     # Description: This is the launch file of the robot control - This is where the controllers are loaded, configured and started
