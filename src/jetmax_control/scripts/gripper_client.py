@@ -44,7 +44,7 @@ def main(args=None):
     
 
     # Spin the node
-    rclpy.spin(node)
+    # rclpy.spin(node)
 
     # Destroy the node explicitly (optional)
     node.destroy_node()

@@ -233,12 +233,12 @@ private:
       // If real camera is used remeeber to change the translation matrix to the correct value from calibration
       cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0,
-                                                  0, 1, 0, 0.32,
+                                                  0, 1, 0, -0.12,
                                                   0, 0, 1, 0.5
                                                   );
       cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
                                                   1, 0, 0, 0,
-                                                  0, 1, 0, 0.12,
+                                                  0, 1, 0, -0.32,
                                                   0, 0, 1, 0.5
                                                   );      
       
