@@ -14,6 +14,8 @@ import time
 import asyncio #Implements sleep in a non-blocking manner
 import threading
 
+from main_package.movement import extrapolate_path
+
 from enum import Enum
 
 # from jetmax_control.scripts.ik_client import JetmaxIKClient
@@ -30,20 +32,21 @@ class Color(Enum):
     RED = 0
     GREEN = 1
     BLUE = 2
+
 # This node is responsible for receiving the TCP transform from the camera 
 # and reciving the real world pose of the balls from the camera
 # Should then send the robot to the ball and pick it up
-
 class MovementCommandCenter(Node):
     def __init__(self):
         super().__init__('movement_command_center')
         self._tf_buffer = Buffer()
         self._tf_listener = TransformListener(self._tf_buffer, self, spin_thread=True)
         #self._timer = self.create_timer(0.1, self.get_transform)
-        self._subscriber_trans = self.create_subscription(TransformStamped, 'base_TCP_transform', self.get_transform, 10)
+        self._subscriber_trans = self.create_subscription(TransformStamped, 'base_TCP_transform', self.get_tcp_transform, 10)
         self._subscriber_coords = self.create_subscription(TriangulatedCircleInfoArr, 'triangulated_circle_topic', self.get_coordinates, 10)
         self._transform = None
         self._ball_coordinates =[[None, None, None], [None, None, None], [None, None, None]] # Red, Green, Blue
+        # Todo: Above would support 3 or fewer balls, but we should make it support any number of balls
 
         # Create a client for the IK service
         self._ik_client = self.create_client(IK, '/jetmax_control/inverse_kinematics')
@@ -105,10 +108,8 @@ class MovementCommandCenter(Node):
     #     else:
     #         self.get_logger().info("FK Request failed %r" % (self.future.exception(),)) 
     #     return self.future.result().result
-        
-        
 
-    def get_transform(self, msg):
+    def get_tcp_transform(self, msg):
         if msg is not None:
             # Check if header time is older than 5 seconds
             if (msg.header.stamp.sec + 5) < (self.get_clock().now()).nanoseconds / 1e9:
@@ -119,6 +120,36 @@ class MovementCommandCenter(Node):
                 #self.get_logger().info('Recieved transform: %s' % self._transform)
         else:
             self.get_logger().info('No transform recieved')
+
+    def move_to(self, x: float, y: float, z: float):
+        '''
+        Move to the given coordinates, using an extrapolated path.
+        Input: x, y, z coordinates in meters
+        Output: Movement commands for a path to the given coordinates from the current position
+        '''
+        self.get_logger().info('Moving to (%s, %s, %s)' % (x, y, z))
+        
+        # Get the current positions joint angles (Only the 3 actuator joints we care about)
+        joints_current = []
+        #joints_current = jetmax.forward_kinematics(self._transform.rotation, self._transform.translation)
+
+        # Get the desired positions joint angles
+        joints_desired = []
+        #joints_desired = jetmax.forward_kinematics(self._transform.rotation, [x, y, z])
+
+        #Extrapolate a path between the current and desired positions in joint space
+        path = []
+        path = extrapolate_path(joints_current, joints_desired)
+
+        # Loop through the path and send movement commands
+        #for joint_angles in path:
+        #    self.send_ik_request(joint_angles[0], joint_angles[1], joint_angles[2])
+        #    time.sleep(0.5)
+
+        if path:
+            self.get_logger().info('Move successful')
+        else:
+            self.get_logger().info('Move failed')
             
     def get_coordinates(self, msg):
         # Get the coordinates of the ball from the camera

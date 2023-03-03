@@ -1,0 +1,16 @@
+digraph G {
+"world" -> "Base"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"Base" -> "Link1"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link1" -> "Link2"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link2" -> "Link3"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link2" -> "Link4"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link1" -> "Link5"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link1" -> "Link6"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link6" -> "Link7"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link3" -> "Link8"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+"Link8" -> "Link9"[label=" Broadcaster: default_authority\nAverage rate: 18.509\nBuffer length: 3.134\nMost recent transform: 1677844678.357219\nOldest transform: 1677844675.223596\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1677844678.3714676"[ shape=plaintext ] ;
+}->"world";
+}
