@@ -33,6 +33,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
 find_package(Torch REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # Torch setup flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
@@ -67,6 +68,12 @@ message(STATUS "    libraries: ${TORCH_LIBRARIES}")
 
 #####################################################################################################
 # --------------------------------------- Installs / Exports -------------------------------------- #
+
+## Service files
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "srv/Decision.srv"
+  DEPENDENCIES std_msgs geometry_msgs
+)
 
 ## Install Header files
 install(DIRECTORY 

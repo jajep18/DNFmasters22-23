@@ -31,7 +31,12 @@ def generate_launch_description():
     #     executable='my_talker'
     # )
 
-    node_pocketsphinx = Node(
+    mic_node = Node(
+        package=package_name,
+        executable='mic_sensor'
+    )
+
+    pocketsphinx_node = Node(
         package=package_name,
         executable='pocketsphinx_pubsub'
     )
@@ -39,5 +44,6 @@ def generate_launch_description():
     return LaunchDescription([
         # node_listener,
         # node_talker 
-        node_pocketsphinx
+        mic_node,
+        pocketsphinx_node
     ])

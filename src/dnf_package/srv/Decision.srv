@@ -1,0 +1,5 @@
+uint8 requestid
+---
+bool success
+uint8 actions
+uint8 targets

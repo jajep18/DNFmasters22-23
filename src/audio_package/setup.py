@@ -14,6 +14,8 @@ setup(
         ('share/' + package_name, ['package.xml']),
         # Include launch files:
         ('share/' + package_name + '/launch', ['launch/audio.launch.py']),
+        # Include library files:
+        ('lib/' + package_name, ['src/vocabulary.py'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,7 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
             # Include nodes:
-            'pocketsphinx_pubsub = audio_package.pocketsphinx_pubsub:main'
+            'pocketsphinx_pubsub = audio_package.pocketsphinx_pubsub:main',
+            'mic_sensor = audio_package.mic_sensor_node:main'
         ],
     },
 )
