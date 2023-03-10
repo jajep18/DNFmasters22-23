@@ -18,8 +18,8 @@ class Pocketsphinx_Pubsub(Node):
 
     def __init__(self):
         super().__init__('pocketsphinx_node')
-        self.publisher = self.create_publisher(Int8MultiArray, 'keywords', 10)
-        self.publisher_explicit = self.create_publisher(String, 'keywords_explicit', 10)
+        self.publisher = self.create_publisher(Int8MultiArray, 'keywords', 1)
+        self.publisher_explicit = self.create_publisher(String, 'keywords_explicit', 1)
 
         self.subscriber = self.create_subscription(String, 'audio_file', self.subscriber_callback, 1)
         timer_period = 3  # seconds
@@ -29,9 +29,14 @@ class Pocketsphinx_Pubsub(Node):
 
         self.audio_data = ""
         self.words = [Words['ERROR'].value]
+        self.audio_recieved = False
+        self.audio_recieved_explicit = False
         
 
     def kwspotting_callback(self):
+        if self.audio_recieved == False:
+            return
+        
         kw_msg = Int8MultiArray()
         #print self.words for debugging
         #self.get_logger().info('Words: "%s"' % self.words)
@@ -40,13 +45,21 @@ class Pocketsphinx_Pubsub(Node):
         self.publisher.publish(kw_msg)
         self.get_logger().info('Publishing: "%s"' % kw_msg.data)
 
+        self.audio_recieved = False
+
     def kwspotting_callback_explicit(self):
+        if self.audio_recieved_explicit == False:
+            return
+        
         msg = String()
         msg.data = self.audio_data
         self.publisher_explicit.publish(msg)
+        self.get_logger().info('Publishing (explicit): "%s"' % msg.data)
+
+        self.audio_recieved_explicit = False
 
 
-    # This function is currently a dummy function. It needs to take actual audio, and perform the keyword spotting.    
+    # This function is currently a dummy function. It needs to take actual audio from the mic node, and perform the keyword spotting.    
     def subscriber_callback(self, msg):
         '''
         Input msg: audio file as a String
@@ -62,6 +75,8 @@ class Pocketsphinx_Pubsub(Node):
             self.get_logger().info('Word: "%s"' % word)
             words.append(self.check_word_in_dictionary(word.upper())) # Check if word is in dictionary
         self.words = words # Save words to a list
+        self.audio_recieved = True
+        self.audio_recieved_explicit = True
 
         
     def check_word_in_dictionary(self, word):

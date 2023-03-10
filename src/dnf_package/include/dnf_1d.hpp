@@ -18,6 +18,7 @@ class DNF_1D
 {
 public:
     // Constructors / Destructors
+    DNF_1D(); // Explicit default constructor
     DNF_1D(int _dimensions, bool debug = true);
     ~DNF_1D();
 
@@ -29,6 +30,13 @@ public:
     torch::Tensor get_output();
     torch::Tensor get_input();
 
+    // Setters
+    void set_activation(torch::Tensor activation);
+    void set_output(torch::Tensor output);
+    void set_input(torch::Tensor input);
+    void set_input_element(int index, float value);
+    void reset_input();
+    
 private:
     int m_dimensions;       //Dimension in DNF (Activation, Output, Input)
     int m_minimum_dims = 3; //Minimum dimensions in DNF for interaction kernel to work

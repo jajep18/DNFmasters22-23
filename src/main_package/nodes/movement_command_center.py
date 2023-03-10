@@ -14,7 +14,7 @@ import time
 import asyncio #Implements sleep in a non-blocking manner
 import threading
 
-from main_package.movement import extrapolate_path
+#from main_package.movement import extrapolate_path
 
 from enum import Enum
 
@@ -25,6 +25,7 @@ from enum import Enum
 from jetmax_control.srv import IK
 from jetmax_control.srv import FK
 from std_srvs.srv import SetBool
+from custom_msgs.srv import Decision
 
 from custom_msgs.msg import TriangulatedCircleInfoArr
 
@@ -65,11 +66,35 @@ class MovementCommandCenter(Node):
         while not self._gripper_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info("Gripper Service not available, waiting again...")
         self.get_logger().info("Gripper Service is available")
-
+        
+        # Create a client for the decision service
+        self._decision_client = self.create_client(Decision, '/DNF/decision')
+        while not self._decision_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info("Decision Service not available, waiting again...")
+        self.get_logger().info("Decision Service is available")
+            
+        
         # Create requests for the clients
         self._ik_req = IK.Request()
         self._gripper_req = SetBool.Request()
         # self._fk_req = FK.Request()
+        self._decision_req = Decision.Request()
+        self._reqid_count = 0
+        
+    def send_decision_request(self):  
+        self._decision_req.requestid = 69 # For debugging purposes
+        self.get_logger().info("Sending Decision request with id: %s" % (self._decision_req.requestid))
+        self._reqid_count += 1
+        
+        self.future = self._decision_client.call_async(self._decision_req)
+        rclpy.spin_until_future_complete(self, self.future, timeout_sec=5)
+        if self.future.result() is not None:
+            self.get_logger().info("Decision Request sent, Result: %s" % self.future.result().success)
+        else:
+            self.get_logger().info("Decision Request failed %r" % (self.future.exception(),)) 
+            return self.future.exception()
+        return self.future.result().actions
+        
 
     def send_ik_request(self, _x: float, _y: float, _z: float):
         scale = 1000
@@ -139,7 +164,7 @@ class MovementCommandCenter(Node):
 
         #Extrapolate a path between the current and desired positions in joint space
         path = []
-        path = extrapolate_path(joints_current, joints_desired)
+        #path = extrapolate_path(joints_current, joints_desired)
 
         # Loop through the path and send movement commands
         #for joint_angles in path:
@@ -237,42 +262,49 @@ def main(args=None):
 
     # Create rate object to "sleep" in a non-blocking manner
     #rate = node.create_rate(0.5, node.get_clock())
+    for i in range(15):
+        node.get_logger().info('Sending decision request')
+        action_resp = node.send_decision_request()
+        node.get_logger().info('Decision request response: %s' % action_resp)
+        time.sleep(5)
+    # node.get_logger().info('Sending decision request')
+    # node.send_decision_request()
 
     #rate.sleep()
     
     # Move the arm outta the goddang way
-    node.get_logger().info('Moving arm outta the way')
-    position = [0.120, 0.0, 0.200] # Summer home position
-    node.send_ik_request(position[0], position[1], position[2])
-    node.get_logger().info('Arm moved outta the way')
+    # node.get_logger().info('Moving arm outta the way')
+    # position = [0.120, 0.0, 0.200] # Summer home position
+    # node.send_ik_request(position[0], position[1], position[2])
+    # node.get_logger().info('Arm moved outta the way')
     
-    while node._ball_coordinates[0][0] is None:
-        node.get_logger().info('Waiting for ball coordinates')
-        time.sleep(0.5)
+    # while node._ball_coordinates[0][0] is None:
+    #     node.get_logger().info('Waiting for ball coordinates')
+    #     time.sleep(0.5)
 
 
-    # rclpy.sleep(2)
-    # Test the gripper
-    time.sleep(2)
-    # Send the movement command as a test
-    node.get_logger().info('Sending movement command for red ball')
-    node.send_movement_command('red') # Valid color - should work
-    node.get_logger().info('Turn on the big suck')
-    node.send_gripper_request(True)
-    time.sleep(0.5)
+    # # rclpy.sleep(2)
+    # # Test the gripper
+    # time.sleep(2)
+    # # Send the movement command as a test
+    # node.get_logger().info('Sending movement command for red ball')
+    # node.send_movement_command('red') # Valid color - should work
+    # node.get_logger().info('Turn on the big suck')
+    # node.send_gripper_request(True)
+    # time.sleep(0.5)
     
-    node.get_logger().info('Moving arm up')
-    position = node._ball_coordinates[Color["RED"].value]
-    position[2] = 0.025*2  + 0.2 
-    position[1] = position[1] + 0.038
+    # node.get_logger().info('Moving arm up')
+    # position = node._ball_coordinates[Color["RED"].value]
+    # position[2] = 0.025*2  + 0.2 
+    # position[1] = position[1] + 0.038
 
-    node.get_logger().info('Arm above ball')
-    time.sleep(5)
+    # node.get_logger().info('Arm above ball')
+    # time.sleep(5)
 
-    node.get_logger().info('Turn off the big suck')
-    node.send_gripper_request(False)
+    # node.get_logger().info('Turn off the big suck')
+    # node.send_gripper_request(False)
 
-    time.sleep(4)
+    # time.sleep(4)
 
     # for i in range(0, 10):
     #     # rate.sleep()

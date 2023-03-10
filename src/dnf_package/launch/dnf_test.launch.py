@@ -38,10 +38,10 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        DeclareLaunchArgument(
-        'world',
-        default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
-        description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
-        gazebo,
+        # DeclareLaunchArgument(
+        # 'world',
+        # default_value=[os.path.join(pkg_dolly_gazebo, 'worlds', 'environment2.world'), ''],
+        # description='MY DESCRIPTION, BIG WORLD, BIG DREAMS'),
+        # gazebo,
         node_dnf     
     ])

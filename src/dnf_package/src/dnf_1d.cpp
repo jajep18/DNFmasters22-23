@@ -7,6 +7,12 @@
 #include <rclcpp/logging.hpp> //For "get_logger"
 #include <iostream>
 
+// Explicit default constructor (Blame ROS2)
+DNF_1D::DNF_1D() {
+    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "DNF_1D default constructor called");
+    m_dimensions = -1; //Debug value
+}
+
 
 // Constructor
 DNF_1D::DNF_1D(int _dimensions, bool debug) {
@@ -66,4 +72,21 @@ torch::Tensor DNF_1D::get_output() {
 }
 torch::Tensor DNF_1D::get_input() {
     return m_input;
+}
+
+// Setters
+void DNF_1D::set_activation(torch::Tensor activation) {
+    m_activation = activation;
+}
+void DNF_1D::set_output(torch::Tensor output) {
+    m_output = output;
+}
+void DNF_1D::set_input(torch::Tensor input) {
+    m_input = input;
+}
+void DNF_1D::set_input_element(int index, float value) {
+    m_input[index] = value;
+}
+void DNF_1D::reset_input() {
+    m_input = torch::zeros({m_dimensions});
 }

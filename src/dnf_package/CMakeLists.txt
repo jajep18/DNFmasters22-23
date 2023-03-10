@@ -28,12 +28,14 @@ find_package(image_transport REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS highgui imgcodecs imgproc videoio)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
+find_package(builtin_interfaces REQUIRED) #For services
+find_package(rosidl_default_generators REQUIRED) #For services
+find_package(rosidl_generator_cpp REQUIRED) #For services
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
 find_package(Torch REQUIRED)
-find_package(geometry_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED) 
 
 # Torch setup flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
@@ -49,6 +51,16 @@ target_include_directories(dnf_1d PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURC
 target_link_libraries(dnf_1d ${TORCH_LIBRARIES} rclcpp::rclcpp)
 ament_export_targets(dnf_1d HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
+
+#####################################################################################################
+# ------------------------------------------ Interfaces ------------------------------------------- #
+
+## Service files #Note: These were exported to the custom_msgs package
+# rosidl_generate_interfaces(${PROJECT_NAME}
+# rosidl_generate_interfaces(${PROJECT_NAME}
+#   "srv/Decision.srv"
+#   DEPENDENCIES std_msgs geometry_msgs
+# )
 
 #####################################################################################################
 # ---------------------------------------- Add Executables ---------------------------------------- #
@@ -68,12 +80,6 @@ message(STATUS "    libraries: ${TORCH_LIBRARIES}")
 
 #####################################################################################################
 # --------------------------------------- Installs / Exports -------------------------------------- #
-
-## Service files
-rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/Decision.srv"
-  DEPENDENCIES std_msgs geometry_msgs
-)
 
 ## Install Header files
 install(DIRECTORY 
