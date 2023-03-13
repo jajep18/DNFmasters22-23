@@ -13,7 +13,13 @@ import rclpy # Always
 from rclpy.node import Node # Always
 from std_msgs.msg import Float32MultiArray # Sensor specific
 from std_msgs.msg import String 
+
+import os
+import glob
+import wave
 #import adafruit_mpu6050 # Sensor specific
+
+import pyaudio
 
 # Node class
 class MicSensorNode(Node):
@@ -28,20 +34,87 @@ class MicSensorNode(Node):
         self.frequency = 0.2 # Freq. pr. second; See "Impulse design" block in EI project
         timer_period = 1 / self.frequency # Calculate period
         #self.timer = self.create_timer(timer_period, self.timer_callback) # Create timer for callback
-        self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
+        # self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
+        self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
 
     def dummy_callback(self):
         # Dummy callback function for testing
         msg = String()
-        msg.data = "Move red ball right"
+        # V- Name of audio file in audio_files folder for PocketSphinx
+        # msg.data = "synthetic_movetheredballright" # This one works!    
+        # msg.data = "synthetic_movethegreenballleft" # This one works!
+        # msg.data = "synthetic_movethegreenballright" # This one works!
+        # msg.data = "synthetic_movetheblueballright" # This one works!
+        # msg.data = "synthetic_movetheblueballleft" # This one works!
+        # msg.data = "synthetic_movetheredballleft" # This one works!
+        msg.data = "synthetic_movetheredballup"
         self.publisher.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.get_logger().info('Publishing the filename: "%s"' % msg.data)
         
     def timer_callback(self):
         msg = Float32MultiArray() # Sensor specific
         msg.data = [self.mpu.acceleration] # Sensor specific
         self.publisher_.publish(msg) # Sensor specific
         self.get_logger().info('Publishing: "%s"' % msg.data) # Sensor specific
+        
+    def save_mic_rec(self):
+        self.get_logger().info("Starting recording call...")
+        form_1 = pyaudio.paInt16
+        chans = 1 # 1 channel for mono
+        samp_rate = 48000 # 48kHz sampling rate
+        chunk = 1024 # 2^12 samples for buffer
+        record_secs = 2 # seconds to record
+        dev_index = 2 # device index found by p.get_device_info_by_index(ii)
+
+        try:
+            audio = pyaudio.PyAudio() # create pyaudio instantiation
+            # create pyaudio stream
+            stream = audio.open(format = form_1,rate = samp_rate,channels = chans, \
+                                input_device_index = dev_index,input = True, \
+                                frames_per_buffer=chunk)
+        except:
+            self.get_logger().info("Error opening audio stream")
+            return
+        self.get_logger().info("Recording...")
+        frames = []
+
+        # loop through stream and append audio chunks to frame array
+        for ii in range(0,int((samp_rate/chunk)*record_secs)):
+            data = stream.read(chunk)
+            frames.append(data)
+        self.get_logger().info("Finished recording")
+
+        # stop the stream, close it, and terminate the pyaudio instantiation
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+        
+        # Count the amount of files in the audio_files folder (For a unique new filename)
+        dir_path = os.path.abspath("./src/audio_package/audio_files")
+        glob_path = os.path.join(dir_path, "*.wav")
+        n_files = len(glob.glob(glob_path))
+        n_files = str(n_files).zfill(4) # Fill with zeros to get a 4 digit number
+        
+        # Create a unique filename
+        wav_output_filename = "audio_files/audio_recording_" + str(n_files) + ".wav"
+        # Save the audio frames as .wav file
+        wavefile = wave.open(wav_output_filename,'wb')
+        wavefile.setnchannels(chans)
+        wavefile.setsampwidth(audio.get_sample_size(form_1))
+        wavefile.setframerate(samp_rate)
+        wavefile.writeframes(b''.join(frames))
+        wavefile.close()
+
+        # Save data as a wav file
+        wave.open(wav_output_filename, 'wb').writeframes(wavefile)
+        wave.close()
+
+        # Publish the filename
+        msg = String()
+        msg.data = "audio_recording_" + str(n_files)
+        self.publisher.publish(msg)
+        self.get_logger().info('Publishing the filename: "%s"' % msg.data)
+        
 
 def main(args=None):
     #Always: Init node, create node, spin node, destroy node, shutdown node

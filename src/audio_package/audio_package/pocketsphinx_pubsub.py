@@ -10,7 +10,10 @@ import wave
 
 import random
 
+import os
+
 from vocabulary import Words
+from pathlib import Path
 
 from std_msgs.msg import Int8MultiArray
 
@@ -67,16 +70,45 @@ class Pocketsphinx_Pubsub(Node):
         '''
         if msg is None:
             return
-        self.get_logger().info('I heard: "%s"' % msg.data)
-        self.audio_data = msg.data # Save audio data to a string with everything
-        split_msg = msg.data.split(" ") # Split string into words by spacing
-        words = [] # Empty list
-        for word in split_msg:
-            self.get_logger().info('Word: "%s"' % word)
-            words.append(self.check_word_in_dictionary(word.upper())) # Check if word is in dictionary
-        self.words = words # Save words to a list
-        self.audio_recieved = True
-        self.audio_recieved_explicit = True
+        self.get_logger().info('I heard the filename: "%s"' % msg.data)
+
+        # Get filepath from msg.data ("audio_file") filename
+        dir_path = os.path.abspath("./src/audio_package/audio_files")
+        filename = dir_path + "/" + msg.data + ".wav"
+        
+
+        filepath = Path(filename)
+        if filepath.is_file():
+           # self.get_logger().info('File exists')
+        
+            # Open audio file
+            try:
+                with wave.open(filename, 'rb') as audio:
+                    decoder = Decoder(samprate=audio.getframerate())#, dict=None)
+                    # decoder.load_dict('cmudict-en-us.dict')
+                    decoder.start_utt()
+                    decoder.process_raw(audio.getfp().read(), full_utt=True)
+                    decoder.end_utt()
+                    self.get_logger().info('Detected keywords: %s' % decoder.hyp().hypstr)
+                    
+                    # Convert audio data (string) to list of words
+                    self.audio_data = decoder.hyp().hypstr # Save audio data to a string for the explicit publisher (debugging and logging purposes)
+                    split_msg = decoder.hyp().hypstr.split(" ") # Split string into words
+                    words = [] # Empty list
+                    for word in split_msg:
+                        self.get_logger().info('Word: "%s"' % word)
+                        words.append(self.check_word_in_dictionary(word.upper())) # Check if word is in dictionary
+                    self.words = words # Save words to a list
+                    self.audio_recieved = True
+                    self.audio_recieved_explicit = True
+            except:
+                self.get_logger().info('Could not open audio file')
+                self.get_logger().info('File path: "%s"' % filename)
+        else: 
+            self.get_logger().info('File does not exist')
+            self.get_logger().info('File path: "%s"' % filename)
+
+
 
         
     def check_word_in_dictionary(self, word):

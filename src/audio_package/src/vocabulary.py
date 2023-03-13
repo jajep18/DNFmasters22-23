@@ -39,6 +39,7 @@ class Words(np.int8, Enum):
     AWAY    = 17
     YOUR    = 18
     ERROR   = 19
+    NO      = 20
 
     
     
@@ -64,7 +65,6 @@ class Words(np.int8, Enum):
     
     
     
-   
    
     #MOM     = 69
     

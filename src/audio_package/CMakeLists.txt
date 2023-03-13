@@ -29,6 +29,7 @@ find_package(rclpy REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(pyaudio REQUIRED)
 #find_package(custom_msgs REQUIRED) #reduce compile time, commint in later!!!!!!!
 
 
@@ -78,6 +79,7 @@ install(TARGETS
 install(
   DIRECTORY
     launch
+    audio_files
     #models
     #worlds
   DESTINATION share/${PROJECT_NAME}/
