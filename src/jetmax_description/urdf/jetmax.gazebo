@@ -28,7 +28,7 @@
 
   <!--base_link-->
   <gazebo reference="Base">
-    <material>Gazebo/Black</material>
+    <material>Gazebo/DarkGrey</material>
     <mu1>1</mu1>
     <mu2>1</mu2>
     <minDepth>0.01</minDepth>
