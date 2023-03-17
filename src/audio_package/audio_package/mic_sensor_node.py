@@ -19,6 +19,9 @@ import glob
 import wave
 #import adafruit_mpu6050 # Sensor specific
 
+# Include the system library: import sys
+import sys
+
 import pyaudio
 
 # Node class
@@ -47,7 +50,7 @@ class MicSensorNode(Node):
         # msg.data = "synthetic_movetheblueballright" # This one works!
         # msg.data = "synthetic_movetheblueballleft" # This one works!
         # msg.data = "synthetic_movetheredballleft" # This one works!
-        msg.data = "synthetic_movetheredballup"
+        msg.data = "synthetic_data/synthetic_movetheredballup"
         self.publisher.publish(msg)
         self.get_logger().info('Publishing the filename: "%s"' % msg.data)
         
@@ -63,8 +66,18 @@ class MicSensorNode(Node):
         chans = 1 # 1 channel for mono
         samp_rate = 48000 # 48kHz sampling rate
         chunk = 1024 # 2^12 samples for buffer
-        record_secs = 2 # seconds to record
+        record_secs = 5 # seconds to record
         dev_index = 2 # device index found by p.get_device_info_by_index(ii)
+
+        # devnull = os.open(os.devnull, os.O_WRONLY)
+        # old_stderr = os.dup(2)
+        # sys.stderr.flush()
+        # os.dup2(devnull, 2)
+        # os.close(devnull)
+        # self.get_logger().info("Finished redirecting stderr to devnull. Output is now suppressed.")
+        # self.get_logger().info("Ran devnull & flush test...")
+
+
 
         try:
             audio = pyaudio.PyAudio() # create pyaudio instantiation
@@ -96,18 +109,16 @@ class MicSensorNode(Node):
         n_files = str(n_files).zfill(4) # Fill with zeros to get a 4 digit number
         
         # Create a unique filename
-        wav_output_filename = "audio_files/audio_recording_" + str(n_files) + ".wav"
+        filename = "audio_recording_" + str(n_files) + ".wav"
+        wav_output_filename = dir_path + "/" + filename
         # Save the audio frames as .wav file
-        wavefile = wave.open(wav_output_filename,'wb')
+        wavefile = wave.open(wav_output_filename,'w')
+        
         wavefile.setnchannels(chans)
         wavefile.setsampwidth(audio.get_sample_size(form_1))
         wavefile.setframerate(samp_rate)
         wavefile.writeframes(b''.join(frames))
         wavefile.close()
-
-        # Save data as a wav file
-        wave.open(wav_output_filename, 'wb').writeframes(wavefile)
-        wave.close()
 
         # Publish the filename
         msg = String()
