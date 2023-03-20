@@ -13,6 +13,7 @@
 
 #include "../src/actions.cpp"
 #include "../include/dnf_1d.hpp"
+#include "../include/dnf_2d.hpp"
 
 #include "std_msgs/msg/int8_multi_array.hpp"
 #include "custom_msgs/msg/triangulated_circle_info_arr.hpp"
@@ -30,7 +31,8 @@ public:
     color_circles_dnf(3,true),//Contains the color of the circles. This is an input
     pos_x_circle_dnf(3,true), //Contains the x position of the circles. This is an input
     pos_y_circle_dnf(3,true), //Contains the y position of the circles. This is an input
-    action_dnf(5,true)        //Contains the actions, this is the output of the network
+    action_dnf(5,true),       //Contains the actions, this is the output of the network
+    keywords_color_dnf(20,3,true)//Combined DNF Keywords+Color½int index_input, int index_element,
   {
     // Create a subscriber to the detected circles
     circle_subscription_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
@@ -45,7 +47,6 @@ public:
     // Create service client for the movement command center to recieve decisions on actions and targets
     // decision_service_ = this->create_service<custom_msgs::srv::Decision>("decision_service", &DNFNode::decision_service_callback);
     decision_service_ = this->create_service<custom_msgs::srv::Decision>("/DNF/decision", std::bind(&DNFNode::decision_service_callback, this, _1, _2));
-
   }
 
 private:
@@ -90,6 +91,9 @@ private:
     }
     
   }
+
+  
+
   // Member variables -------------------
   // Subscriptions
   rclcpp::Subscription<custom_msgs::msg::TriangulatedCircleInfoArr>::SharedPtr circle_subscription_;
@@ -107,6 +111,8 @@ private:
   DNF_1D pos_x_circle_dnf;   //Contains the x position of the circles. This is an input
   DNF_1D pos_y_circle_dnf;   //Contains the y position of the circles. This is an input
   DNF_1D action_dnf;         //Contains the actions, this is the output of the network
+
+  DNF_2D keywords_color_dnf; //Contains the keywords and the color of the circles. This is a combined (produced) DNF
 
 
 };

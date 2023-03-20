@@ -49,7 +49,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 add_library(dnf_1d src/dnf_1d.cpp)
 target_include_directories(dnf_1d PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_link_libraries(dnf_1d ${TORCH_LIBRARIES} rclcpp::rclcpp)
-ament_export_targets(dnf_1d HAS_LIBRARY_TARGET)
+#ament_export_targets(dnf_1d HAS_LIBRARY_TARGET)
+
+## DNF_2D (class) library
+add_library(dnf_2d src/dnf_2d.cpp)
+target_include_directories(dnf_2d PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_link_libraries(dnf_2d ${TORCH_LIBRARIES} rclcpp::rclcpp)
+# ament_export_targets(dnf_2d HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
 
 #####################################################################################################
@@ -68,7 +74,7 @@ ament_export_dependencies(rclcpp)
 ## DNF publisher/subscriber node
 add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
 ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
-target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES} dnf_1d)
+target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES} dnf_1d dnf_2d)
 
 # Torch Debug - Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch
 if(NOT Torch_FOUND)
@@ -88,15 +94,16 @@ install(DIRECTORY
 include_directories(include)
 ament_export_include_directories(include)
 
-## Install Libraries
-install(
-  TARGETS dnf_1d
-  EXPORT dnf_1d
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
+# ## Install Libraries
+# install(
+#   TARGETS dnf_1d
+#   EXPORT dnf_1d
+#   ARCHIVE DESTINATION lib
+#   LIBRARY DESTINATION lib
+#   RUNTIME DESTINATION bin
+#   INCLUDES DESTINATION include
+# )
+
 ## Install Nodes
 install(TARGETS
   dnf_pubsub
