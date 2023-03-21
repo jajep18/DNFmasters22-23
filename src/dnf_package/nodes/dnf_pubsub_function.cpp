@@ -1,23 +1,34 @@
+/* 
+ * Description:     Node handling the decision making and DNF architecture
+ *
+ * Author:			    Erik Lindby
+ *                  Jacob Floe Jeppesen
+ *					        University of Southern Denmark
+ * Creation date:   01-11-2022
+ */
+
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "rclcpp/logging.hpp" //For "get_logger"
 #include <iostream>
 #include "../src/dnf_lib.cpp"
+#include <torch/torch.h>
 
-#include <torch/torch.h>//
+#include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
+// may throw ament_index_cpp::PackageNotFoundError exception
 
 // Custom messages
+#include "std_msgs/msg/int8_multi_array.hpp"
 #include "custom_msgs/msg/circle_info.hpp"
 #include "custom_msgs/msg/circle_info_arr.hpp"
+#include "custom_msgs/msg/triangulated_circle_info_arr.hpp"
+#include "custom_msgs/srv/decision.hpp"
 
+// Local includes
 #include "../src/actions.cpp"
 #include "../include/dnf_1d.hpp"
 #include "../include/dnf_2d.hpp"
-
-#include "std_msgs/msg/int8_multi_array.hpp"
-#include "custom_msgs/msg/triangulated_circle_info_arr.hpp"
-#include "custom_msgs/srv/decision.hpp"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -40,13 +51,32 @@ public:
 
     keyword_subscription_ = this->create_subscription<std_msgs::msg::Int8MultiArray>(
       "keywords", 1, std::bind(&DNFNode::keyword_callback, this, _1));
-    
-    // Initialize DNFs
-    //DNFinit();
 
     // Create service client for the movement command center to recieve decisions on actions and targets
     // decision_service_ = this->create_service<custom_msgs::srv::Decision>("decision_service", &DNFNode::decision_service_callback);
     decision_service_ = this->create_service<custom_msgs::srv::Decision>("/DNF/decision", std::bind(&DNFNode::decision_service_callback, this, _1, _2));
+
+    // Initialize DNFs
+    //DNFinit();
+    get_log_path();
+
+    //write2DTensorCSV(keywords_color_dnf.get_output(), log_path, "keywords_color_dnf_output.csv");
+    // torch::Tensor keywords_color_dnf_output = read2DTensorCSV(log_path, "keywords_color_dnf_output.csv");
+    // keywords_color_dnf.set_output(keywords_color_dnf_output);
+    // //Write it back to a file to check if it is the same
+    // //printTensor(keywords_color_dnf.get_output());
+    // write2DTensorCSV(keywords_color_dnf.get_output(), log_path, "test.csv");
+
+    // Test the DNF
+    keywords_dnf.set_input_element(4, 1.0f);
+    write2DTensorCSV(keywords_dnf.get_input(), log_path, "keywords_dnf_input.csv");
+
+    color_circles_dnf.set_input_element(0, 1.0f);
+    write2DTensorCSV(color_circles_dnf.get_input(), log_path, "color_circles_dnf_input.csv");
+
+    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
+    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 1.0f);
+    write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation.csv");
   }
 
 private:
@@ -92,9 +122,23 @@ private:
     
   }
 
+  void get_log_path(){
+    //This function gets the path to the log directory "dnf_logs"
+    //This should get the path without depending on the projects local directory hardcoded
+    //Done in a very roundabout manner, but nothing else would compile because of torch linking issues >:(
+    std::string dnf_log_path = ament_index_cpp::get_package_share_directory("dnf_package");
+    std::string::size_type i = dnf_log_path.find("install/dnf_package/share/dnf_package");
+    if (i != std::string::npos)
+        dnf_log_path.erase(i, dnf_log_path.size());
+    dnf_log_path.append("src/dnf_package/dnf_logs/");
+    RCLCPP_INFO(this->get_logger(), "Logs will be written to: %s", dnf_log_path.c_str());
+    log_path = dnf_log_path;
+  }
+
   
 
   // Member variables -------------------
+  std::string log_path;
   // Subscriptions
   rclcpp::Subscription<custom_msgs::msg::TriangulatedCircleInfoArr>::SharedPtr circle_subscription_;
   rclcpp::Subscription<std_msgs::msg::Int8MultiArray>::SharedPtr keyword_subscription_;

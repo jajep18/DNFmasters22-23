@@ -35,7 +35,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(custom_msgs REQUIRED)
 find_package(Torch REQUIRED)
-find_package(geometry_msgs REQUIRED) 
+find_package(geometry_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 # Torch setup flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
@@ -73,7 +74,7 @@ ament_export_dependencies(rclcpp)
 
 ## DNF publisher/subscriber node
 add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
-ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch)
+ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch ament_index_cpp)
 target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES} dnf_1d dnf_2d)
 
 # Torch Debug - Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch

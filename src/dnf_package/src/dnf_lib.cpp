@@ -7,6 +7,22 @@
 #include <std_msgs/msg/string.hpp>
 #include <rclcpp/logging.hpp> //For "get_logger"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <glob.h> //For globbing purposes
+#include <filesystem> //For filesystem get_path current purposes
+// #include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
+// may throw ament_index_cpp::PackageNotFoundError exception
+
+void printTensor(torch::Tensor tensor){
+    for (int i = 0; i < tensor.size(0); i++){
+        for (int j = 0; j < tensor.size(1); j++){
+            RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "tensor[%d][%d] = %f", i, j, tensor[i][j].item<float>());
+        }
+    }
+}
+
 void DNFinit(){ //Torch debugging
     torch::Tensor myTensor = torch::rand({2,3});
     //std::cout << "Here is the example tensor: " << myTensor << std::endl; //debug, cout only works when running the node only
@@ -143,3 +159,86 @@ std::vector<int> HSVFromRGB(int R, int G, int B){
     std::vector<int> RGB = {R,G,B};
     return RGB;
   }
+
+void write2DTensorCSV(torch::Tensor tensor, std::string log_path, std::string filename){
+   // if( tensor.size(0) == 0 && tensor.size(1) == 0){
+    //    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Tensor is empty, not writing to file");
+   //    return;
+    //}
+    
+    //RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Beginning to write tensor to file");
+    std::string file_path = log_path + filename;
+    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Writing to: %s", file_path.c_str());
+
+    // Write tensor to file
+    std::ofstream file;
+    file.open(file_path);
+    if(file.fail()){
+        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Failed to open file");
+        return;
+    }
+    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Tensor has sizes: %d %d", tensor.sizes()[0], tensor.sizes()[1]);
+    // Check dimensions of tensor
+    if(tensor.sizes()[1] == 0){ // 1D tensor
+        for (int i = 0; i < tensor.size(0); i++){
+            file << tensor[i].item<float>() << ",";
+        }
+    } else{ //2D tensor
+        for (int i = 0; i < tensor.size(0); i++){
+            for (int j = 0; j < tensor.size(1); j++){
+                file << tensor[i][j].item<float>() << ",";
+            }
+            file << std::endl;
+        }
+    }
+    
+    file.close();
+    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Finished writing tensor to file");
+}
+
+torch::Tensor read2DTensorCSV(std::string log_path, std::string filename){
+    if( filename == ""){
+        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "No filename given");
+        return torch::zeros({1,1});
+    }
+    std::string file_path = log_path + filename;
+
+    std::ifstream file;
+    file.open(file_path);
+    if(file.fail()){
+        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Failed to open file %s", file_path.c_str());
+        return torch::zeros({1,1});
+    }
+    std::vector<std::vector<double>> values;
+    std::string line;
+
+    while (std::getline(file, line)) {
+        std::istringstream in(line);
+        std::vector<double> row;
+        std::string field;
+        while (std::getline(in, field, ',')) {
+            row.push_back(std::stof(field));
+        }
+        values.push_back(row);
+    }
+    file.close();
+
+    // Loop through vector<vector<float>> values and print each element
+    // for (size_t i = 0; i < values.size(); i++){
+    //     for (size_t j = 0; j < values[i].size(); j++){
+    //         RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "values[%d][%d] = %f", i, j, values[i][j]);
+    //     }
+    // }
+
+    // Copying into a tensor
+    long int n = values.size();
+    long int m = values[0].size();
+    auto options = torch::TensorOptions().dtype(at::kDouble);
+    auto tensor = torch::zeros({n,m}, options);
+    for (int i = 0; i < n; i++)
+        tensor.slice(0, i,i+1) = torch::from_blob(values[i].data(), {m}, options);
+    
+    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Finished reading tensor from file");
+    return tensor;
+}
+

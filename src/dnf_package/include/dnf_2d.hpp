@@ -26,12 +26,12 @@ public:
     void step(torch::Tensor input1, torch::Tensor input2, float dt);
 
     // Getters
-    torch::Tensor get_activation(int index_activation);
+    torch::Tensor get_activation();
     torch::Tensor get_output();
     torch::Tensor get_input(int index_input);
 
     // Setters
-    void set_activation(torch::Tensor activation1, torch::Tensor activation2);
+    void set_activation(torch::Tensor activation);
     void set_output(torch::Tensor output);
     void set_input(torch::Tensor input1, torch::Tensor input2);
     void set_input_element(int index_input, int index_element, float value);
@@ -43,8 +43,7 @@ private:
     int m_minimum_dims = 3; //Minimum dimensions in DNF for interaction kernel to work
 
     // Activation
-    torch::Tensor m_activation1;
-    torch::Tensor m_activation2;
+    torch::Tensor m_activation;
 
     // Output
     torch::Tensor m_output; //Multidimensional tensor
