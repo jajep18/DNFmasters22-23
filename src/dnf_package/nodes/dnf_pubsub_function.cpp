@@ -17,6 +17,7 @@
 
 #include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
 // may throw ament_index_cpp::PackageNotFoundError exception
+#include <filesystem> //For filesystem get_path current purposes
 
 // Custom messages
 #include "std_msgs/msg/int8_multi_array.hpp"
@@ -67,16 +68,94 @@ public:
     // //printTensor(keywords_color_dnf.get_output());
     // write2DTensorCSV(keywords_color_dnf.get_output(), log_path, "test.csv");
 
-    // Test the DNF
-    keywords_dnf.set_input_element(4, 1.0f);
+    // - - - - - - - - - - - - - - - - - - - Test the DNF - - - - - - - - - - - - - - - - - - - 
+    //Set input of keywords
+    keywords_dnf.set_input_element(4, 6.9f);
     write2DTensorCSV(keywords_dnf.get_input(), log_path, "keywords_dnf_input.csv");
 
-    color_circles_dnf.set_input_element(0, 1.0f);
+    //Set input of color
+    color_circles_dnf.set_input_element(0, 6.9f);
     write2DTensorCSV(color_circles_dnf.get_input(), log_path, "color_circles_dnf_input.csv");
 
+    //Cross the Keyword and Color DNFS
     keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
     keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 1.0f);
     write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation.csv");
+
+    //Attempt to extract the keywords back from the Keyword/Color 2D DNF
+    torch::Tensor keywords_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(keywords_response, log_path, "color_response_KWxC.csv");
+
+    // - - - - - - - - - - - - - - - - - - - Keyword x Color test 2 - - - - - - - - - - - - - - - - - - - 
+    // Learning / Memorization phase - - - - - - - - 
+    // Learning red
+    keywords_dnf.reset_input();
+    color_circles_dnf.reset_input();
+    keywords_dnf.set_input_element(4, 6.9f); //"Red"
+    color_circles_dnf.set_input_element(0, 6.9f); // The red color
+    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input()); //Set input for the 2D DNF
+    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+
+    // Learning green
+    keywords_dnf.reset_input();
+    color_circles_dnf.reset_input();
+    keywords_dnf.set_input_element(5, 6.9f);
+    color_circles_dnf.set_input_element(1, 6.9f); // The green color
+    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
+    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+
+    // Learning blue
+    keywords_dnf.reset_input();
+    color_circles_dnf.reset_input();
+    keywords_dnf.set_input_element(6, 6.9f);
+    color_circles_dnf.set_input_element(2, 6.9f); // The blue color
+    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
+    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+
+    // Save KWxC DNF after learning
+    write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation_after_learning.csv");
+
+    // Memory extraction / Remembering phase - - - - - - - -
+    // Remembering red
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(4, 6.9f); //"Red"
+    torch::Tensor red_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(red_response, log_path, "red_response.csv");
+
+    // Remembering green
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(5, 6.9f); //"Green"
+    torch::Tensor green_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(green_response, log_path, "green_response.csv");
+
+    // Remembering blue
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(6, 6.9f); //"Blue"
+    torch::Tensor blue_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(blue_response, log_path, "blue_response.csv");
+
+    // Remember / Extract for a word that has not been learned
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(17, 6.9f); //"Away"
+    torch::Tensor dummy_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(dummy_response, log_path, "dummy_response.csv");
+
+    // Remember / Extract for several words that have been learned
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(4, 6.9f); //"Red"
+    keywords_dnf.set_input_element(5, 6.9f); //"Green"
+    torch::Tensor red_green_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(red_green_response, log_path, "red_green_response.csv");
+
+    // Remember / Extract for a phrase containing one learned word
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(0, 6.9f); //"Move"
+    keywords_dnf.set_input_element(1, 6.9f); //"The"
+    keywords_dnf.set_input_element(4, 6.9f); //"Red"
+    keywords_dnf.set_input_element(2, 6.9f); //"Ball"
+    keywords_dnf.set_input_element(8, 6.9f); //"Right"
+    torch::Tensor red_phrase_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(red_phrase_response, log_path, "red_phrase_response.csv");
   }
 
 private:
@@ -102,6 +181,7 @@ private:
       // Print the keywords
       RCLCPP_INFO(this->get_logger(), "Recieved keywords: %d", msg->data.size());
       RCLCPP_INFO_STREAM(this->get_logger(), "Keywords: " << '\n' << keywords_dnf.get_input());
+
     }
     return;
   }
@@ -122,7 +202,7 @@ private:
     
   }
 
-  void get_log_path(){
+  void get_log_path(){    
     //This function gets the path to the log directory "dnf_logs"
     //This should get the path without depending on the projects local directory hardcoded
     //Done in a very roundabout manner, but nothing else would compile because of torch linking issues >:(
@@ -133,6 +213,11 @@ private:
     dnf_log_path.append("src/dnf_package/dnf_logs/");
     RCLCPP_INFO(this->get_logger(), "Logs will be written to: %s", dnf_log_path.c_str());
     log_path = dnf_log_path;
+
+    //TODO: Combine this path with the appended path to the log directory, to get the full path
+    // Cleaner way than what we have know
+    //RCLCPP_INFO(this->get_logger(), "Filesystem: Current path: %s", std::filesystem::current_path().c_str());
+    //std::filesystem::current_path() 
   }
 
   

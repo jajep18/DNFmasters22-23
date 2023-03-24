@@ -1,4 +1,21 @@
-#pragma once
+#ifndef DNF_UTILS_CPP
+#define DNF_UTILS_CPP
+
+/*
+ * Description:     A collection of utility functions for the DNF package
+ *
+ * Author:			Jaccob Fløe Jeppsen & Erik Lindby
+ * Institution: 	University of Southern Denmark
+ *
+ * Creation date:	13-02-2021
+ * 
+ * Notes:           This file is included in the dnf_2d.cpp and dnf_pubsub_function.cpp files.
+ *                  Therefore to prevent multiple definitions of the functions, all functions must be defined as inline.
+ *                  This is done by adding the inline keyword before the function definition.
+ *                  The header guard is not sufficient to prevent multiple definitions of the functions.
+ */
+
+//#pragma once
 #include <torch/torch.h>
 #include "../include/dnf_1d.hpp"
 
@@ -15,15 +32,26 @@
 // #include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
 // may throw ament_index_cpp::PackageNotFoundError exception
 
-void printTensor(torch::Tensor tensor){
-    for (int i = 0; i < tensor.size(0); i++){
-        for (int j = 0; j < tensor.size(1); j++){
-            RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "tensor[%d][%d] = %f", i, j, tensor[i][j].item<float>());
+inline void printTensor(torch::Tensor tensor){
+    // Check if 1D or 2D tensor given
+    if (tensor.sizes()[1] == 0){
+        // 1D tensor
+        RCLCPP_INFO(rclcpp::get_logger("PrintTensor"), "Tensor is 1D");
+        for (int i = 0; i < tensor.sizes()[0]; i++){
+            RCLCPP_INFO(rclcpp::get_logger("PrintTensor"), "tensor[%d] = %f", i, tensor[i].item<float>());
+        }
+        return;
+    } 
+    // 2D tensor
+    RCLCPP_INFO(rclcpp::get_logger("PrintTensor"), "Tensor is 2D");
+    for (int i = 0; i < tensor.sizes()[0]; i++){
+        for (int j = 0; j < tensor.sizes()[1]; j++){
+            RCLCPP_INFO(rclcpp::get_logger("PrintTensor"), "tensor[%d][%d] = %f", i, j, tensor[i][j].item<float>());
         }
     }
 }
 
-void DNFinit(){ //Torch debugging
+inline void DNFinit(){ //Torch debugging
     torch::Tensor myTensor = torch::rand({2,3});
     //std::cout << "Here is the example tensor: " << myTensor << std::endl; //debug, cout only works when running the node only
 
@@ -38,11 +66,11 @@ void DNFinit(){ //Torch debugging
     torch::Tensor output = my_dnf.get_output();
 }
 
-std::vector<int> HSVFromRGB(int R, int G, int B){
+inline std::vector<int> HSVFromRGB(int R, int G, int B){
 
     // Sanity check
     if (R > 255 || G > 255 || B > 255 || R < 0 || G < 0 || B < 0){
-      RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "RGB values must be between 0 and 255, are: %d %d %d" , R, G, B);
+      RCLCPP_INFO(rclcpp::get_logger("HSVFromRGB"), "RGB values must be between 0 and 255, are: %d %d %d" , R, G, B);
         return {-1,-1,-1};
     }
 
@@ -93,11 +121,10 @@ std::vector<int> HSVFromRGB(int R, int G, int B){
 
   }
 
-  std::vector<int> RGBFromHSV(int H, int S, int V){
-
+  inline std::vector<int> RGBFromHSV(int H, int S, int V){
     // Sanity check
     if( H > 360 || H < 0 || S > 100 || S < 0 || V > 100 || V < 0){
-      RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "HSV values must be between 0 and 360, 0 and 100, 0 and 100, are: %d %d %d", H, S, V);
+      RCLCPP_INFO(rclcpp::get_logger("RGBFromHSV"), "HSV values must be between 0 and 360, 0 and 100, 0 and 100, are: %d %d %d", H, S, V);
       return {-1,-1,-1};
     }
 
@@ -160,7 +187,7 @@ std::vector<int> HSVFromRGB(int R, int G, int B){
     return RGB;
   }
 
-void write2DTensorCSV(torch::Tensor tensor, std::string log_path, std::string filename){
+inline void write2DTensorCSV(torch::Tensor tensor, std::string log_path, std::string filename){
    // if( tensor.size(0) == 0 && tensor.size(1) == 0){
     //    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Tensor is empty, not writing to file");
    //    return;
@@ -168,16 +195,16 @@ void write2DTensorCSV(torch::Tensor tensor, std::string log_path, std::string fi
     
     //RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Beginning to write tensor to file");
     std::string file_path = log_path + filename;
-    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Writing to: %s", file_path.c_str());
+    RCLCPP_INFO(rclcpp::get_logger("write2DTensorCSV"), "Writing to: %s", file_path.c_str());
 
     // Write tensor to file
     std::ofstream file;
     file.open(file_path);
     if(file.fail()){
-        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Failed to open file");
+        RCLCPP_INFO(rclcpp::get_logger("write2DTensorCSV"), "Failed to open file");
         return;
     }
-    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Tensor has sizes: %d %d", tensor.sizes()[0], tensor.sizes()[1]);
+    RCLCPP_INFO(rclcpp::get_logger("write2DTensorCSV"), "Tensor has sizes: %d %d", tensor.sizes()[0], tensor.sizes()[1]);
     // Check dimensions of tensor
     if(tensor.sizes()[1] == 0){ // 1D tensor
         for (int i = 0; i < tensor.size(0); i++){
@@ -193,12 +220,12 @@ void write2DTensorCSV(torch::Tensor tensor, std::string log_path, std::string fi
     }
     
     file.close();
-    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Finished writing tensor to file");
+    RCLCPP_INFO(rclcpp::get_logger("write2DTensorCSV"), "Finished writing tensor to file");
 }
 
-torch::Tensor read2DTensorCSV(std::string log_path, std::string filename){
+inline torch::Tensor read2DTensorCSV(std::string log_path, std::string filename){
     if( filename == ""){
-        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "No filename given");
+        RCLCPP_INFO(rclcpp::get_logger("read2DTensorCSV"), "No filename given");
         return torch::zeros({1,1});
     }
     std::string file_path = log_path + filename;
@@ -206,7 +233,7 @@ torch::Tensor read2DTensorCSV(std::string log_path, std::string filename){
     std::ifstream file;
     file.open(file_path);
     if(file.fail()){
-        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Failed to open file %s", file_path.c_str());
+        RCLCPP_INFO(rclcpp::get_logger("read2DTensorCSV"), "Failed to open file %s", file_path.c_str());
         return torch::zeros({1,1});
     }
     std::vector<std::vector<double>> values;
@@ -238,7 +265,8 @@ torch::Tensor read2DTensorCSV(std::string log_path, std::string filename){
     for (int i = 0; i < n; i++)
         tensor.slice(0, i,i+1) = torch::from_blob(values[i].data(), {m}, options);
     
-    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Finished reading tensor from file");
+    RCLCPP_INFO(rclcpp::get_logger("read2DTensorCSV"), "Finished reading tensor from file");
     return tensor;
 }
 
+#endif // DNF_UTILS_CPP

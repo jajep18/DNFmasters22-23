@@ -29,6 +29,7 @@ public:
     torch::Tensor get_activation();
     torch::Tensor get_output();
     torch::Tensor get_input(int index_input);
+    torch::Tensor extract_response_DNF(torch::Tensor input, int index_input = 0);
 
     // Setters
     void set_activation(torch::Tensor activation);
