@@ -40,6 +40,10 @@ class Words(np.int8, Enum):
     YOUR    = 18
     ERROR   = 19
     NO      = 20
+    RELEASE = 21
+    GRASP   = 22
+    PICK    = 23
+    PLACE   = 24
 
     
     
@@ -60,11 +64,7 @@ class Words(np.int8, Enum):
     
     
     
-    
-    
-    
-    
-    
+
    
     #MOM     = 69
     

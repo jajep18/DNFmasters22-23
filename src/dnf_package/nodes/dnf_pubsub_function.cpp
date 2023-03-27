@@ -30,21 +30,25 @@
 #include "../src/actions.cpp"
 #include "../include/dnf_1d.hpp"
 #include "../include/dnf_2d.hpp"
+#include "../src/hsvrgb.cpp"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
+
+#define VOCAB_SIZE 25 //The size of the vocabulary
 
 class DNFNode : public rclcpp::Node
 {
 public:
   DNFNode() : Node("dnf_pubsub"),
     // Member initialization list
-    keywords_dnf(20,true),    //Contains the input keywords in the command. This is the (true) input of the network
-    color_circles_dnf(3,true),//Contains the color of the circles. This is an input
-    pos_x_circle_dnf(3,true), //Contains the x position of the circles. This is an input
-    pos_y_circle_dnf(3,true), //Contains the y position of the circles. This is an input
-    action_dnf(5,true),       //Contains the actions, this is the output of the network
-    keywords_color_dnf(20,3,true)//Combined DNF Keywords+Color½int index_input, int index_element,
+    keywords_dnf(VOCAB_SIZE,true),    //Contains the input keywords in the command. This is the (true) input of the network
+    color_circles_dnf(3,true),        //Contains the color of the circles. This is an input
+    pos_x_circle_dnf(3,true),         //Contains the x position of the circles. This is an input
+    pos_y_circle_dnf(3,true),         //Contains the y position of the circles. This is an input
+    action_dnf(5,true),               //Contains the actions, this is the output of the network
+    keywords_color_dnf(VOCAB_SIZE,3,true),     //Combined DNF Keywords+Color½int index_input, int index_element,
+    keywords_action_dnf(VOCAB_SIZE, 5, true)   //Combined DNF Keywords+Action
   {
     // Create a subscriber to the detected circles
     circle_subscription_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
@@ -57,95 +61,105 @@ public:
     // decision_service_ = this->create_service<custom_msgs::srv::Decision>("decision_service", &DNFNode::decision_service_callback);
     decision_service_ = this->create_service<custom_msgs::srv::Decision>("/DNF/decision", std::bind(&DNFNode::decision_service_callback, this, _1, _2));
 
-    // Initialize DNFs
-    //DNFinit();
+    // Get the path to the dnf logs folder
     get_log_path();
 
-    //write2DTensorCSV(keywords_color_dnf.get_output(), log_path, "keywords_color_dnf_output.csv");
-    // torch::Tensor keywords_color_dnf_output = read2DTensorCSV(log_path, "keywords_color_dnf_output.csv");
-    // keywords_color_dnf.set_output(keywords_color_dnf_output);
-    // //Write it back to a file to check if it is the same
-    // //printTensor(keywords_color_dnf.get_output());
-    // write2DTensorCSV(keywords_color_dnf.get_output(), log_path, "test.csv");
+    // Test the HSV-RGB conversion
+    // Example of circle BGR values 0.000000 210.000000 0.000000
+    // Should HSV: 120, 100, 82
+    // float b = 0.0f, g = 210.0f, r = 0.0f;
+    // RCLCPP_INFO(this->get_logger(), "Color(BGR) of test circle %f %f %f", b, g, r);
+    // float h, s, v;
+    // RGBtoHSV(b, g, r, h, s, v);
+    // RCLCPP_INFO(this->get_logger(), "HSV of test circle %f %f %f", h, s, v);
 
-    // - - - - - - - - - - - - - - - - - - - Test the DNF - - - - - - - - - - - - - - - - - - - 
-    //Set input of keywords
-    keywords_dnf.set_input_element(4, 6.9f);
-    write2DTensorCSV(keywords_dnf.get_input(), log_path, "keywords_dnf_input.csv");
-
-    //Set input of color
-    color_circles_dnf.set_input_element(0, 6.9f);
-    write2DTensorCSV(color_circles_dnf.get_input(), log_path, "color_circles_dnf_input.csv");
-
-    //Cross the Keyword and Color DNFS
-    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
-    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 1.0f);
-    write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation.csv");
-
-    //Attempt to extract the keywords back from the Keyword/Color 2D DNF
-    torch::Tensor keywords_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(keywords_response, log_path, "color_response_KWxC.csv");
-
-    // - - - - - - - - - - - - - - - - - - - Keyword x Color test 2 - - - - - - - - - - - - - - - - - - - 
+    // - - - - - - - - - - - - - - - - - - - Keyword x Action test- - - - - - - - - - - - - - - - - - - 
     // Learning / Memorization phase - - - - - - - - 
-    // Learning red
+    // Learning "Move"
     keywords_dnf.reset_input();
-    color_circles_dnf.reset_input();
-    keywords_dnf.set_input_element(4, 6.9f); //"Red"
-    color_circles_dnf.set_input_element(0, 6.9f); // The red color
-    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input()); //Set input for the 2D DNF
-    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
+    action_dnf.set_input_element(MOVE, 6.9f); // The action "Move"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
 
-    // Learning green
+    // Learning "Release"
     keywords_dnf.reset_input();
-    color_circles_dnf.reset_input();
-    keywords_dnf.set_input_element(5, 6.9f);
-    color_circles_dnf.set_input_element(1, 6.9f); // The green color
-    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
-    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(21, 6.9f); // The keyword "Release"
+    action_dnf.set_input_element(RELEASE, 6.9f); // The action "Release"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
 
-    // Learning blue
+    // Learning "Grasp"
     keywords_dnf.reset_input();
-    color_circles_dnf.reset_input();
-    keywords_dnf.set_input_element(6, 6.9f);
-    color_circles_dnf.set_input_element(2, 6.9f); // The blue color
-    keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
-    keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(22, 6.9f); // The keyword "Grasp"
+    action_dnf.set_input_element(GRASP, 6.9f); // The action "Grasp"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
 
-    // Save KWxC DNF after learning
-    write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation_after_learning.csv");
+    // Learning "Pick" (Up)
+    keywords_dnf.reset_input();
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(23, 6.9f); // The keyword "Pick"
+    action_dnf.set_input_element(PICK_UP, 6.9f); // The action "Pick Up"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
+    
+    // Learning "Place" (Down)
+    keywords_dnf.reset_input();
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(24, 6.9f); // The keyword "Place"
+    action_dnf.set_input_element(PLACE_DOWN, 6.9f); // The action "Place Down"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+
+    // Save KWxA DNF after learning
+    write2DTensorCSV(keywords_action_dnf.get_activation(), log_path, "keywords_action_dnf_activation_after_learning.csv");
 
     // Memory extraction / Remembering phase - - - - - - - -
-    // Remembering red
+    // Remembering move
     keywords_dnf.reset_input();
-    keywords_dnf.set_input_element(4, 6.9f); //"Red"
-    torch::Tensor red_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(red_response, log_path, "red_response.csv");
+    keywords_dnf.set_input_element(0, 6.9f); //"Move"
+    torch::Tensor move_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(move_response, log_path, "move_response.csv");
 
-    // Remembering green
+    // Remembering release
     keywords_dnf.reset_input();
-    keywords_dnf.set_input_element(5, 6.9f); //"Green"
-    torch::Tensor green_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(green_response, log_path, "green_response.csv");
+    keywords_dnf.set_input_element(21, 6.9f); //"Release"
+    torch::Tensor release_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(release_response, log_path, "release_response.csv");
 
-    // Remembering blue
+    // Remembering GRASP
     keywords_dnf.reset_input();
-    keywords_dnf.set_input_element(6, 6.9f); //"Blue"
-    torch::Tensor blue_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(blue_response, log_path, "blue_response.csv");
+    keywords_dnf.set_input_element(22, 6.9f); //"grasp"
+    torch::Tensor grasp_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(grasp_response, log_path, "grasp_response.csv");
+
+    // Remembering "Pick"
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(23, 6.9f); //"Pick"
+    torch::Tensor pick_reponse = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(pick_reponse, log_path, "pick_response.csv");
+
+    // Remembering "Place"
+    keywords_dnf.reset_input();
+    keywords_dnf.set_input_element(24, 6.9f); //"Place"
+    torch::Tensor place_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(place_response, log_path, "place_response.csv");
 
     // Remember / Extract for a word that has not been learned
     keywords_dnf.reset_input();
     keywords_dnf.set_input_element(17, 6.9f); //"Away"
-    torch::Tensor dummy_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
+    torch::Tensor dummy_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
     write2DTensorCSV(dummy_response, log_path, "dummy_response.csv");
 
     // Remember / Extract for several words that have been learned
     keywords_dnf.reset_input();
-    keywords_dnf.set_input_element(4, 6.9f); //"Red"
-    keywords_dnf.set_input_element(5, 6.9f); //"Green"
-    torch::Tensor red_green_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(red_green_response, log_path, "red_green_response.csv");
+    keywords_dnf.set_input_element(0, 6.9f); //"Move"
+    keywords_dnf.set_input_element(21, 6.9f); //"Release"
+    torch::Tensor red_green_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(red_green_response, log_path, "move_release_response.csv");
 
     // Remember / Extract for a phrase containing one learned word
     keywords_dnf.reset_input();
@@ -154,8 +168,8 @@ public:
     keywords_dnf.set_input_element(4, 6.9f); //"Red"
     keywords_dnf.set_input_element(2, 6.9f); //"Ball"
     keywords_dnf.set_input_element(8, 6.9f); //"Right"
-    torch::Tensor red_phrase_response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    write2DTensorCSV(red_phrase_response, log_path, "red_phrase_response.csv");
+    torch::Tensor red_phrase_response = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
+    write2DTensorCSV(red_phrase_response, log_path, "move_phrase_response.csv");
   }
 
 private:
@@ -195,8 +209,19 @@ private:
 
         }
         RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!");
+        RCLCPP_INFO(this->get_logger(), "Color(BGR) of circle 0: %f %f %f", msg->circles[0].bgr_mean[0], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[2]);
+
+        // //Save msg->circles[0].bgr_mean to a vector<float> with RGB values
+        // std::vector<float> hsv_local = HSVFromRGB(msg->circles[0].bgr_mean[2], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[0]);
+        // RCLCPP_INFO(this->get_logger(), "(Local) HSV of circle 0: %f %f %f", hsv_local[0], hsv_local[1], hsv_local[2]);
+
+        //Convert to HSV
+        float h = 0, s = 0, v = 0;
+        HSVtoRGB(msg->circles[0].bgr_mean[2], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[0], h, s, v);
+        
+        //Print new values
+        RCLCPP_INFO(this->get_logger(), "(hsvrgb.cpp) HSV of circle 0: %f %f %f", h, s, v);
     } else {
-        //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
         RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.");
     }
     
@@ -242,6 +267,7 @@ private:
   DNF_1D action_dnf;         //Contains the actions, this is the output of the network
 
   DNF_2D keywords_color_dnf; //Contains the keywords and the color of the circles. This is a combined (produced) DNF
+  DNF_2D keywords_action_dnf; //Contains the keywords and the actions. This is a combined (produced) DNF;
 
 
 };

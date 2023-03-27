@@ -20,6 +20,9 @@ from launch.substitutions import PythonExpression
 from launch.substitutions import LocalSubstitution
 from launch.substitutions import ThisLaunchFileDir, EnvironmentVariable
 
+#Delayed node launch
+from launch.actions import TimerAction
+
 def generate_launch_description():
     # Description: Define the package names and the dnf package name for later use
     package_name     = 'main_package'
@@ -87,12 +90,20 @@ def generate_launch_description():
 
 
 
+
     # Description: Environment launch file
     environment = DeclareLaunchArgument(
         'world',
         default_value=[os.path.join(pkg_share_dir, 'worlds', 'environment3.world'), ''],
         description='MY DESCRIPTION, BIG WORLD, BIG DREAMS')
-
+    
+    
+    # Simple service client node that moves the robot to a desired position (Home, outside the table)
+    home_command_jetmax = Node(
+        package='jetmax_control',
+        executable='ik_client.py',
+    )
+    
 
     return LaunchDescription([
         environment,                # Set environment world file
@@ -104,4 +115,8 @@ def generate_launch_description():
         # node_dnf,                 # Launch DNF package node
         robot_control_launch,       # Launch robot control launch file and spawn robot in gazebo
         #jetmax_tcp_listener         # Launch jetmax tcp listener - get TCP position and orientation from gazebo
+        TimerAction( # Delayed node launch ( Strongly discouraged to use, but it works - should be replaced with states )
+            period=10.0, # Delay in seconds
+            actions=[home_command_jetmax]
+        )
     ])

@@ -66,7 +66,7 @@ inline void DNFinit(){ //Torch debugging
     torch::Tensor output = my_dnf.get_output();
 }
 
-inline std::vector<int> HSVFromRGB(int R, int G, int B){
+inline std::vector<float> HSVFromRGB(float R, float G, float B){
 
     // Sanity check
     if (R > 255 || G > 255 || B > 255 || R < 0 || G < 0 || B < 0){
@@ -74,7 +74,7 @@ inline std::vector<int> HSVFromRGB(int R, int G, int B){
         return {-1,-1,-1};
     }
 
-    int h = -1 , s = -1, v = -1;
+    float h = -1 , s = -1, v = -1;
     double min, max, delta;
 
     min = R < G ? R : G;
@@ -89,7 +89,7 @@ inline std::vector<int> HSVFromRGB(int R, int G, int B){
     {
         s = 0;
         h = 0; // undefined, maybe nan?
-        std::vector<int> HSV = {h,s,v};
+        std::vector<float> HSV = {h,s,v};
         return HSV;
     }
     if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
@@ -99,13 +99,12 @@ inline std::vector<int> HSVFromRGB(int R, int G, int B){
         // s = 0, h is undefined
         s = 0.0;
         h = 0.0;                            // its now undefined
-        std::vector<int> HSV = {h,s,v};
+        std::vector<float> HSV = {h,s,v};
         return HSV;
     }
     if( R >= max )                           // > is bogus, just keeps compilor happy
         h = ( G - B ) / delta;        // between yellow & magenta
-    else
-    if( G>= max )
+    else if( G>= max )
        h = 2.0 + ( B - R ) / delta;  // between cyan & yellow
     else
         h = 4.0 + ( R - G ) / delta;  // between magenta & cyan
@@ -115,7 +114,7 @@ inline std::vector<int> HSVFromRGB(int R, int G, int B){
     if( h < 0.0 )
         h += 360.0;
 
-    std::vector<int> HSV = {h,s,v};
+    std::vector<float> HSV = {h,s,v};
 
     return HSV;
 

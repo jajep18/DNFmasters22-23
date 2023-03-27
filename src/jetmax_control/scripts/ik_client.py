@@ -7,7 +7,7 @@ import time
 class JetmaxIKClient(Node):
     def __init__(self):
         super().__init__('ik_client')
-        self.get_logger().info("IKClient (moving) node created")
+        self.get_logger().info("IKClient (Go Home) node created")
     
         # Create a client to send a request to the service
         self.cli = self.create_client(IK, '/jetmax_control/inverse_kinematics')
