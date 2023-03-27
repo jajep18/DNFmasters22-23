@@ -41,14 +41,9 @@ public:
 
     publisher_    = this->create_publisher<custom_msgs::msg::TriangulatedCircleInfoArr>("triangulated_circle_topic", 1);
 
-   // triangulation_results_sub_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
-    //  "triangulated_circle_topic", 10, std::bind(&CircleSubscriber::sub_callback, this, std::placeholders::_1));
-
     timer_ = this->create_wall_timer(
       std::chrono::milliseconds(1000),
       std::bind(&CircleSubscriber::publish, this));
-
-    
   }
 
 private:
@@ -133,33 +128,58 @@ private:
     else{
         //RCLCPP_INFO_STREAM(this->get_logger(), "Triangulating circles.");
     }
-
   
     // Find matching circles
     std::vector<custom_msgs::msg::CircleInfo> left_circles = msg->left.circles;
     std::vector<custom_msgs::msg::CircleInfo> right_circles = msg->right.circles;
 
-
     // Check for lowest number of detected circles
     int min_num_circles = std::min(left_circles.size(), right_circles.size());
+
+    
+
+
+    // Define camera matrix from camera info
+    cv::Mat camMat_left = (cv::Mat_<double>(3,3) << camera_info_left->k[0], camera_info_left->k[1], camera_info_left->k[2],
+                                                camera_info_left->k[3], camera_info_left->k[4], camera_info_left->k[5],
+                                                camera_info_left->k[6], camera_info_left->k[7], camera_info_left->k[8]);
+
+    cv::Mat camMat_right = (cv::Mat_<double>(3,3) << camera_info_right->k[0], camera_info_right->k[1], camera_info_right->k[2],
+                                                camera_info_right->k[3], camera_info_right->k[4], camera_info_right->k[5],
+                                                camera_info_right->k[6], camera_info_right->k[7], camera_info_right->k[8]);
+    
+    // Compute projection matrices
+    // Translation matrix is known for the simulated cameras
+    // If real camera is used remeeber to change the translation matrix to the correct value from calibration
+    cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
+                                                1, 0, 0, 0.1,
+                                                0, 1, 0, -0.2,
+                                                0, 0, 1, 0.5
+                                                );
+    cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
+                                                1, 0, 0, -0.1,
+                                                0, 1, 0, -0.2,
+                                                0, 0, 1, 0.5
+                                                );
 
     // Loop through all circles
     std::vector<cv::Mat> triangulated_circles_points3d; // 3D points from triangulation
     std::vector<int> triangulated_circles_idx; // Index of circle in right image
     std::vector<std::string> triangulated_circles_color; // Color of circle
+    std::vector<std::vector<float>> mean_color_vec; // Mean color of circles
+    std::vector<std::vector<float>> var_color_vec; // Variance of color of circles
 
-    for (int i = 0; i < min_num_circles; i++)
-    {
-    
+    // Loop through all circles in left image as "ref_circle"
+    for (int i = 0; i < min_num_circles; i++) {
       // Find reference circle 
       custom_msgs::msg::CircleInfo ref_circle = left_circles[i];
 
       // Find matching circle in right image
       int match_idx = -1;
       custom_msgs::msg::CircleInfo match_circle;
-      double min_dist = 1000000;
+      float min_dist = 1000000;
       for(size_t j = 0; j<right_circles.size(); j++){
-          double dist = std::sqrt(std::pow(ref_circle.bgr_mean[0] - right_circles[j].bgr_mean[0], 2) + 
+          float dist = std::sqrt(std::pow(ref_circle.bgr_mean[0] - right_circles[j].bgr_mean[0], 2) + 
                                   std::pow(ref_circle.bgr_mean[1] - right_circles[j].bgr_mean[1], 2) + 
                                   std::pow(ref_circle.bgr_mean[2] - right_circles[j].bgr_mean[2], 2));
           if (dist < min_dist){
@@ -169,37 +189,22 @@ private:
           }
       }
 
-      std::vector<int> mean_color;
+      // Average the mean color of the two circles in each cam
+      std::vector<float> mean_color;
       mean_color.push_back( round( (ref_circle.bgr_mean[0] + match_circle.bgr_mean[0])/2 ) );
       mean_color.push_back( round( (ref_circle.bgr_mean[1] + match_circle.bgr_mean[1])/2 ) );
       mean_color.push_back( round( (ref_circle.bgr_mean[2] + match_circle.bgr_mean[2])/2 ) );
-      
-      
-      //std::string color = "unknown";
-      // if (mean_color[2] > mean_color[1] ){ // Check blue against red and green
-      //   if (mean_color[2] > mean_color[2]){ //Check blue against red
-      //     color = "red";
-      //   }
-      //   else{
-      //     color = "blue";
-      //   }
-      // }
-      // else if (mean_color[1] > mean_color[0]){ // Check green against blue
-      //   color = "green";
-      // }
-      // else{
-      //   color = "blue";
-      // }
+      mean_color_vec.push_back(mean_color);
 
-      // Determine color of circles
-      // int color = std::max( begin(mean_color), end(mean_color) );
-
+      // Average the variance of the two circles in each cam
+      std::vector<float> var_color;
+      var_color.push_back( round( (ref_circle.bgr_var[0] + match_circle.bgr_var[0])/2 ) );
+      var_color.push_back( round( (ref_circle.bgr_var[1] + match_circle.bgr_var[1])/2 ) );
+      var_color.push_back( round( (ref_circle.bgr_var[2] + match_circle.bgr_var[2])/2 ) );
+      var_color_vec.push_back(var_color);
+      
+      // Find color channel with max value of circle
       auto color_idx = max_element(std::begin(mean_color), std::end(mean_color));
-
-      // int color_idx = mean_color.find(begin(mean_color), end(mean_color), color);
-      // int color_idx = std::find(mean_color, color); //mean_color[0], mean_color[1], mean_color[2]);
-      // int color_idx = std::where(color == std::max(mean_color[0], mean_color[1], mean_color[2]));
-      // int color_idx = findIdx(mean_color, color);
       
       // Create points for triangulation
       cv::Point ref_point(ref_circle.x, ref_circle.y);
@@ -208,46 +213,7 @@ private:
       // Create matrix for triangulation from points
       cv::Mat qs = (cv::Mat_<int>(4,1) << ref_point.x, ref_point.y, match_point.x, match_point.y);
 
-      // // Define rotation matrix and translation vector
-      // std::vector<cv::Mat> rotVec;
-      // std::vector<cv::Mat> transVec;
-      // cv::Mat TMat_left(3, 1, CV_64F), TMat_right(3, 1, CV_64F);
-      // rotVec.push_back(cv::Mat::eye(3, 3, CV_64F));
-      // TMat_left = (cv::Mat_<double>(3,1) << 0, 0.1, 0.5);
-      // TMat_right = (cv::Mat_<double>(3,1) << 0, -0.1, 0.5);
-
-      // transVec.push_back(TMat_left);
-      // transVec.push_back(TMat_right);
-
-      // Define camera matrix from camera info
-      cv::Mat camMat_left = (cv::Mat_<double>(3,3) << camera_info_left->k[0], camera_info_left->k[1], camera_info_left->k[2],
-                                                  camera_info_left->k[3], camera_info_left->k[4], camera_info_left->k[5],
-                                                  camera_info_left->k[6], camera_info_left->k[7], camera_info_left->k[8]);
-
-      cv::Mat camMat_right = (cv::Mat_<double>(3,3) << camera_info_right->k[0], camera_info_right->k[1], camera_info_right->k[2],
-                                                  camera_info_right->k[3], camera_info_right->k[4], camera_info_right->k[5],
-                                                  camera_info_right->k[6], camera_info_right->k[7], camera_info_right->k[8]);
       
-      // Compute projection matrices
-      // Translation matrix is known for the simulated cameras
-      // If real camera is used remeeber to change the translation matrix to the correct value from calibration
-      cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
-                                                  1, 0, 0, 0.1,
-                                                  0, 1, 0, -0.2,
-                                                  0, 0, 1, 0.5
-                                                  );
-      cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
-                                                  1, 0, 0, -0.1,
-                                                  0, 1, 0, -0.2,
-                                                  0, 0, 1, 0.5
-                                                  );      
-      
-
-      // RCLCPP_INFO_STREAM(this->get_logger(), "Read left camera info: " << proj_mat_left);
-      // RCLCPP_INFO_STREAM(this->get_logger(), "Read right camera info: " << proj_mat_right);
-
-      // RCLCPP_INFO_STREAM(this->get_logger(), "Read left camera info: " << projMat1);
-      // RCLCPP_INFO_STREAM(this->get_logger(), "Read right camera info: " << camera_info_right->header.frame_id);
 
       // Triangulate 
       // Follow this: https://answers.opencv.org/question/117141/triangulate-3d-points-from-a-stereo-camera-and-chessboard/
@@ -262,49 +228,18 @@ private:
       right_point_mat.at<double>(0,0) = match_point.x;
       right_point_mat.at<double>(1,0) = match_point.y;
 
-
-      // left_point_mat.at<double>(0,0) = ref_point.x;
-      // left_point_mat.at<double>(1,0) = ref_point.y;
-
-      // right_point_mat.at<double>(0,0) = match_point.x;
-      // right_point_mat.at<double>(1,0) = match_point.y;
-
-      // RCLCPP_INFO_STREAM(this->get_logger(), "left_point_mat: " << left_point_mat);
-      // RCLCPP_INFO_STREAM(this->get_logger(), "right_point_mat: " << right_point_mat);
-
       //Create 4d matrix for triangulation
       cv::Mat triangCoords4D(4, 1, CV_64F);
 
       cv::triangulatePoints(proj_mat_left, proj_mat_right, left_point_mat, right_point_mat, triangCoords4D);
-
-
-      
       // Unhomogenize coordinates
       cv::Mat triangCoords3D = triangCoords4D.rowRange(0,3) / -(triangCoords4D.row(3));
 
-  
-
-     
-      
-
+      // Prepare to publish triangulated points
       triangulated_circles_points3d.push_back(triangCoords3D);
       triangulated_circles_idx.push_back(match_idx);      
       triangulated_circles_color.push_back(color_dict[(color_idx - mean_color.begin())]);
-
-      
-    }
-
-
-
-    
-
-
-    // // Print triangulated points
-    // for (size_t j = 0; j < triangulated_circles_points3d.size(); j++)
-    // {
-    //   RCLCPP_INFO_STREAM(this->get_logger(), "Triangulated circle " << "of color: " << triangulated_circles_color[j] << "(Index: " << j 
-    //                     << ")" << " to "<< triangulated_circles_idx[j] << ": " << triangulated_circles_points3d[j]);
-    // }
+    } // End of for loop
 
     // Publish triangulated points
     triangulated_circles_arr_msg.circles.clear();
@@ -314,6 +249,12 @@ private:
       triangulated_circles_msg.color = triangulated_circles_color[i];
       triangulated_circles_msg.x = triangulated_circles_points3d[i].at<double>(0,0) ;
       triangulated_circles_msg.y = triangulated_circles_points3d[i].at<double>(1,0) ;
+      triangulated_circles_msg.bgr_mean[0] = mean_color_vec[i][0];
+      triangulated_circles_msg.bgr_mean[1] = mean_color_vec[i][1];
+      triangulated_circles_msg.bgr_mean[2] = mean_color_vec[i][2];
+      triangulated_circles_msg.bgr_var[0] =  var_color_vec[i][0];
+      triangulated_circles_msg.bgr_var[1] =  var_color_vec[i][1];
+      triangulated_circles_msg.bgr_var[2] =  var_color_vec[i][2];
 
       triangulated_circles_arr_msg.circles.push_back(triangulated_circles_msg);
       
