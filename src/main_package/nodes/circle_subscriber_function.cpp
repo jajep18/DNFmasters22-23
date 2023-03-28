@@ -148,19 +148,25 @@ private:
                                                 camera_info_right->k[3], camera_info_right->k[4], camera_info_right->k[5],
                                                 camera_info_right->k[6], camera_info_right->k[7], camera_info_right->k[8]);
     
+
+    
+
+
     // Compute projection matrices
     // Translation matrix is known for the simulated cameras
     // If real camera is used remeeber to change the translation matrix to the correct value from calibration
     cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
                                                 1, 0, 0, 0.1,
-                                                0, 1, 0, -0.2,
-                                                0, 0, 1, 0.5
+                                                0, 75.09758, 0, -0.18,
+                                                0, 0, -90, 0.7
                                                 );
     cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
                                                 1, 0, 0, -0.1,
-                                                0, 1, 0, -0.2,
-                                                0, 0, 1, 0.5
+                                                0, 75.09758, 0, -0.22,
+                                                0, 0, -90, 0.7
                                                 );
+    cv::Mat distortion_left = (cv::Mat_<double>(1,5) << camera_info_left->d[0], camera_info_left->d[1], camera_info_left->d[2], camera_info_left->d[3], camera_info_left->d[4]);
+    cv::Mat distortion_right = (cv::Mat_<double>(1,5) << camera_info_right->d[0], camera_info_right->d[1], camera_info_right->d[2], camera_info_right->d[3], camera_info_right->d[4]);
 
     // Loop through all circles
     std::vector<cv::Mat> triangulated_circles_points3d; // 3D points from triangulation
@@ -209,6 +215,7 @@ private:
       // Create points for triangulation
       cv::Point ref_point(ref_circle.x, ref_circle.y);
       cv::Point match_point(match_circle.x, match_circle.y);
+      
 
       // Create matrix for triangulation from points
       cv::Mat qs = (cv::Mat_<int>(4,1) << ref_point.x, ref_point.y, match_point.x, match_point.y);
@@ -240,6 +247,7 @@ private:
       triangulated_circles_idx.push_back(match_idx);      
       triangulated_circles_color.push_back(color_dict[(color_idx - mean_color.begin())]);
     } // End of for loop
+
 
     // Publish triangulated points
     triangulated_circles_arr_msg.circles.clear();

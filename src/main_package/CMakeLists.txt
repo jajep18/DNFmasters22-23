@@ -69,6 +69,7 @@ install(
   PROGRAMS
     nodes/transform_pubsub.py
     nodes/movement_command_center.py
+    nodes/triangulation_pubsub.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

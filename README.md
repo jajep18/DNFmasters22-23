@@ -22,6 +22,8 @@ Ros2
 Gazebo + ROS2 packages
 Ros Foxy gazebo_ros2_control; Install with: sudo apt-get install ros-foxy-gazebo-ros2-control
 PyAudio - python -m pip install pyaudio
+(Try 'sudo apt install python3-pyaudio' if that doesn't work)
+(If setuptools installation fails in audio package's setup.py, try downgrading to setuptools 58.2.0, last version to work with ros2 python packages without any warnings)
 
 # Notes on libtorch
 When clean building the cmakelist needs to be given your path to the pre-built libtorch library. Change it in the CMakeLists.txt in dnf_package.
