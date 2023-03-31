@@ -156,17 +156,21 @@ private:
     // Translation matrix is known for the simulated cameras
     // If real camera is used remeeber to change the translation matrix to the correct value from calibration
     cv::Mat proj_mat_left = camMat_left * (cv::Mat_<double>(3,4) << 
-                                                1, 0, 0, 0.1,
-                                                0, 75.09758, 0, -0.18,
-                                                0, 0, -90, 0.7
+                                                -0.45728419,     0.6828136,    0.56978659, 0.1,
+                                                -0.6828136 ,     0.14092347,  -0.71687248, -0.18,
+                                                -0.56978659,    -0.71687248,   0.40179234, 0.7
                                                 );
     cv::Mat proj_mat_right = camMat_right * (cv::Mat_<double>(3,4) << 
-                                                1, 0, 0, -0.1,
-                                                0, 75.09758, 0, -0.22,
-                                                0, 0, -90, 0.7
+                                                -0.45728419,     0.6828136,    0.56978659, -0.1,
+                                                -0.6828136 ,     0.14092347,  -0.71687248, -0.22,
+                                                -0.56978659,    -0.71687248,   0.40179234, 0.7
                                                 );
     cv::Mat distortion_left = (cv::Mat_<double>(1,5) << camera_info_left->d[0], camera_info_left->d[1], camera_info_left->d[2], camera_info_left->d[3], camera_info_left->d[4]);
     cv::Mat distortion_right = (cv::Mat_<double>(1,5) << camera_info_right->d[0], camera_info_right->d[1], camera_info_right->d[2], camera_info_right->d[3], camera_info_right->d[4]);
+
+    // Print projection matrices
+    RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix left: " << proj_mat_left);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix right: " << proj_mat_right);
 
     // Loop through all circles
     std::vector<cv::Mat> triangulated_circles_points3d; // 3D points from triangulation
