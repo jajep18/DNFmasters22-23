@@ -116,10 +116,10 @@ def generate_launch_description():
         node_ik_client,             # Launch ik service
         #node_fk_client,            # Launch fk service
         node_campubsub,             # Launch camera publisher and subscriber
-        node_circlesub,             # Launch circle subscriber
+        #node_circlesub,             # Launch circle subscriber
         # node_dnf,                 # Launch DNF package node
         robot_control_launch,       # Launch robot control launch file and spawn robot in gazebo
-        node_triangulation,         # Launch triangulation node
+        #node_triangulation,         # Launch triangulation node
         #jetmax_tcp_listener         # Launch jetmax tcp listener - get TCP position and orientation from gazebo
         TimerAction( # Delayed node launch ( Strongly discouraged to use, but it works - should be replaced with states )
             period=10.0, # Delay in seconds

@@ -38,6 +38,9 @@ class TriangulationNode(Node):
         timer_period = 1 # Seconds
         self._timer_publisher = self.create_timer(timer_period, self.publisher_callback)
         self._triangulated_circles = TriangulatedCircleInfoArr() # The variable that will be published
+
+        # Define color dictionary - used for discrete interpretations of colors
+        self.color_dict = ["blue", "green", "red", "unknown"]
         
         # Define camera matrices (3x3) - K & d - These will be set by the cam info callbacks
         self.camera_matrix_left = np.array([])
@@ -53,18 +56,71 @@ class TriangulationNode(Node):
         # self.transformation_matrix_right = np.array([[1,    0,          0,      -0.1],
         #                                             [0,     75.09758,   0,      -0.22],
         #                                             [0,     0,          -90,    0.7]])
-        
-        # Define camera transformation matrices (Translation & Orientation)
-        self.transformation_matrix_left = np.array([[-0.45728419,     0.6828136,    0.56978659,  0.10], 
-                                                    [-0.6828136 ,     0.14092347,  -0.71687248, -0.18], 
-                                                    [-0.56978659,    -0.71687248,   0.40179234,  0.70]])
-        
-        self.transformation_matrix_right = np.array([[-0.45728419,     0.6828136,    0.56978659, -0.10], 
-                                                     [-0.6828136 ,     0.14092347,  -0.71687248, -0.22], 
-                                                     [-0.56978659,    -0.71687248,   0.40179234,  0.70]])
 
-        # Define color dictionary - used for discrete interpretations of colors
-        self.color_dict = ["blue", "green", "red", "unknown"]
+        # Define the transformation from world into left camera coordinate frame:
+        # This is done because triangulation in the camera frame is inaccurate ( Test )
+        world2cam_rotation_vec  = np.array([0, 1.3107, -1.5707]) # Euler angles
+        world2cam_rotation_mat, _ = cv2.Rodrigues(world2cam_rotation_vec) # Rotation matrix
+        world2cam_translation   = np.array([0.10, -0.18, 0.7]) # Translation vector
+        #world2cam_transformation_matrix = np.concatenate((self.rotation_mat_left, self.translation_vec_left.reshape(3,1)), axis=1)
+        world2cam_transformation_matrix = np.concatenate((world2cam_rotation_mat, world2cam_translation.reshape(3,1)), axis=1)
+        # Add a row of zeros to the bottom of the transformation matrix
+        world2cam_transformation_matrix = np.concatenate((world2cam_transformation_matrix, np.array([[0,0,0,1]])), axis=0)
+        self.world_to_cam_transformation = world2cam_transformation_matrix
+
+
+        # Define the transformation from left camera back into the world coordinate system:
+        self.cam2worldR = np.linalg.inv(world2cam_rotation_mat)
+        self.cam2worldT = -world2cam_translation
+        self.camera_to_world_transform = np.concatenate((self.cam2worldR, self.cam2worldT.reshape(3,1)), axis=1)
+        # Add a row of zeros to the bottom of the transformation matrix
+        self.camera_to_world_transform = np.concatenate((self.camera_to_world_transform, np.array([[0,0,0,1]])), axis=0)
+
+        
+        # Define camera transformation matrices (Translation & Orientation) - Defined in left camera coordinate frame
+        # Camera rotation matrices
+        rotation_vec_left  = np.array([0.0, 0.0, 0.0])
+        rotation_vec_right = np.array([0.0, 0.0, 0.0])
+        self.rotation_mat_left, _ = cv2.Rodrigues(rotation_vec_left)
+        self.rotation_mat_right, _ = cv2.Rodrigues(rotation_vec_right)
+
+        # Camera translation vectors
+        self.translation_vec_left = np.array([0.0, 0.0, 0.0]) 
+        # self.translation_vec_right = np.array([-0.10, -0.22, 0.70])
+        self.translation_vec_right = np.array([-0.20, -0.04, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
+        self.translation_vec_right = self.translation_vec_right.dot(world2cam_rotation_mat)
+        
+        # Combine translation vectors and transformation matrices into camera transformations
+        self.transformation_matrix_left = np.concatenate((self.rotation_mat_left, self.translation_vec_left.reshape(3,1)), axis=1)
+        self.transformation_matrix_right = np.concatenate((self.rotation_mat_right, self.translation_vec_right.reshape(3,1)), axis=1)
+        # print("Transformation Matrix Left: \n", self.transformation_matrix_left)
+        # print("Transformation Matrix Right: \n", self.transformation_matrix_right)
+
+
+        
+
+        print("World2Cam transform: ")
+        print(world2cam_transformation_matrix)
+        print("Cam2world transform: ")
+        print(self.camera_to_world_transform)
+
+        
+        ## - TESTS -
+        print("Matrix sanity check translation left: ")
+        # print(np.dot(self.camera_to_world_transform, np.append(self.translation_vec_left, [1]) ))
+        # print(np.dot(self.camera_to_world_transform, np.array([0,0,0,1]) ))
+        print(np.dot(world2cam_transformation_matrix, np.append(self.translation_vec_left, [1]) ))
+
+        
+        print("Matrix sanity check translation right: ")
+        #print(np.dot(self.camera_to_world_transform, np.append(self.translation_vec_right, [1]) ))
+        print(np.dot(world2cam_transformation_matrix, np.append(self.translation_vec_right, [1]) ))
+
+        print("Matrix sanity reverse test: ") # THIS should return 0,0,0,1 but doesnt? origo in camera frame, but gibberish instead
+        print(np.dot(self.camera_to_world_transform, np.array([0.10, -0.18, 0.7, 1]) ))
+
+        print("Transform sanity check: ")
+        print(np.dot(world2cam_transformation_matrix, self.camera_to_world_transform))
         
 
     def cam_info_left_callback(self, msg):
@@ -108,82 +164,29 @@ class TriangulationNode(Node):
         if not msg.left.circles or not msg.right.circles:
             self.get_logger().info('No circles detected')
             return
-        self.get_logger().info('Triangulating circles')
+        # self.get_logger().info('Triangulating circles')
         left_circles = msg.left.circles
         right_circles = msg.right.circles
 
         min_num_circles = min(len(left_circles), len(right_circles))
 
         # Define projection matrices ()
-        # proj = camMatrix * ( R * T )
+        # Projection matrix: P = K[R|-t]
         projection_matrix_left = self.camera_matrix_left.dot( self.transformation_matrix_left )
         projection_matrix_right = self.camera_matrix_right.dot( self.transformation_matrix_right )
-        
-        # The below code does exactly the same as the above 2 lines. exact same projection matrices.
-        # print('Projection Matrix Left shape:')
-        # print(projection_matrix_left.shape)
-        # print(projection_matrix_left)
-
-        # KA_left = np.concatenate((self.camera_matrix_left, np.zeros((3, 1))), axis=1)
-        # KA_right = np.concatenate((self.camera_matrix_right, np.zeros((3, 1))), axis=1)
-        # T_left = np.eye(4, dtype=np.float64)
-        # T_left[:3, :3]  = self.transformation_matrix_left[:3, :3]
-        # T_left[:3, 3]   = self.transformation_matrix_left[:3, 3]
-        # T_right = np.eye(4, dtype=np.float64)
-        # T_right[:3, :3] = self.transformation_matrix_right[:3, :3]
-        # T_right[:3, 3]  = self.transformation_matrix_right[:3, 3]
-
-        # print('Camera Matrix Left shape:')
-        # print(KA_left.shape)
-        # print(KA_left)
-        # print('Transformation Matrix Left shape:')
-        # print(T_left.shape)
-        # print(T_left)
-        
-        # projection_matrix_left = np.matmul(KA_left, T_left)
-        # projection_matrix_right = np.matmul(KA_right, T_right)
-
-        # print('Projection Matrix Left shape:')
-        # print(projection_matrix_left.shape)
-        # print(projection_matrix_left)
-
-        # Test the projection matrix by projecting a point in the left camera frame
-        point = np.array([0.1, -0.2, 0.1, 1])
-        point_proj = projection_matrix_left.dot(point)
-        point_proj = point_proj / point_proj[2]
-        print('Projected point in left camera frame:')
-        print(point_proj)
-        
-        # Get translation and rotation matrices for the left and right cameras
-        t_left = self.transformation_matrix_left[0:3,3]
-        r_left = self.transformation_matrix_left[0:3,0:3]
-        t_right = self.transformation_matrix_right[0:3,3]
-        r_right = self.transformation_matrix_right[0:3,0:3]
-        
-        # Compute rotation matrix from left to right camera
-        r_left_to_right = r_right.dot(np.linalg.inv(r_left))
-        t_left_to_right = t_right - r_left_to_right.dot(t_left)
-        
-        # print('Rotation matrix from left to right camera:')
-        # print(r_left_to_right)
-        # print('Translation vector from left to right camera:')
-        # print(t_left_to_right)
-
-        # Compute essential matrix
-        #cv2.fundamentalFromProjections(projection_matrix_left, projection_matrix_right)
-        S=np.mat([[0,-t_left_to_right[2],t_left_to_right[1]],[t_left_to_right[2],0,-t_left_to_right[1]],[-t_left_to_right[1],t_left_to_right[0],0]]) # Skew symmetric matrix
-        print('S:')
-        print(S)
-        essential_matrix=np.mat(r_left_to_right)*S
-
-        # print('Essential matrix:')
-        # print(essential_matrix)
 
         # Compute fundamental matrix
-        fundamental_matrix = np.linalg.inv(self.camera_matrix_right).T.dot(essential_matrix).dot(np.linalg.inv(self.camera_matrix_left))
+        fundamental_matrix = self.calculate_fundamental_matrix()
+        # print('Fundamental matrix (manual):')
+        # print(fundamental_matrix)
 
-        print('Fundamental matrix:')
-        print(fundamental_matrix)
+        # test_fundamental_matrix = cv2.fundamentalFromProjections(projection_matrix_left, projection_matrix_right)
+        # print('Fundamental matrix (opencv from proj):')
+        # print(fundamental_matrix)
+
+        # test_fundamental_matrix = cv2.fundamentalFromProjections(projection_matrix_right, projection_matrix_left)
+        # print('Fundamental matrix (opencv from proj):')
+        # print(fundamental_matrix)
             
         # Define vectors for storing the triangulated circles
         mean_color_vec = []
@@ -196,7 +199,7 @@ class TriangulationNode(Node):
         right_points.shape = (0,2) # Make it 2D so it concatenates properly
         color_idx_vec = []
         
-        self.get_logger().info('Minimum circles: %d' % min_num_circles)
+        # self.get_logger().info('Minimum circles: %d' % min_num_circles)
         
         for i in range(min_num_circles):
             # Use left circle as reference
@@ -216,7 +219,7 @@ class TriangulationNode(Node):
                     matching_idx = j
                     matching_circle = right_circle
             
-            print("Matches circle %d with circle %d" % (i, matching_idx))
+            # print("Matches circle %d with circle %d" % (i, matching_idx))
             
             # If no matching circle found, skip
             if matching_idx == -1:
@@ -253,11 +256,7 @@ class TriangulationNode(Node):
             right_points = np.concatenate((right_points, right_point))
             color_idx_vec.append(color_idx)
 
-            # Printout for debugging
-            # self.get_logger().info('Left point: %s' % left_point)
-            # print(left_points)
-            # self.get_logger().info('Right point: %s' % right_point)
-            # print(right_points)
+
 
         # These operations can only be performed if there are at least 2 sets of points (circles matched)
         # We use the point matches to undistort the points and correct matches
@@ -265,12 +264,6 @@ class TriangulationNode(Node):
             # Undistort points
             left_points = np.expand_dims(left_points, axis=1)
             right_points = np.expand_dims(right_points, axis=1)
-            self.get_logger().info("Left points shape:")
-            print(left_points.shape)
-            print(left_points)
-            self.get_logger().info("Right points shape:")
-            print(right_points.shape)
-            print(right_points)
         
             #left_points  = cv2.undistortPoints(left_points, self.camera_matrix_left, self.distortion_coeff_left)
             #right_points = cv2.undistortPoints(right_points, self.camera_matrix_right, self.distortion_coeff_right)
@@ -283,50 +276,19 @@ class TriangulationNode(Node):
             # https://answers.opencv.org/question/341/python-correctmatches/
             left_points = np.reshape(left_points, (1, len(left_points), 2))
             right_points = np.reshape(right_points, (1, len(right_points), 2))
-
-            self.get_logger().info("Undistorted Left points shape:")
-            print(left_points.shape)
-            print(left_points)
-            self.get_logger().info("Undistorted Right points shape:")
-            print(right_points.shape)
-            print(right_points)
             
             # CorrectPoints
-            #[left_points, right_points] = cv2.correctMatches(projection_matrix_left, left_points, right_points)
+            # [left_points, right_points] = cv2.correctMatches(projection_matrix_left, left_points, right_points)
             #[left_points, right_points] = cv2.correctMatches(fundamental_matrix, left_points, right_points)
 
             # # Remove extra dimension
             # left_points = np.squeeze(left_points)
             # right_points = np.squeeze(right_points)
 
-            self.get_logger().info("Correctmatched Left points shape:")
-            print(left_points.shape)
-            print(left_points)
-            self.get_logger().info("Correctmatched Right points shape:")
-            print(right_points.shape)
-            print(right_points)
             
         else: # Otherwise: just reshape the points like correctmatches does
             left_points = np.reshape(left_points, (1, len(left_points), 2))
             right_points = np.reshape(right_points, (1, len(right_points), 2))
-
-
-        # Triangulate points
-        #left_points = left_points[0][0]
-        #right_points = right_points[0][0]
-        #print("Dummy test val for points:")
-        #print(left_points)
-        #print(right_points)
-        # Left points and right points should be 1x2xN matrices, are currently 1xNx2
-        # left_points = np.reshape(left_points, (1, 2, len(left_points)))
-        # right_points = np.reshape(right_points, (1, 2, len(right_points)))
-        #left_points = np.squeeze(left_points)
-        #right_points = np.squeeze(right_points)
-        #left_points = np.transpose(left_points)
-        #right_points = np.transpose(right_points)
-        # left_points = np.expand_dims(left_points, axis=0)
-        # right_points = np.expand_dims(right_points, axis=0)
-        
 
         
         #Sort the points by color channel and triangulate them individually
@@ -335,34 +297,41 @@ class TriangulationNode(Node):
         for i in range(0, left_points.shape[1]):
             left = left_points[0][i]
             right = right_points[0][i]
-            self.get_logger().info("Pre-triangulation Left points shape:")
-            print(left.shape)
-            print(left)
-            self.get_logger().info("Pre-triangulation Right points shape:")
-            print(right.shape)
-            print(right)
+            # self.get_logger().info("Pre-triangulation Left points shape:")
+            # print(left.shape)
+            # print(left)
+            # self.get_logger().info("Pre-triangulation Right points shape:")
+            # print(right.shape)
+            # print(right)
             triangulated_point = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, left, right)
-            self.get_logger().info("Triangulated point shape:")
-            print(triangulated_point.shape)
+            # self.get_logger().info("Triangulated point shape:")
+            # print(triangulated_point.shape)
             triangulated_points = np.hstack((triangulated_points, triangulated_point))
-        print("Triangulated points ( unhomogenous ) shape:")
-        print(triangulated_points.shape)
-        print(triangulated_points)
-
-        
-
-        # Convert to homogenous coordinates
-        triangulated_points = triangulated_points / triangulated_points[3]
-        
+        print("\nBefore cam to world transform:")
         print("Triangulated points ( homogenous ) shape:")
         print(triangulated_points.shape)
         print(triangulated_points)
+
+
+        # Transform triangulated_points from camera frame to world frame
+        for i in range(0, triangulated_points.shape[1]):
+            # print("Working on: ", triangulated_points[:,i].shape, triangulated_points[:,i])
+            #triangulated_points[:, i] = np.dot(self.camera_to_world_transform, triangulated_points[:,i])
+            # We try instead using self.world_to_cam_transformation
+            triangulated_points[:, i] = np.dot(self.world_to_cam_transformation, triangulated_points[:,i])
+
+        # Convert to un-homogenous coordinates
+        triangulated_points = triangulated_points / triangulated_points[3]
         
-        self.get_logger().info('Triangulation has reached the end. There are %d triangulated circles' % triangulated_points.shape[1])
+        print("\nAfter cam to world transform:")
+        print("Triangulated points ( un-homogenous ) shape:")
+        print(triangulated_points.shape)
+        print(triangulated_points)
 
         # Get length of triangulated points as integer
         triangulated_points_len = triangulated_points.shape[1]
-        print("Triangulated points length: % d" % triangulated_points_len)
+        # print("Triangulated points length: % d" % triangulated_points_len)
+        # self.get_logger().info('Triangulation has reached the end. There are %d triangulated circles' % triangulated_points.shape[1])
 
         # Create TriangulatedCircleInfoArr message
         self._triangulated_circles = TriangulatedCircleInfoArr() # "Clear" the message
@@ -375,7 +344,36 @@ class TriangulationNode(Node):
             triangulated_circle.bgr_var = var_color_vec[i]
             self._triangulated_circles.circles.append(triangulated_circle)
         
+    def calculate_fundamental_matrix(self):
+        """
+        Calculate the fundamental matrix for the stereo setup.
+        Requires the camera matrices for the cameras to be loaded (intrinsic parameters)
+        """
+        # Get translation and rotation matrices for the left and right cameras
+        t_left = self.transformation_matrix_left[0:3,3]
+        r_left = self.transformation_matrix_left[0:3,0:3]
+        t_right = self.transformation_matrix_right[0:3,3]
+        r_right = self.transformation_matrix_right[0:3,0:3]
         
+        # Compute rotation matrix from left to right camera
+        r_left_to_right = r_right.dot(np.linalg.inv(r_left))
+        t_left_to_right = t_right - r_left_to_right.dot(t_left)
+
+        # Compute essential matrix
+        S=np.mat([[0,-t_left_to_right[2],t_left_to_right[1]],[t_left_to_right[2],0,-t_left_to_right[1]],[-t_left_to_right[1],t_left_to_right[0],0]]) # Skew symmetric matrix
+        essential_matrix=np.mat(r_left_to_right)*S
+
+        # Compute fundamental matrix
+        fundamental_matrix = np.linalg.inv(self.camera_matrix_right.T).dot(essential_matrix).dot(np.linalg.inv(self.camera_matrix_left))
+        # print('Fundamental matrix (manual):')
+        # print(fundamental_matrix)
+
+        #cv_fund_mat, mask = cv2.findFundamentalMat(self.camera_matrix_left @ self.rotation_mat_right, self.camera_matrix_right @ self.rotation_mat_right, self.translation_vec_right,
+                                                   #maxIters=50, ransacReprojThreshold=0.1, confidence=0.99)
+        #print('Fundamental matrix (opencv):')
+        # print(cv_fund_mat)
+
+        return fundamental_matrix
             
 
     def publisher_callback(self):

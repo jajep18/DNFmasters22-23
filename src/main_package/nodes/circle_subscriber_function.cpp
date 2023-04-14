@@ -169,8 +169,8 @@ private:
     cv::Mat distortion_right = (cv::Mat_<double>(1,5) << camera_info_right->d[0], camera_info_right->d[1], camera_info_right->d[2], camera_info_right->d[3], camera_info_right->d[4]);
 
     // Print projection matrices
-    RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix left: " << proj_mat_left);
-    RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix right: " << proj_mat_right);
+    // RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix left: " << proj_mat_left);
+    // RCLCPP_INFO_STREAM(this->get_logger(), "Projection matrix right: " << proj_mat_right);
 
     // Loop through all circles
     std::vector<cv::Mat> triangulated_circles_points3d; // 3D points from triangulation
