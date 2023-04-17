@@ -48,79 +48,60 @@ class TriangulationNode(Node):
         self.distortion_coeff_left = np.array([])
         self.distortion_coeff_right = np.array([])
 
-        # # Define camera transformation matrices (Translation & Orientation)
-        # self.transformation_matrix_left = np.array([[1,     0,          0,      0.1], 
-        #                                             [0,     75.09758,   0,      -0.18], 
-        #                                             [0.0,   0.0,        -90.0,  0.7]])
+        """ Define the Transformation Matrix cam2World:
+        This is the transformation from the left camera coordinate frame into the world frame
+        This transformation is actually composed of the transform /translation of the left camera frame in the world frame
+        """
+        # cam2World_rotation_vec          = np.array([0, 1.3107, -1.5707]) # Euler angles
+        cam2World_rotation_vec          = np.array([0, 1.5707, -1.5707]) # Euler angles
+        self.cam2World_rotation_mat, _  = cv2.Rodrigues(cam2World_rotation_vec) # Rotation matrix
+        self.cam2World_translation      = np.array([0.10, -0.18, 0.4]) # Translation vector
+        self.cam2World_transformation_matrix = np.concatenate((self.cam2World_rotation_mat, self.cam2World_translation.reshape(3,1)), axis=1)
+        # Add a row of zeros to the bottom of the transformation matrix
+        self.cam2World_transformation_matrix = np.concatenate((self.cam2World_transformation_matrix, np.array([[0,0,0,1]])), axis=0)
         
-        # self.transformation_matrix_right = np.array([[1,    0,          0,      -0.1],
-        #                                             [0,     75.09758,   0,      -0.22],
-        #                                             [0,     0,          -90,    0.7]])
 
-        # Define the transformation from world into left camera coordinate frame:
-        # This is done because triangulation in the camera frame is inaccurate ( Test )
-        world2cam_rotation_vec  = np.array([0, 1.3107, -1.5707]) # Euler angles
-        world2cam_rotation_mat, _ = cv2.Rodrigues(world2cam_rotation_vec) # Rotation matrix
-        world2cam_translation   = np.array([0.10, -0.18, 0.7]) # Translation vector
-        #world2cam_transformation_matrix = np.concatenate((self.rotation_mat_left, self.translation_vec_left.reshape(3,1)), axis=1)
-        world2cam_transformation_matrix = np.concatenate((world2cam_rotation_mat, world2cam_translation.reshape(3,1)), axis=1)
+        """ Define the Transformation Matrix world2Cam:
+        This is the transformation from the world frame into the left camera frame.
+        This is the inverse of the cam2World transformation matrix.
+        During development, this was at some point called cam2World, but it is actually the inverse. 
+        This needs to be the inverse euclidean transform of cam2World.
+        """
+        self.world2Cam_rotation_mat = np.linalg.inv(self.cam2World_rotation_mat)
+        self.world2Cam_translation = - np.dot(self.world2Cam_rotation_mat, self.cam2World_translation)
+        self.world2Cam_transformation_matrix = np.concatenate((self.world2Cam_rotation_mat, self.world2Cam_translation.reshape(3,1)), axis=1)
         # Add a row of zeros to the bottom of the transformation matrix
-        world2cam_transformation_matrix = np.concatenate((world2cam_transformation_matrix, np.array([[0,0,0,1]])), axis=0)
-        self.world_to_cam_transformation = world2cam_transformation_matrix
-
-
-        # Define the transformation from left camera back into the world coordinate system:
-        self.cam2worldR = np.linalg.inv(world2cam_rotation_mat)
-        self.cam2worldT = -world2cam_translation
-        self.camera_to_world_transform = np.concatenate((self.cam2worldR, self.cam2worldT.reshape(3,1)), axis=1)
-        # Add a row of zeros to the bottom of the transformation matrix
-        self.camera_to_world_transform = np.concatenate((self.camera_to_world_transform, np.array([[0,0,0,1]])), axis=0)
+        self.world2Cam_transformation_matrix = np.concatenate((self.world2Cam_transformation_matrix, np.array([[0,0,0,1]])), axis=0)
 
         
-        # Define camera transformation matrices (Translation & Orientation) - Defined in left camera coordinate frame
+        """ Define camera Transformation Matrices (Translation & Orientation) 
+        These are defined in left camera coordinate frame.
+        So the left camera translation/rotation will be origo, and the right camera will be defined relative to the left camera.
+        """
         # Camera rotation matrices
         rotation_vec_left  = np.array([0.0, 0.0, 0.0])
         rotation_vec_right = np.array([0.0, 0.0, 0.0])
         self.rotation_mat_left, _ = cv2.Rodrigues(rotation_vec_left)
         self.rotation_mat_right, _ = cv2.Rodrigues(rotation_vec_right)
-
         # Camera translation vectors
         self.translation_vec_left = np.array([0.0, 0.0, 0.0]) 
-        # self.translation_vec_right = np.array([-0.10, -0.22, 0.70])
-        self.translation_vec_right = np.array([-0.20, -0.04, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
-        self.translation_vec_right = self.translation_vec_right.dot(world2cam_rotation_mat)
-        
+        # self.translation_vec_right = np.array([-0.20, -0.04, 0.0]) # Old position of camera 2
+        self.translation_vec_right = np.array([0.0, -0.04, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
+        self.translation_vec_right = self.translation_vec_right.dot(self.cam2World_rotation_mat)
         # Combine translation vectors and transformation matrices into camera transformations
         self.transformation_matrix_left = np.concatenate((self.rotation_mat_left, self.translation_vec_left.reshape(3,1)), axis=1)
         self.transformation_matrix_right = np.concatenate((self.rotation_mat_right, self.translation_vec_right.reshape(3,1)), axis=1)
-        # print("Transformation Matrix Left: \n", self.transformation_matrix_left)
-        # print("Transformation Matrix Right: \n", self.transformation_matrix_right)
 
-
-        
-
-        print("World2Cam transform: ")
-        print(world2cam_transformation_matrix)
-        print("Cam2world transform: ")
-        print(self.camera_to_world_transform)
-
-        
-        ## - TESTS -
-        print("Matrix sanity check translation left: ")
-        # print(np.dot(self.camera_to_world_transform, np.append(self.translation_vec_left, [1]) ))
-        # print(np.dot(self.camera_to_world_transform, np.array([0,0,0,1]) ))
-        print(np.dot(world2cam_transformation_matrix, np.append(self.translation_vec_left, [1]) ))
-
-        
-        print("Matrix sanity check translation right: ")
-        #print(np.dot(self.camera_to_world_transform, np.append(self.translation_vec_right, [1]) ))
-        print(np.dot(world2cam_transformation_matrix, np.append(self.translation_vec_right, [1]) ))
-
-        print("Matrix sanity reverse test: ") # THIS should return 0,0,0,1 but doesnt? origo in camera frame, but gibberish instead
-        print(np.dot(self.camera_to_world_transform, np.array([0.10, -0.18, 0.7, 1]) ))
-
-        print("Transform sanity check: ")
-        print(np.dot(world2cam_transformation_matrix, self.camera_to_world_transform))
+        # Test transform of a ball example using the frame transforms
+        print("Ball coordinates in world frame: ")
+        ball_t_world = np.array([0.0, -0.2, 0.1, 1])
+        print(ball_t_world)
+        print("Ball coordinates in left camera frame: ")
+        ball_t_cam = np.dot(self.world2Cam_transformation_matrix, ball_t_world)
+        print(ball_t_cam)
+        print("Ball coordinates back in world frame: ")
+        ball_t_world2 = np.dot(self.cam2World_transformation_matrix, ball_t_cam)
+        print(ball_t_world2)
         
 
     def cam_info_left_callback(self, msg):
@@ -172,8 +153,18 @@ class TriangulationNode(Node):
 
         # Define projection matrices ()
         # Projection matrix: P = K[R|-t]
-        projection_matrix_left = self.camera_matrix_left.dot( self.transformation_matrix_left )
+        projection_matrix_left  = self.camera_matrix_left.dot( self.transformation_matrix_left )
         projection_matrix_right = self.camera_matrix_right.dot( self.transformation_matrix_right )
+
+        print("Self.camera_matrix_left: ", self.camera_matrix_left)
+        print("Self.camera_matrix_right: ", self.camera_matrix_right)
+
+
+        # If using UndistortPoints the points are already corrected for distortion in intrinsic matrix, so projection matrix should be calculated using
+        # identity matrix as intrinsic matrix
+        # identity_matrix = np.eye(3)
+        # projection_matrix_left  = identity_matrix.dot( self.transformation_matrix_left )
+        # projection_matrix_right = identity_matrix.dot( self.transformation_matrix_right )
 
         # Compute fundamental matrix
         fundamental_matrix = self.calculate_fundamental_matrix()
@@ -281,47 +272,79 @@ class TriangulationNode(Node):
             # [left_points, right_points] = cv2.correctMatches(projection_matrix_left, left_points, right_points)
             #[left_points, right_points] = cv2.correctMatches(fundamental_matrix, left_points, right_points)
 
-            # # Remove extra dimension
-            # left_points = np.squeeze(left_points)
-            # right_points = np.squeeze(right_points)
-
             
         else: # Otherwise: just reshape the points like correctmatches does
             left_points = np.reshape(left_points, (1, len(left_points), 2))
             right_points = np.reshape(right_points, (1, len(right_points), 2))
 
+        # R1, R2, P1, P2 =  cv2.stereoRectify(cameraMatrix1=self.camera_matrix_left, distCoeffs1=self.distortion_coeff_left, cameraMatrix2=self.camera_matrix_right, distCoeffs2=self.distortion_coeff_right, imageSize=(640, 480), R=self.rotation_mat_right, T=self.translation_vec_right)
+        # Convert points to floats
+        left_points = left_points.astype(np.float32)
+        right_points = right_points.astype(np.float32)
+        # Convert projection matrices to floats
+        projection_matrix_left = projection_matrix_left.astype(np.float32)
+        projection_matrix_right = projection_matrix_right.astype(np.float32)
+
+        # Test: only triangulate one point, check order of points given to triangulatePoints (shape)
+
+        # left_points = left_points[0][0]
+        # right_points = right_points[0][0]
+
+        # left_points = np.array([[left_points[0]], [left_points[1]]], dtype=np.float32)
+        # right_points = np.array([[right_points[0]], [right_points[1]]], dtype=np.float32)
+
+        # print("Left points shape:")
+        # print(left_points.shape)
+        # print("Right points shape:")
+        # print(right_points.shape)
+        # print("Left points:")
+        # print(left_points)
+        # print("Right points:")
+        # print(right_points)
+
         
-        #Sort the points by color channel and triangulate them individually
-        triangulated_points = np.array([])
-        triangulated_points.shape = (4, 0)
-        for i in range(0, left_points.shape[1]):
-            left = left_points[0][i]
-            right = right_points[0][i]
-            # self.get_logger().info("Pre-triangulation Left points shape:")
-            # print(left.shape)
-            # print(left)
-            # self.get_logger().info("Pre-triangulation Right points shape:")
-            # print(right.shape)
-            # print(right)
-            triangulated_point = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, left, right)
-            # self.get_logger().info("Triangulated point shape:")
-            # print(triangulated_point.shape)
-            triangulated_points = np.hstack((triangulated_points, triangulated_point))
-        print("\nBefore cam to world transform:")
-        print("Triangulated points ( homogenous ) shape:")
-        print(triangulated_points.shape)
+        
+        # Triangulate the points in the stereo camera setup
+        triangulated_points = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, left_points, right_points)
+        triangulated_points = triangulated_points / triangulated_points[3]
+        print("Triangulation result:")
         print(triangulated_points)
+
+        
+        # #Sort the points by color channel and triangulate them individually
+        # triangulated_points = np.array([])
+        # triangulated_points.shape = (4, 0)
+        # for i in range(0, left_points.shape[1]):
+        #     left = left_points[0][i]
+        #     right = right_points[0][i]
+        #     self.get_logger().info("Pre-triangulation Left points shape:")
+        #     print(left.shape)
+        #     print(left)
+        #     self.get_logger().info("Pre-triangulation Right points shape:")
+        #     print(right.shape)
+        #     print(right)
+        #     triangulated_point = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, left, right)
+        #     # self.get_logger().info("Triangulated point shape:")
+        #     # print(triangulated_point.shape)
+        #     triangulated_points = np.hstack((triangulated_points, triangulated_point))
+        # print("\nBefore cam to world transform:")
+        # print("Triangulated points ( homogenous ) shape:")
+        # print(triangulated_points.shape)
+        # print(triangulated_points)
+        # # Convert to un-homogenous coordinates
+        # triangulated_points = triangulated_points / triangulated_points[3]
+        # print("Triangulated points ( un-homogenous ) shape:")
+        # print(triangulated_points.shape)
+        # print(triangulated_points)
 
 
         # Transform triangulated_points from camera frame to world frame
         for i in range(0, triangulated_points.shape[1]):
-            # print("Working on: ", triangulated_points[:,i].shape, triangulated_points[:,i])
+            # print("Working on point: ", triangulated_points[:,i])
             #triangulated_points[:, i] = np.dot(self.camera_to_world_transform, triangulated_points[:,i])
             # We try instead using self.world_to_cam_transformation
-            triangulated_points[:, i] = np.dot(self.world_to_cam_transformation, triangulated_points[:,i])
-
-        # Convert to un-homogenous coordinates
-        triangulated_points = triangulated_points / triangulated_points[3]
+            triangulated_points[:, i] = np.matmul(self.cam2World_transformation_matrix, triangulated_points[:,i])
+            
         
         print("\nAfter cam to world transform:")
         print("Triangulated points ( un-homogenous ) shape:")
@@ -333,16 +356,16 @@ class TriangulationNode(Node):
         # print("Triangulated points length: % d" % triangulated_points_len)
         # self.get_logger().info('Triangulation has reached the end. There are %d triangulated circles' % triangulated_points.shape[1])
 
-        # Create TriangulatedCircleInfoArr message
-        self._triangulated_circles = TriangulatedCircleInfoArr() # "Clear" the message
-        for i in range(triangulated_points.shape[1]):
-            triangulated_circle = TriangulatedCircleInfo()
-            triangulated_circle.x = triangulated_points[0][i]
-            triangulated_circle.y = triangulated_points[1][i]
-            triangulated_circle.color = self.color_dict[color_idx_vec[i]]
-            triangulated_circle.bgr_mean = mean_color_vec[i]
-            triangulated_circle.bgr_var = var_color_vec[i]
-            self._triangulated_circles.circles.append(triangulated_circle)
+        # # Create TriangulatedCircleInfoArr message
+        # self._triangulated_circles = TriangulatedCircleInfoArr() # "Clear" the message
+        # for i in range(triangulated_points.shape[1]):
+        #     triangulated_circle = TriangulatedCircleInfo()
+        #     triangulated_circle.x = triangulated_points[0][i]
+        #     triangulated_circle.y = triangulated_points[1][i]
+        #     triangulated_circle.color = self.color_dict[color_idx_vec[i]]
+        #     triangulated_circle.bgr_mean = mean_color_vec[i]
+        #     triangulated_circle.bgr_var = var_color_vec[i]
+        #     self._triangulated_circles.circles.append(triangulated_circle)
         
     def calculate_fundamental_matrix(self):
         """
