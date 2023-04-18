@@ -21,6 +21,9 @@ from custom_msgs.msg import CircleInfoArrStereo         # Custom message type fo
 from custom_msgs.msg import TriangulatedCircleInfo      # Custom message type for triangulated of circles for stereo sets
 from custom_msgs.msg import TriangulatedCircleInfoArr   # Custom message type for array of triangulated circles for stereo sets
 
+## OpenCV includes
+from cv_bridge import CvBridge, CvBridgeError
+
 
 # This node is responsible for triangulation of circles (balls) from the stereo cameras
 # This node is rewritten from a CPP equivalent, as openCV had some difficulties we were unable to solve
@@ -32,6 +35,12 @@ class TriangulationNode(Node):
         self._subscriber_cam_info_left  = self.create_subscription(CameraInfo, '/custom_ns/custom_camera/left/custom_camera_info', self.cam_info_left_callback, 1)
         self._subscriber_cam_info_right = self.create_subscription(CameraInfo, '/custom_ns/custom_camera/right/custom_camera_info', self.cam_info_right_callback, 1)
         self._subscriber_circle_stereo  = self.create_subscription(CircleInfoArrStereo, 'cam_circle_topic', self.triangulation_callback, 1)
+
+        ## Subscriber to camera image topics
+        self._subscriber_image_left  = self.create_subscription(Image, '/custom_ns/custom_camera/left/custom_image', self.image_left_callback, 1)
+        self._subscriber_image_right = self.create_subscription(Image, '/custom_ns/custom_camera/right/custom_image', self.image_right_callback, 1)
+        self.image_recieved = np.array([False, False]) # Boolean array to keep track of which images have been recieved
+        self.calibration_complete = False # Boolean to keep track of whether the calibration is complete
         
         ## Create publishers
         self._publisher_triangulated_circles = self.create_publisher(TriangulatedCircleInfoArr, 'triangulated_circles', 1)
@@ -41,6 +50,9 @@ class TriangulationNode(Node):
 
         # Define color dictionary - used for discrete interpretations of colors
         self.color_dict = ["blue", "green", "red", "unknown"]
+
+        # Create bridge object for image transportation
+        self.bridge = CvBridge()
         
         # Define camera matrices (3x3) - K & d - These will be set by the cam info callbacks
         self.camera_matrix_left = np.array([])
@@ -53,8 +65,12 @@ class TriangulationNode(Node):
         This transformation is actually composed of the transform /translation of the left camera frame in the world frame
         """
         # cam2World_rotation_vec          = np.array([0, 1.3107, -1.5707]) # Euler angles
-        cam2World_rotation_vec          = np.array([0, 1.5707, -1.5707]) # Euler angles
-        self.cam2World_rotation_mat, _  = cv2.Rodrigues(cam2World_rotation_vec) # Rotation matrix
+        # cam2World_rotation_vec          = np.array([0, 1.5707, -1.5707]) # Euler angles
+        # self.cam2World_rotation_vec          = np.array([-3.1415, 1.5707, 1.5707]) # Euler angles
+        self.cam2World_rotation_vec          = np.array([3.1415, 0, 0]) # Euler angles
+        # self.cam2World_rotation_vec          = np.array([3.1415, 1.5707, 1.5707]) # Euler angles
+        # cam2World_rotation_vec          = np.array([0.0, 0.0, 0.0]) # Euler angles1.5707
+        self.cam2World_rotation_mat, _  = cv2.Rodrigues(self.cam2World_rotation_vec) # Rotation matrix
         self.cam2World_translation      = np.array([0.10, -0.18, 0.4]) # Translation vector
         self.cam2World_transformation_matrix = np.concatenate((self.cam2World_rotation_mat, self.cam2World_translation.reshape(3,1)), axis=1)
         # Add a row of zeros to the bottom of the transformation matrix
@@ -68,6 +84,7 @@ class TriangulationNode(Node):
         This needs to be the inverse euclidean transform of cam2World.
         """
         self.world2Cam_rotation_mat = np.linalg.inv(self.cam2World_rotation_mat)
+        self.world2Cam_rotation_vec = cv2.Rodrigues(self.world2Cam_rotation_mat)[0]
         self.world2Cam_translation = - np.dot(self.world2Cam_rotation_mat, self.cam2World_translation)
         self.world2Cam_transformation_matrix = np.concatenate((self.world2Cam_rotation_mat, self.world2Cam_translation.reshape(3,1)), axis=1)
         # Add a row of zeros to the bottom of the transformation matrix
@@ -79,29 +96,54 @@ class TriangulationNode(Node):
         So the left camera translation/rotation will be origo, and the right camera will be defined relative to the left camera.
         """
         # Camera rotation matrices
-        rotation_vec_left  = np.array([0.0, 0.0, 0.0])
-        rotation_vec_right = np.array([0.0, 0.0, 0.0])
-        self.rotation_mat_left, _ = cv2.Rodrigues(rotation_vec_left)
-        self.rotation_mat_right, _ = cv2.Rodrigues(rotation_vec_right)
+        self.rotation_vec_left  = np.array([0.0, 0.0, 0.0])
+        self.rotation_vec_right = np.array([0.0, 0.0, 0.0])
+        self.rotation_mat_left, _ = cv2.Rodrigues(self.rotation_vec_left)
+        self.rotation_mat_right, _ = cv2.Rodrigues(self.rotation_vec_right)
         # Camera translation vectors
         self.translation_vec_left = np.array([0.0, 0.0, 0.0]) 
         # self.translation_vec_right = np.array([-0.20, -0.04, 0.0]) # Old position of camera 2
-        self.translation_vec_right = np.array([0.0, -0.04, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
-        self.translation_vec_right = self.translation_vec_right.dot(self.cam2World_rotation_mat)
+        # self.translation_vec_right = np.array([0.0, -0.04, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
+        self.translation_vec_right = np.array([0.0, -0.06, 0.0]) # THIS IS DEFINED IN WORLD FRAME, NOT CAMERA FRAME
+        self.translation_vec_right = np.matmul(self.translation_vec_right, self.cam2World_rotation_mat)
+        # self.translation_vec_right = np.matmul(self.translation_vec_right, self.world2Cam_rotation_mat)
         # Combine translation vectors and transformation matrices into camera transformations
+
+        # Update right camera translation & rotation based on stereocalibrate
+        self.translation_vec_right = np.array([-7.44200170e-05, -5.99929682e-02, 2.51096459e-05]) # From stereo calibration
+        self.rotation_mat_right = np.array([[ 9.99999984e-01, 1.39596275e-04, 1.08286197e-04],
+                                            [-1.39578401e-04, 9.99999977e-01,-1.65055001e-04],
+                                            [-1.08309235e-04, 1.65039884e-04, 9.99999981e-01]])
+
         self.transformation_matrix_left = np.concatenate((self.rotation_mat_left, self.translation_vec_left.reshape(3,1)), axis=1)
         self.transformation_matrix_right = np.concatenate((self.rotation_mat_right, self.translation_vec_right.reshape(3,1)), axis=1)
 
-        # Test transform of a ball example using the frame transforms
-        print("Ball coordinates in world frame: ")
-        ball_t_world = np.array([0.0, -0.2, 0.1, 1])
-        print(ball_t_world)
-        print("Ball coordinates in left camera frame: ")
-        ball_t_cam = np.dot(self.world2Cam_transformation_matrix, ball_t_world)
-        print(ball_t_cam)
-        print("Ball coordinates back in world frame: ")
-        ball_t_world2 = np.dot(self.cam2World_transformation_matrix, ball_t_cam)
-        print(ball_t_world2)
+        # Test: Print translation of each camera in world and camera frame
+        print("Left camera translation in camera frame: ", self.translation_vec_left)
+        print("Left camera translation in world frame: ", np.dot(self.cam2World_transformation_matrix, np.append(self.translation_vec_left, [1])))
+        print("Right camera translation in camera frame: ", self.translation_vec_right)
+        print("Right camera translation in world frame: ", np.dot(self.cam2World_transformation_matrix, np.append(self.translation_vec_right, [1])))
+
+        # print("Camera 2 World Transformation Matrix: \n", self.cam2World_transformation_matrix)
+        # print("Cam2World rotation vector transformed back: \n", cv2.Rodrigues(self.cam2World_transformation_matrix[:3,:3])[0])
+
+        # print("World 2 Camera Transformation Matrix: \n", self.world2Cam_transformation_matrix)
+        # print("World2Cam rotation vector transformed back: \n", cv2.Rodrigues(self.world2Cam_transformation_matrix[:3,:3])[0])
+
+        # print("World2Cam * Cam2World: \n", np.matmul(self.cam2World_transformation_matrix, self.world2Cam_transformation_matrix))
+
+
+        # # Test transform of a ball example using the frame transforms
+        # print("Ball coordinates in world frame: ")
+        # ball_t_world = np.array([0.0, -0.2, 0.1, 1])
+        # print(ball_t_world)
+        # print("Ball coordinates in left camera frame: ")
+        # ball_t_cam = np.matmul(self.world2Cam_transformation_matrix, ball_t_world)
+        # print(ball_t_cam)
+        # print("Ball coordinates back in world frame: ")
+        # ball_t_world2 = np.matmul(self.cam2World_transformation_matrix, ball_t_cam)
+        # print(ball_t_world2)
+
         
 
     def cam_info_left_callback(self, msg):
@@ -138,10 +180,17 @@ class TriangulationNode(Node):
         Topic Callback for 'cam_circle_topic'. 
         Triangulates the circles detected in the Stereo cameras
         """
-
         if self.camera_matrix_left.size == 0 or self.camera_matrix_right.size == 0:
             self.get_logger().info('Cannot start triangulation: Camera matrices not set')
             return
+        # if self.calibration_complete == False:
+        #     self.get_logger().info('Calibration not complete')
+        #     if self.image_recieved[0] == False or self.image_recieved[1] == False:
+        #         self.get_logger().info('No image recieved from camera. Cannot perform calibration.')
+        #         return
+        #     self.get_logger().info('Performing stereo calibration')
+        #     self.stereo_calibrate()
+        #     return
         if not msg.left.circles or not msg.right.circles:
             self.get_logger().info('No circles detected')
             return
@@ -156,8 +205,8 @@ class TriangulationNode(Node):
         projection_matrix_left  = self.camera_matrix_left.dot( self.transformation_matrix_left )
         projection_matrix_right = self.camera_matrix_right.dot( self.transformation_matrix_right )
 
-        print("Self.camera_matrix_left: ", self.camera_matrix_left)
-        print("Self.camera_matrix_right: ", self.camera_matrix_right)
+        # print("Self.camera_matrix_left: ", self.camera_matrix_left)
+        # print("Self.camera_matrix_right: ", self.camera_matrix_right)
 
 
         # If using UndistortPoints the points are already corrected for distortion in intrinsic matrix, so projection matrix should be calculated using
@@ -301,16 +350,44 @@ class TriangulationNode(Node):
         # print(left_points)
         # print("Right points:")
         # print(right_points)
+        # print("Camera matrix left:")
+        # print(self.camera_matrix_left)
+        # print("Projecting red ball in to left image plane")
+        # # res, _ = cv2.projectPoints(np.array([0, -0.2, 0.1]), self.cam2World_rotation_vec, self.cam2World_translation, self.camera_matrix_left, self.distortion_coeff_left)
+        # res, _ = cv2.projectPoints(np.array([0, -0.2, 0.1]), self.world2Cam_rotation_vec, self.world2Cam_translation, self.camera_matrix_left, np.zeros((5,1)))
+        # print(res)
+        # print("The image plane point from ROS msg is:")
+        # print(left_points[0][1])
+        # # Check if camera matrix is correctly read/formatted for cv2
 
-        
-        
+        # ball_t_world = np.array([0.0, -0.2, 0.1, 1])
+        # print(ball_t_world)
+        # print("Ball coordinates in left camera frame: ")
+        # ball_t_cam = np.matmul(self.world2Cam_transformation_matrix, ball_t_world)
+        # print(ball_t_cam)
+        # print("Another ball projection test:")
+        # res, _ = cv2.projectPoints(np.array([0.2181147, -0.18851297, -0.13148703]), self.rotation_vec_left, self.translation_vec_left, self.camera_matrix_left, self.distortion_coeff_left)
+        # print(res)
+        # print("Yet another ball projection test:")
+        # res, _ = cv2.projectPoints(np.array([0.0109572, 0.00448856, 0.10255086]), self.rotation_vec_left, self.translation_vec_left, self.camera_matrix_left, self.distortion_coeff_left)
+        # print(res)
+        # res, _ = cv2.projectPoints(np.array([0.01154828, 0.00339537, -0.06911393]), self.rotation_vec_left, self.translation_vec_left, self.camera_matrix_left, self.distortion_coeff_left)
+        # print(res)
+        # print("Image point given by ROS msg: \n", left_points[0][0])
+
         # Triangulate the points in the stereo camera setup
         triangulated_points = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, left_points, right_points)
         triangulated_points = triangulated_points / triangulated_points[3]
         print("Triangulation result:")
         print(triangulated_points)
 
+        # triangulated_points = cv2.triangulatePoints(projection_matrix_left, projection_matrix_right, right_points, left_points)
+        # triangulated_points = triangulated_points / triangulated_points[3]
+        # print("Triangulation result (flipped):")
+        # print(triangulated_points)
+
         
+        ## This code does the exact same as above but in a loop
         # #Sort the points by color channel and triangulate them individually
         # triangulated_points = np.array([])
         # triangulated_points.shape = (4, 0)
@@ -336,8 +413,7 @@ class TriangulationNode(Node):
         # print("Triangulated points ( un-homogenous ) shape:")
         # print(triangulated_points.shape)
         # print(triangulated_points)
-
-
+        
         # Transform triangulated_points from camera frame to world frame
         for i in range(0, triangulated_points.shape[1]):
             # print("Working on point: ", triangulated_points[:,i])
@@ -410,6 +486,128 @@ class TriangulationNode(Node):
         
         # Publish the triangulated circles
         self._publisher_triangulated_circles.publish(self._triangulated_circles)
+
+    def image_left_callback(self, msg):
+        """
+        Image callback for the left camera
+        """
+        # Convert the image to OpenCV format
+        cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        # Save the image
+        self.image_left = cv_image
+        # Save the image timestamp
+        self.image_left_timestamp = msg.header.stamp
+        # Set the image_left_received flag
+        self.image_recieved[0] = True
+
+    def image_right_callback(self, msg):
+        """
+        Image callback for the right camera
+        """
+        # Convert the image to OpenCV format
+        cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        # Save the image
+        self.image_right = cv_image
+        # Save the image timestamp
+        self.image_right_timestamp = msg.header.stamp
+        # Set the image_right_received flag
+        self.image_recieved[1] = True
+
+    def stereo_calibrate(self):
+        """
+        Calibrate the stereo setup
+        """
+        # Set the number of corners in the chessboard
+        num_corners_x = 8
+        num_corners_y = 6
+
+        # Create the object points
+        objp = np.zeros((num_corners_x*num_corners_y,3), np.float32)
+        objp[:,:2] = np.mgrid[0:num_corners_x,0:num_corners_y].T.reshape(-1,2)
+        objp = objp * 0.03 # 3 cm between corners
+
+        # Create arrays to store object points and image points from all the images
+        objpoints = [] # 3d point in real world space
+        imgpoints_left = [] # 2d points in image plane
+        imgpoints_right = [] # 2d points in image plane
+        
+        # Get the images
+        image_left = self.image_left.copy()
+        image_right = self.image_right.copy()
+
+        # Convert the images to grayscale
+        gray_left = cv2.cvtColor(image_left, cv2.COLOR_BGR2GRAY)
+        gray_right = cv2.cvtColor(image_right, cv2.COLOR_BGR2GRAY)
+
+        # Find the chessboard corners
+        ret_left, corners_left = cv2.findChessboardCorners(gray_left, (num_corners_x,num_corners_y), None)
+        ret_right, corners_right = cv2.findChessboardCorners(gray_right, (num_corners_x,num_corners_y), None)
+
+        # Create the self.criteria object
+        self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+        # If found, add object points, image points (after refining them)
+        if ret_left and ret_right:
+            objpoints.append(objp)
+            corners2_left = cv2.cornerSubPix(gray_left, corners_left, (11,11), (-1,-1), self.criteria)
+            imgpoints_left.append(corners2_left)
+            corners2_right = cv2.cornerSubPix(gray_right, corners_right, (11,11), (-1,-1), self.criteria)
+            imgpoints_right.append(corners2_right)
+
+            # Draw and display the corners
+            cv2.drawChessboardCorners(image_left, (num_corners_x,num_corners_y), corners2_left, ret_left)
+            cv2.imshow('left', image_left)
+            cv2.drawChessboardCorners(image_right, (num_corners_x,num_corners_y), corners2_right, ret_right)
+            cv2.imshow('right', image_right)
+            cv2.waitKey(0)
+
+            # Print all calibration parameters before calibration to check for changes
+            print('Calibration parameters before calibration:')
+            print('Camera matrix left:')
+            print(self.camera_matrix_left)
+            print('Distortion coefficients left:')
+            print(self.distortion_coeff_left)
+            print('Camera matrix right:')
+            print(self.camera_matrix_right)
+            print('Distortion coefficients right:')
+            print(self.distortion_coeff_right)
+            print('Rotation matrix right:')
+            print(self.rotation_mat_right)
+            print('Translation vector right:')
+            print(self.translation_vec_right)
+
+            # Calibrate stereo camera
+            ret, self.camera_matrix_left, self.distortion_coeff_left, self.camera_matrix_right, self.distortion_coeff_right, self.rotation_mat_right, self.translation_vec_right, E, F = cv2.stereoCalibrate(objpoints, imgpoints_left, imgpoints_right, self.camera_matrix_left, self.distortion_coeff_left, self.camera_matrix_right, self.distortion_coeff_right, gray_left.shape[::-1], criteria=self.criteria, flags=cv2.CALIB_FIX_INTRINSIC)
+            
+            # Print all the calibration parameters
+            print('Calibration parameters:')
+            print("Reprojection error: ", ret)
+            print('Camera matrix left:')
+            print(self.camera_matrix_left)
+            print('Distortion coefficients left:')
+            print(self.distortion_coeff_left)
+            print('Camera matrix right:')
+            print(self.camera_matrix_right)
+            print('Distortion coefficients right:')
+            print(self.distortion_coeff_right)
+            print('Rotation matrix right:')
+            print(self.rotation_mat_right)
+            print('Translation vector right:')
+            print(self.translation_vec_right)
+
+            # Set the calibration_complete flag so calibration does not repeat
+            self.calibration_complete = True
+
+            # Save the calibrated parameters to csv file
+
+            
+            
+
+
+            
+        
+
+
 
 
 

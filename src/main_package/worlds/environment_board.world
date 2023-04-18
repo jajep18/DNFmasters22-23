@@ -63,59 +63,13 @@
       </link>
     </model>
 
-    <!-- Add a green ball to the world -->
-    <model name="green_ball">
-      <pose>0.1 -0.2 0.1 0 0 0</pose>
-      <link name="link">
-        <pose>0 0 0 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <sphere>
-              <radius>0.025</radius>
-            </sphere>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <sphere>
-              <radius>0.025</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0 1 0 1</ambient>
-            <diffuse>0 1 0 1</diffuse>
-            <specular>0 0 0 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model>
+    <!-- Import a model sdf file into the world -->
+    <include>
+      <!-- <uri>worlds://landmark</uri> -->
+      <uri>worlds://landmark</uri>
+    </include>
 
-    <!-- Add a blue ball to the world -->
-    <model name="blue_ball">
-      <pose>-0.1 -0.2 0.1 0 0 0</pose>
-      <link name="link">
-        <pose>0 0 0 0 0 0</pose>
-        <collision name="collision">
-          <geometry>
-            <sphere>
-              <radius>0.025</radius>
-            </sphere>
-          </geometry>
-        </collision>
-        <visual name="visual">
-          <geometry>
-            <sphere>
-              <radius>0.025</radius>
-            </sphere>
-          </geometry>
-          <material>
-            <ambient>0 0 1 1</ambient>
-            <diffuse>0 0 1 1</diffuse>
-            <specular>0 0 0 1</specular>
-          </material>
-        </visual>
-      </link>
-    </model>
+    
 
 
 
@@ -138,7 +92,7 @@
       <gravity>0</gravity>
       <sensor type="multicamera" name="stereo_camera">
         <camera name="left">
-          <pose>0.1 -0.18 0.7 3.1415 1.5707 1.5707 </pose>
+          <pose>0.1 -0.18 0.4 0 1.5707 1.5707 </pose>
           <!-- <pose>0.1 -0.18 0.7 0 1.3107 -1.5707 </pose> latest one  -->
           <!-- <pose>0.1 -0.2 0.5 0 1.5707 -1.5707 </pose> -->
           <!-- <pose>0.0 0.0 2.3 3.13 1.57 -1.58</pose> -->
@@ -169,7 +123,7 @@
           </lens>
         </camera>
         <camera name="right">
-          <pose>0.1 -0.24 0.7 3.1415 1.5707  1.5707 </pose>
+          <pose>0.1 -0.22 0.4 0 1.5707  1.5707 </pose>
           <!-- <pose>0.1 -0.22 0.7 0 1.3107 -1.5707 </pose> latest one-->
           <!-- <pose> -0.1 -0.2 0.5 0 0 1.55</pose> -->
         <!-- <pose>-0.1 0.0 2.3 3.13 1.57 -1.58</pose> -->
@@ -228,7 +182,6 @@
 
     
 
-  <!-- Import a model into this file -->
 
 
 
