@@ -5,17 +5,7 @@ DNF master project between Erik Lindby and Jacob Fløe Jeppesen
 ros2 launch main_package main.launch.py
 This launch files sets up a world with a table, camera and 3 balls.
 
-# Quickguide to ros2: Terminal 1:
-sfoxy
-sgz
-colcon build
-sbuild
-ros2 launch main_package main.launch.py
-# This should open up gazebo. In terminal 2:
-sfoxy
-rviz2
-
-# Requirements:
+## Requirements:
 Install controller manager packages for FOXY: https://control.ros.org/foxy/doc/getting_started/getting_started.html
 Torch
 Ros2
@@ -24,6 +14,7 @@ Ros Foxy gazebo_ros2_control; Install with: sudo apt-get install ros-foxy-gazebo
 PyAudio - python -m pip install pyaudio
 (Try 'sudo apt install python3-pyaudio' if that doesn't work)
 (If setuptools installation fails in audio package's setup.py, try downgrading to setuptools 58.2.0, last version to work with ros2 python packages without any warnings)
+Install lava https://github.com/lava-nc/lava-dnf
 
 # Notes on libtorch
 When clean building the cmakelist needs to be given your path to the pre-built libtorch library. Change it in the CMakeLists.txt in dnf_package.
@@ -37,9 +28,19 @@ pkg select (sic?) to build specific packages only
 Can compile specific packages instead of all packages: colcon build --packages-select <pkg_name> --symlink-install
 colcon build --packages-select main_package
 
+# Quickguide (to ros2): Terminal 1:
+First terminal: Launching ros and gazebo
+	sfoxy
+	sgz
+	colcon build
+	sbuild
+	ros2 launch main_package main.launch.py
+Second terminal: Topic data overview
+	sfoxy
+	rviz2
+
 # Notes. on rename
 delete build, install and log on renaming, and re-run 'colcon build'
-
 
 # Topics, services actions
 ros2 topic list

@@ -178,7 +178,7 @@ torch::Tensor DNF_2D::extract_response_DNF(torch::Tensor input, int index_input)
     // Sanity: check the dimensions of produced input2_response
     RCLCPP_INFO(rclcpp::get_logger("ExtractResponse"), "Input2_response dimensions: %d %d", input2_response.sizes()[0], input2_response.sizes()[1]);
 
-    printTensor(input2_response);
+    //printTensor(input2_response);
 
     return input2_response;
 }

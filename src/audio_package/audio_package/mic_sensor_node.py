@@ -37,8 +37,8 @@ class MicSensorNode(Node):
         self.frequency = 0.2 # Freq. pr. second; See "Impulse design" block in EI project
         timer_period = 1 / self.frequency # Calculate period
         #self.timer = self.create_timer(timer_period, self.timer_callback) # Create timer for callback
-        # self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
-        self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
+        self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
+        # self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
 
     def dummy_callback(self):
         # Dummy callback function for testing
