@@ -12,7 +12,7 @@ import random
 
 import os
 
-from vocabulary import Words
+from vocabulary import Words, Keywords
 from pathlib import Path
 
 from std_msgs.msg import Int8MultiArray
@@ -75,6 +75,8 @@ class Pocketsphinx_Pubsub(Node):
         # Get filepath from msg.data ("audio_file") filename
         dir_path = os.path.abspath("./src/audio_package/audio_files")
         filename = dir_path + "/" + msg.data + ".wav"
+        # dict_path = os.path.abspath("./src/audio_package/resource/cmudict-en-us.dict")
+        dict_path = os.path.abspath("./src/audio_package/resource/cmudict-reduced.dict")
         
 
         filepath = Path(filename)
@@ -84,8 +86,10 @@ class Pocketsphinx_Pubsub(Node):
             # Open audio file
             try:
                 with wave.open(filename, 'rb') as audio:
-                    decoder = Decoder(samprate=audio.getframerate())#, dict=None)
+                    # decoder = Decoder(samprate=audio.getframerate())#, dict=None)
+                    decoder = Decoder(samprate=audio.getframerate(), dict=None)
                     # decoder.load_dict('cmudict-en-us.dict')
+                    decoder.load_dict(dict_path)
                     decoder.start_utt()
                     decoder.process_raw(audio.getfp().read(), full_utt=True)
                     decoder.end_utt()
@@ -94,11 +98,23 @@ class Pocketsphinx_Pubsub(Node):
                     # Convert audio data (string) to list of words
                     self.audio_data = decoder.hyp().hypstr # Save audio data to a string for the explicit publisher (debugging and logging purposes)
                     split_msg = decoder.hyp().hypstr.split(" ") # Split string into words
+
+                    # Check if words are in dictionary
                     words = [] # Empty list
                     for word in split_msg:
                         self.get_logger().info('Word: "%s"' % word)
                         words.append(self.check_word_in_dictionary(word.upper())) # Check if word is in dictionary
-                    self.words = words # Save words to a list
+
+                    # Check if words are in keyword dictionary
+                    keywords = [] # Empty list
+                    for word in split_msg:
+                        self.get_logger().info('Word: "%s"' % word)
+                        keyword = self.check_word_in_keywords(word.upper()) # Check if word is in keyword dictionary
+                        self.get_logger().info('Keyword: "%s" - Error value: "%s"' % (keyword, Keywords['ERROR'].value))
+                        if keyword != Keywords['ERROR'].value:
+                            keywords.append(keyword)
+
+                    self.words = keywords #words # Save words to a list
                     self.audio_recieved = True
                     self.audio_recieved_explicit = True
             except:
@@ -115,6 +131,9 @@ class Pocketsphinx_Pubsub(Node):
         '''
         Input: Word to check
         Output: True if word is in dictionary, False if not
+
+        Dictionary is defined in vocabulary.py (class Words)
+        Contains all words that pocketsphinx should detect
         '''
         #if (word) in Words enum class:
         try:
@@ -128,15 +147,26 @@ class Pocketsphinx_Pubsub(Node):
         self.get_logger().info('Word IS in dictionary: "%s"' % word)
         detected_word = Words[word.upper()].value # Convert to upper case and get value
         return detected_word
+    
+    def check_word_in_keywords(self, word):
+        '''
+        Input: Word to check
+        Output: True if word is in keyword dictionary, False if not
 
-        # if Words.has_member_key(word):
-        #     self.get_logger().info('Word IS in dictionary: "%s"' % word)
-        #     detected_word = Words(word.upper()).value # Convert to upper case and get value
-        #     return detected_word
-        # else:
-        #     self.get_logger().info('Word NOT in dictionary: "%s"' % word)
-        #     return Words("ERROR").value # Return error if word is not in dictionary
-
+        Keyword dictionary is defined in vocabulary.py (class Keywords)
+        Contains all keywords that the robot should react to
+        '''
+        try:
+            Keywords[word.upper()]
+        except KeyError:
+            self.get_logger().info('Word NOT in keyword dictionary: "%s"' % word)
+            tmp = "ERROR"
+            detected_word = Keywords[tmp.upper()].value
+            return detected_word
+        
+        self.get_logger().info('Word IS in keyword dictionary: "%s"' % word)
+        detected_word = Keywords[word.upper()].value # Convert to upper case and get value
+        return detected_word
 
 
 def main(args=None):

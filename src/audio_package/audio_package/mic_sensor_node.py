@@ -36,9 +36,9 @@ class MicSensorNode(Node):
 
         self.frequency = 0.2 # Freq. pr. second; See "Impulse design" block in EI project
         timer_period = 1 / self.frequency # Calculate period
-        #self.timer = self.create_timer(timer_period, self.timer_callback) # Create timer for callback
-        self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
-        # self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
+
+        # self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
+        self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
 
     def dummy_callback(self):
         # Dummy callback function for testing
@@ -53,12 +53,6 @@ class MicSensorNode(Node):
         msg.data = "synthetic_data/synthetic_movetheredballup"
         self.publisher.publish(msg)
         self.get_logger().info('Publishing the filename: "%s"' % msg.data)
-        
-    def timer_callback(self):
-        msg = Float32MultiArray() # Sensor specific
-        msg.data = [self.mpu.acceleration] # Sensor specific
-        self.publisher_.publish(msg) # Sensor specific
-        self.get_logger().info('Publishing: "%s"' % msg.data) # Sensor specific
         
     def save_mic_rec(self):
         self.get_logger().info("Starting recording call...")
@@ -76,8 +70,6 @@ class MicSensorNode(Node):
         # os.close(devnull)
         # self.get_logger().info("Finished redirecting stderr to devnull. Output is now suppressed.")
         # self.get_logger().info("Ran devnull & flush test...")
-
-
 
         try:
             audio = pyaudio.PyAudio() # create pyaudio instantiation

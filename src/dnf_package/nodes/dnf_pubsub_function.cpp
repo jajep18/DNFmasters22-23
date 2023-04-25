@@ -112,7 +112,7 @@ private:
     int best_action = actions.argmax().item().toInt();
     RCLCPP_INFO(this->get_logger(), "Best action: %d", best_action);
 
-    // COnvert at::Tensor to int for  response
+    // Convert at::Tensor to int for  response
     response->actions = (int) best_action;
     response->targets = (int) best_target;
     response->success = true;
@@ -192,7 +192,7 @@ private:
     keywords_dnf.reset_input();
     action_dnf.reset_input();
     keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
-    action_dnf.set_input_element(MOVE, 6.9f); // The action "Move"
+    action_dnf.set_input_element(MOVE_RIGHT, 6.9f); // The action "Move"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
 

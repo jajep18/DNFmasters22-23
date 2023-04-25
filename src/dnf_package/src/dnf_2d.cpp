@@ -60,6 +60,7 @@ void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
     // Update input
     m_input1 = input1;
     m_input2 = input2;
+    
 
     // Update activation
     // m_activation1 = (1.0f - dt) * m_activation1 + dt * (m_input1 - m_activation1 + m_interaction_kernel.matmul(m_activation1));
