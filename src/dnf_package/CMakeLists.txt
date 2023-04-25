@@ -16,7 +16,7 @@ endif()
 # --------------------------------------- Append Prefix Path -------------------------------------- #
 
 # Add torch library to CMAKE prefix path //Needed in clean builds //Change to local libtorch installation
-# list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
+list(APPEND CMAKE_PREFIX_PATH "/home/student/Documents/libtorch/share/cmake/Torch") #Erik
 list(APPEND CMAKE_PREFIX_PATH "/home/jacob/libtorch/share/cmake/Torch") #Floe
 
 #####################################################################################################
@@ -57,6 +57,12 @@ add_library(dnf_2d src/dnf_2d.cpp)
 target_include_directories(dnf_2d PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 target_link_libraries(dnf_2d ${TORCH_LIBRARIES} rclcpp::rclcpp)
 # ament_export_targets(dnf_2d HAS_LIBRARY_TARGET)
+
+## Learning Trial (class) library
+add_library(learning_trial src/learning_trial.cpp)
+target_include_directories(learning_trial PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+target_link_libraries(learning_trial ${TORCH_LIBRARIES} rclcpp::rclcpp)
+
 ament_export_dependencies(rclcpp)
 
 #####################################################################################################
@@ -75,7 +81,7 @@ ament_export_dependencies(rclcpp)
 ## DNF publisher/subscriber node
 add_executable(dnf_pubsub nodes/dnf_pubsub_function.cpp)
 ament_target_dependencies(dnf_pubsub rclcpp std_msgs custom_msgs OpenCV Torch ament_index_cpp)
-target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES} dnf_1d dnf_2d)
+target_link_libraries(dnf_pubsub ${TORCH_LIBRARIES} dnf_1d dnf_2d learning_trial)
 
 # Torch Debug - Setup link libraries - Note: Remember to link torch library to all executables (nodes) that need torch
 if(NOT Torch_FOUND)
