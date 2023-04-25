@@ -64,6 +64,7 @@ ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs OpenCV sen
 
 ## Install Libraries
 
+
 ## Install Python scripts
 install(
   PROGRAMS
@@ -77,6 +78,11 @@ install(
 install(TARGETS
   cam_pubsub
   circle_listener
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(
+  DIRECTORY
+    src
   DESTINATION lib/${PROJECT_NAME}
 )
 

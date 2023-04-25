@@ -60,6 +60,25 @@ class TriangulationNode(Node):
         self.distortion_coeff_left = np.array([])
         self.distortion_coeff_right = np.array([])
 
+        # Define essential and fundamental matrices - These has been found with calibration
+        # Essential matrix:
+        # [[ 1.44448597e-04  5.70077780e-04  6.58557047e-02]
+        #  [-8.72517309e-06 -1.29057925e-05 -1.50508117e-03]
+        #  [-6.58584672e-02  1.49335561e-03  1.31651436e-04]]
+        self.E = np.array([[ 1.44448597e-04,  5.70077780e-04,  6.58557047e-02],
+                           [-8.72517309e-06, -1.29057925e-05, -1.50508117e-03],
+                            [-6.58584672e-02,  1.49335561e-03,  1.31651436e-04]])
+                           
+        # Fundamental matrix:
+        # [[ 1.85379095e-06  7.31613218e-06  3.19960041e-01]
+        #  [-1.11975106e-07 -1.65627371e-07 -7.29050905e-03]
+        #  [-3.22894441e-01  5.00385573e-03  1.00000000e+00]]
+        self.F = np.array([[ 1.85379095e-06,  7.31613218e-06,  3.19960041e-01],
+                           [-1.11975106e-07, -1.65627371e-07, -7.29050905e-03],
+                            [-3.22894441e-01,  5.00385573e-03,  1.00000000e+00]])
+
+
+
         """ Define the Transformation Matrix cam2World:
         This is the transformation from the left camera coordinate frame into the world frame
         This transformation is actually composed of the transform /translation of the left camera frame in the world frame
@@ -305,8 +324,8 @@ class TriangulationNode(Node):
             left_points = np.expand_dims(left_points, axis=1)
             right_points = np.expand_dims(right_points, axis=1)
         
-            #left_points  = cv2.undistortPoints(left_points, self.camera_matrix_left, self.distortion_coeff_left)
-            #right_points = cv2.undistortPoints(right_points, self.camera_matrix_right, self.distortion_coeff_right)
+            # left_points  = cv2.undistortPoints(left_points, self.camera_matrix_left, self.distortion_coeff_left)
+            # right_points = cv2.undistortPoints(right_points, self.camera_matrix_right, self.distortion_coeff_right)
 
             # Remove extra dimension
             left_points = np.squeeze(left_points)
@@ -318,8 +337,8 @@ class TriangulationNode(Node):
             right_points = np.reshape(right_points, (1, len(right_points), 2))
             
             # CorrectPoints
-            # [left_points, right_points] = cv2.correctMatches(projection_matrix_left, left_points, right_points)
-            #[left_points, right_points] = cv2.correctMatches(fundamental_matrix, left_points, right_points)
+            [left_points, right_points] = cv2.correctMatches(self.F, left_points, right_points)
+            [left_points, right_points] = cv2.correctMatches(self.F, left_points, right_points)
 
             
         else: # Otherwise: just reshape the points like correctmatches does
@@ -594,6 +613,11 @@ class TriangulationNode(Node):
             print(self.rotation_mat_right)
             print('Translation vector right:')
             print(self.translation_vec_right)
+
+            print('Essential matrix:')
+            print(E)
+            print('Fundamental matrix:')
+            print(F)
 
             # Set the calibration_complete flag so calibration does not repeat
             self.calibration_complete = True

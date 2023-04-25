@@ -55,7 +55,7 @@ class JetmaxFKService(Node):
 
     def result_response(self, result):
         self.get_logger().info("Result: %s" % result.result,
-                                 "Status: %s" % result.status)                    
+                                 "Status: %s" % result.status)          
 
 
 def main(args=None):

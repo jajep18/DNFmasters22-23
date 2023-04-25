@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import math
+import numpy as np
 
 from geometry_msgs.msg import TransformStamped
 
@@ -13,8 +14,11 @@ from tf2_ros.transform_listener import TransformListener
 import time
 import asyncio #Implements sleep in a non-blocking manner
 import threading
-
+import transform_pubsub 
 #from main_package.movement import extrapolate_path
+#from movement import extrapolate_path, create_path, parabolic_blend, write_path_to_csv
+import src.movement
+
 
 from enum import Enum
 
@@ -252,6 +256,30 @@ def main(args=None):
 
     # Create the node
     node = MovementCommandCenter()
+
+    # Move the arm to the home position
+    node.get_logger().info("Sending request to move home...")
+    position = [120, 0, 200]
+    node.get_logger().info("Position: {}".format(position))
+    response = node.send_request(position[0], position[1], position[2])
+    node.get_logger().info("Response: %s" % response.success)
+
+    # Test the motion planning of the arm:
+    node.get_logger().info("Testing movement.py")
+
+    start_pos = np.array([0.0, 0.0, 1.0])
+    pickup_target = np.array([1.0, 1.0, 1.0])
+    place_target = np.array([2.0, 2.0, 1.0])
+    height_offset = 0.3
+
+    test_path = create_path(start_pos, pickup_target, place_target, height_offset)
+    
+    write_path_to_csv(test_path, "test_path.csv")
+    
+    
+    for i in range(0, len(test_path)):
+        node.get_logger().info("Sending request to move to position: {}".format(test_path[i]))
+        node.send_ik_request(test_path[i][0], test_path[i][1], test_path[i][2])
     
     # # Spin the node
     # rclpy.spin(node)
