@@ -39,13 +39,21 @@ def main(args=None):
 
     # Home: (0, 150, 50) ?
     # Send a request to move home
-    node.get_logger().info("Sending request to move home...")
-    # position = [-100, -238, 100]
-    position = [120, 0, 200]
-    # position = [0, 100, 200]
-    node.get_logger().info("Position: {}".format(position))
-    response = node.send_request(position[0], position[1], position[2])
-    node.get_logger().info("Response: %s" % response.success)
+    # node.get_logger().info("Sending request to move home...")
+    # position = [0, -175, 120]
+    # # position = [120, 0, 200]
+    # # position = [0, 100, 200]
+    # node.get_logger().info("Position: {}".format(position))
+    # response = node.send_request(position[0], position[1], position[2])
+    # node.get_logger().info("Response: %s" % response.success)
+
+    # for loop from 120 to 200 in 10 steps
+    for i in range(120, 200, 5):
+        time.sleep(0.5)
+        position = [0, -175, i]
+        node.get_logger().info("Moving to Position: {}".format(position))
+        response = node.send_request(position[0], position[1], position[2])
+        node.get_logger().info("Response: %s" % response.success)
 
     # Spin the node
     #rclpy.spin(node)

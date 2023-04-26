@@ -37,6 +37,7 @@ install(
     scripts/ik_service.py
     scripts/fk_client.py
     scripts/ik_client.py
+    scripts/ik_client_test.py
     scripts/gripper_client.py
     scripts/jetmax_kinematics.py
   DESTINATION lib/${PROJECT_NAME})

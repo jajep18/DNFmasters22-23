@@ -12,13 +12,14 @@
     <plugin name="gazebo_ros_vacuum_gripper" filename="libgazebo_ros_vacuum_gripper.so">
       <robot_namespace>/jetmax/vacuum_gripper</robot_namespace>
       <link_name>virtual_end_effector</link_name>
+      <!-- Remapping of topic (advertise status) and service (change status) -->
       <remapping>switch:=jetmax_switch</remapping>
       <remapping>grasping:=jetmax_grasping</remapping>
-      <!-- <topic>grasping</topic> -->
-      <!-- <service>switch</service> -->
-      <maxForce>10</maxForce>
-      <maxDistance>0.05</maxDistance>
-      <minDistance>0.01</minDistance>
+      <!-- maxForce(doc?) -->
+      <max_force>10</max_force>
+      <!-- Max/min distance to attract entities -->
+      <max_distance>0.05</max_distance>
+      <!-- <min_distance>0.005</min_distance> -->
       <!-- List of entities to be not attracted by the gripper -->
       <fixed>ground_plane</fixed>
       <fixed>world</fixed>

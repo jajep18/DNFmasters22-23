@@ -12,7 +12,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
 import time
-import asyncio #Implements sleep in a non-blocking manner
+
 import threading
 import transform_pubsub 
 #from main_package.movement import extrapolate_path

@@ -55,13 +55,6 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Description: This cmd loads the controller named "joints_effort_controller"
-    load_joint_effort_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
-                'joint_effort_controller'],
-        output='screen',
-    )
-
     # Description: This is were all the nodes are used to create the launch file
     return LaunchDescription([
         # Load the joint_state_broadcaster when the robot is spawned in Gazebo
@@ -71,11 +64,18 @@ def generate_launch_description():
                 on_exit=[load_joint_state_broadcaster],
             ),
         ),
-        # Load joint_trajectory_controller when joint_state_broadcaster is loaded
+        # Load joint_position_controller when joint_state_broadcaster is loaded
         RegisterEventHandler( 
             event_handler=OnProcessExit(
                 target_action=load_joint_state_broadcaster,
                 on_exit=[load_joint_position_controller],
+            ),
+        ),
+        # Load joint_effort_controller when joint_position_controller is loaded
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=load_joint_position_controller,
+                on_exit=[load_joint_effort_controller],
             ),
         ),
         robot_state_publisher,      # Publish urdf to topic 'robot_description'

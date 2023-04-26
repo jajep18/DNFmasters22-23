@@ -66,6 +66,8 @@ joint_effort_controller:
       - velocity
       - effort
 
+    interface_name: effort
+
 joint_position_controller:
   ros__parameters:
     joints:
