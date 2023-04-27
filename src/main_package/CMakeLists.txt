@@ -46,8 +46,11 @@ ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.d
 # https://answers.ros.org/question/357633/how-to-create-a-ros2-library/?answer=385279#post-id-385279
 # https://docs.ros.org/en/foxy/How-To-Guides/Ament-CMake-Documentation.html#building-a-library
 
+## Include CPP "include" directory
+#include_directories(include)
+
 #####################################################################################################
-# ---------------------------------------- Add Executables ---------------------------------------- #
+# ------------------------------------- Create Executables ---------------------------------------- #
 
 ## Camera publisher/subscriber node
 add_executable(cam_pubsub nodes/camera_pubsub_function.cpp)
@@ -60,12 +63,10 @@ ament_target_dependencies(circle_listener custom_msgs rclcpp std_msgs OpenCV sen
 #####################################################################################################
 # ------------------------------ Install Target & Ament dependencies ------------------------------ #
 
-## Install Header files
+## Install Python dependencies / Modules - not 100% sure if this is needed
+ament_python_install_package(${PROJECT_NAME})
 
-## Install Libraries
-
-
-## Install Python scripts
+## Install Python scripts (Nodes)
 install(
   PROGRAMS
     nodes/transform_pubsub.py
@@ -74,17 +75,18 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
-## Install Nodes
+## Install CPP executables (Nodes)
 install(TARGETS
   cam_pubsub
   circle_listener
   DESTINATION lib/${PROJECT_NAME}
 )
-install(
-  DIRECTORY
-    src
-  DESTINATION lib/${PROJECT_NAME}
-)
+
+# install(
+#   DIRECTORY
+#     src
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 ## Install Assets (launch files, models, ...)
 install(

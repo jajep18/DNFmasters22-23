@@ -39,6 +39,9 @@ Second terminal: Topic data overview
 	sfoxy
 	rviz2
 
+Turn on Gripper
+	ros2 service call /demo/switch_demo std_srvs/srv/SetBool "{data: True}"
+
 # Notes. on rename
 delete build, install and log on renaming, and re-run 'colcon build'
 

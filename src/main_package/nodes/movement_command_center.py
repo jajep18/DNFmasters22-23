@@ -15,10 +15,9 @@ import time
 
 import threading
 import transform_pubsub 
-#from main_package.movement import extrapolate_path
-#from movement import extrapolate_path, create_path, parabolic_blend, write_path_to_csv
-import src.movement
 
+# Using this for import guide: https://roboticsbackend.com/ros2-package-for-both-python-and-cpp-nodes/#How_we%E2%80%99ll_manage_to_setup_Python_and_Cpp_nodes_in_the_same_ROS2_package
+from main_package.movement import *
 
 from enum import Enum
 
