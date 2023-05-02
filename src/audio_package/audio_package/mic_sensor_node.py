@@ -14,6 +14,8 @@ from rclpy.node import Node # Always
 from std_msgs.msg import Float32MultiArray # Sensor specific
 from std_msgs.msg import String 
 
+import src.mute_alsa as mute_alsa
+
 import os
 import glob
 import wave
@@ -23,6 +25,8 @@ import wave
 import sys
 
 import pyaudio
+
+
 
 # Node class
 class MicSensorNode(Node):
@@ -55,7 +59,7 @@ class MicSensorNode(Node):
         self.get_logger().info('Publishing the filename: "%s"' % msg.data)
         
     def save_mic_rec(self):
-        self.get_logger().info("Starting recording call...")
+        
         form_1 = pyaudio.paInt16
         chans = 1 # 1 channel for mono
         samp_rate = 48000 # 48kHz sampling rate
@@ -71,28 +75,35 @@ class MicSensorNode(Node):
         # self.get_logger().info("Finished redirecting stderr to devnull. Output is now suppressed.")
         # self.get_logger().info("Ran devnull & flush test...")
 
-        try:
-            audio = pyaudio.PyAudio() # create pyaudio instantiation
-            # create pyaudio stream
-            stream = audio.open(format = form_1,rate = samp_rate,channels = chans, \
-                                input_device_index = dev_index,input = True, \
-                                frames_per_buffer=chunk)
-        except:
-            self.get_logger().info("Error opening audio stream")
-            return
-        self.get_logger().info("Recording...")
+        # Recorded data variable
         frames = []
 
-        # loop through stream and append audio chunks to frame array
-        for ii in range(0,int((samp_rate/chunk)*record_secs)):
-            data = stream.read(chunk)
-            frames.append(data)
-        self.get_logger().info("Finished recording")
+        self.get_logger().info("Starting recording call...")
 
-        # stop the stream, close it, and terminate the pyaudio instantiation
-        stream.stop_stream()
-        stream.close()
-        audio.terminate()
+        # Supress faulty stderr output from pyaudio
+        with mute_alsa.suppress_stderr():
+            try:
+                audio = pyaudio.PyAudio() # create pyaudio instantiation
+                # create pyaudio stream
+                stream = audio.open(format = form_1,rate = samp_rate,channels = chans, \
+                                    input_device_index = dev_index,input = True, \
+                                    frames_per_buffer=chunk)
+            except:
+                self.get_logger().info("Error opening audio stream")
+                return
+            self.get_logger().info("Recording...") # This will not print inside the suppress_stderr context manager
+
+            # loop through stream and append audio chunks to frame array
+            for ii in range(0,int((samp_rate/chunk)*record_secs)):
+                data = stream.read(chunk)
+                frames.append(data)
+            
+
+            # stop the stream, close it, and terminate the pyaudio instantiation
+            stream.stop_stream()
+            stream.close()
+            audio.terminate()
+        self.get_logger().info("Finished recording")
         
         # Count the amount of files in the audio_files folder (For a unique new filename)
         dir_path = os.path.abspath("./src/audio_package/audio_files")

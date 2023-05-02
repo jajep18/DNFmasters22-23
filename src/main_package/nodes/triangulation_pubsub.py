@@ -451,16 +451,16 @@ class TriangulationNode(Node):
         # print("Triangulated points length: % d" % triangulated_points_len)
         # self.get_logger().info('Triangulation has reached the end. There are %d triangulated circles' % triangulated_points.shape[1])
 
-        # # Create TriangulatedCircleInfoArr message
-        # self._triangulated_circles = TriangulatedCircleInfoArr() # "Clear" the message
-        # for i in range(triangulated_points.shape[1]):
-        #     triangulated_circle = TriangulatedCircleInfo()
-        #     triangulated_circle.x = triangulated_points[0][i]
-        #     triangulated_circle.y = triangulated_points[1][i]
-        #     triangulated_circle.color = self.color_dict[color_idx_vec[i]]
-        #     triangulated_circle.bgr_mean = mean_color_vec[i]
-        #     triangulated_circle.bgr_var = var_color_vec[i]
-        #     self._triangulated_circles.circles.append(triangulated_circle)
+        # Create TriangulatedCircleInfoArr message
+        self._triangulated_circles = TriangulatedCircleInfoArr() # "Clear" the message
+        for i in range(triangulated_points.shape[1]):
+            triangulated_circle = TriangulatedCircleInfo()
+            triangulated_circle.x = float(triangulated_points[0][i])
+            triangulated_circle.y = float(triangulated_points[1][i])
+            triangulated_circle.color = self.color_dict[color_idx_vec[i]]
+            triangulated_circle.bgr_mean = mean_color_vec[i]
+            triangulated_circle.bgr_var = var_color_vec[i]
+            self._triangulated_circles.circles.append(triangulated_circle)
         
     def calculate_fundamental_matrix(self):
         """

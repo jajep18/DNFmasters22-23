@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 package_name = 'audio_package'
+src_dir = 'src'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=find_packages(exclude=['test']),
-    # packages=[package_name],
+    # packages=find_packages(exclude=['test']),
+    packages=[package_name, src_dir],
     # packages=[package_name, 'audio_package.pocketsphinx_pubsub'],
     data_files=[
         ('share/ament_index/resource_index/packages',

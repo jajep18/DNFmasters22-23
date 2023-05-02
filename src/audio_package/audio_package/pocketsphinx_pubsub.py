@@ -34,6 +34,9 @@ class Pocketsphinx_Pubsub(Node):
         self.words = [Words['ERROR'].value]
         self.audio_recieved = False
         self.audio_recieved_explicit = False
+
+        # Debug: Print that the node has launched correctly
+        self.get_logger().info('Pocketsphinx node has been launched.')
         
 
     def kwspotting_callback(self):

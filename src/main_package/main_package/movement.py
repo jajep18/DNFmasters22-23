@@ -35,15 +35,14 @@ def extrapolate_path(joints_current, joints_desired):
     
     return path
         
-    
 
-def parabolic_blend(start_pos, end_pos, max_vel, sample_rate):
+def linear_interpolation(start_pos, end_pos, max_vel, sample_rate):
         """
-        This function returns the parabolic blend of the start and end positions
+        This function returns the linear interpolation of the start and end positions
         @param: start_pos - The starting position of the blend (x, y, z)
         @param: end_pos - The ending position of the blend (x, y, z)
-        @param: max_vel - The maximum velocity of the blend (m/s)
-        @param: sample_rate - The sample rate of the blend (Hz) 
+        @param: max_vel - The maximum velocity of the blend 
+        @param: sample_rate - The sample rate of the blend 
         @return: positions - The list of positions in the blend
         """
         # Calculate the distance between the start and end points
@@ -94,6 +93,7 @@ def parabolic_blend(start_pos, end_pos, max_vel, sample_rate):
         positions.append(end_pos)
         
         return positions
+    
 
 def create_path(current_pos, pickup_target, place_target, height_over_target):
     '''
@@ -116,7 +116,7 @@ def create_path(current_pos, pickup_target, place_target, height_over_target):
     above_place[2] = above_place[2] + height_over_target
     end_pos = current_pos
     
-    # Initialize the list of positions for parabolic blend
+    # Initialize the list of positions for linear_interpolation 
     positions = []
     positions.append(start_pos)
     positions.append(above_pickup)
@@ -135,10 +135,12 @@ def create_path(current_pos, pickup_target, place_target, height_over_target):
     print("Ending position: ", end_pos)
 
     
-    # Create paths with parabolic blend
+    # Create paths with linear_interpolation 
     paths = []
     for i in range(len(positions)-1):
-        path = parabolic_blend(positions[i], positions[i+1], 0.5, 10 )
+        path = linear_interpolation(positions[i], positions[i+1], 0.5, 500 )
+        # If at pickup position, add a enum for gripper open and close
+        # If at place position, add a enum for gripper open and close
         paths.append(path)
     
     return paths

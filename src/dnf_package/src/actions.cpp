@@ -1,5 +1,10 @@
 #include <vector>
 
+/* This file contains the set of actions that the robot can perform.
+ * These are the possible outcomes of the decision making process.
+ * This file is defined twice, here in cpp for the decision making process, and in the main package for the pythonic movement_command_center
+ */
+
 enum action{
     PICK_UP      = 0,
     PLACE_DOWN   = 1,

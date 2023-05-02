@@ -36,7 +36,8 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-#define VOCAB_SIZE 25 //The size of the vocabulary
+#define VOCAB_SIZE 25 //The size of the keyword vocabulary
+#define ACTION_AMOUNT 8 //The size of the action vocabulary
 
 class DNFNode : public rclcpp::Node
 {
@@ -47,7 +48,7 @@ public:
     color_circles_dnf(3,true),        //Contains the color of the circles. This is an input
     pos_x_circle_dnf(3,true),         //Contains the x position of the circles. This is an input
     pos_y_circle_dnf(3,true),         //Contains the y position of the circles. This is an input
-    action_dnf(5,true),               //Contains the actions, this is the output of the network
+    action_dnf(ACTION_AMOUNT,true),            //Contains the actions, this is the output of the network
     keywords_color_dnf(VOCAB_SIZE,3,true),     //Combined DNF Keywords+Color½int index_input, int index_element,
     keywords_action_dnf(VOCAB_SIZE, 5, true),   //Combined DNF Keywords+Action
     color_expanded_dnf(256, true) //Test of "complex" dnf, color with 256 neurons
@@ -79,8 +80,11 @@ public:
     // color_expanded_dnf.set_input_element(0, 6.9f); // Needs an alternative, "Stimulate input neurons at ()" function
 
     // Perform the (test) learning
-    test_dnf_setup();
+    //test_dnf_setup();
+    //RCLCPP_INFO(this->get_logger(), "DNF (Test/manual) setup complete");
     dnf_learning();
+    RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
+
   }
 
 private:
@@ -145,8 +149,8 @@ private:
           detected_circles.push_back(msg->circles[i]);
 
         }
-        RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!");
-        RCLCPP_INFO(this->get_logger(), "Color(BGR) of circle 0: %f %f %f", msg->circles[0].bgr_mean[0], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[2]);
+        //RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles!");
+        //RCLCPP_INFO(this->get_logger(), "Color(BGR) of circle 0: %f %f %f", msg->circles[0].bgr_mean[0], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[2]);
 
         // //Save msg->circles[0].bgr_mean to a vector<float> with RGB values
         // std::vector<float> hsv_local = HSVFromRGB(msg->circles[0].bgr_mean[2], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[0]);
@@ -157,7 +161,7 @@ private:
         HSVtoRGB(msg->circles[0].bgr_mean[2], msg->circles[0].bgr_mean[1], msg->circles[0].bgr_mean[0], h, s, v);
         
         //Print new values
-        RCLCPP_INFO(this->get_logger(), "(hsvrgb.cpp) HSV of circle 0: %f %f %f", h, s, v);
+        //RCLCPP_INFO(this->get_logger(), "(hsvrgb.cpp) HSV of circle 0: %f %f %f", h, s, v);
     } else {
         RCLCPP_INFO_STREAM(this->get_logger(), "Found " << msg->circles.size() << " circles.");
     }
@@ -195,41 +199,41 @@ private:
     action_dnf.set_input_element(MOVE_RIGHT, 6.9f); // The action "Move"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Memorized Move");
     // Learning "Release"
     keywords_dnf.reset_input();
     action_dnf.reset_input();
-    keywords_dnf.set_input_element(21, 6.9f); // The keyword "Release"
+    keywords_dnf.set_input_element(17, 6.9f); // The keyword "Release"
     action_dnf.set_input_element(RELEASE, 6.9f); // The action "Release"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Memorized Release");
     // Learning "Grasp"
     keywords_dnf.reset_input();
     action_dnf.reset_input();
-    keywords_dnf.set_input_element(22, 6.9f); // The keyword "Grasp"
+    keywords_dnf.set_input_element(18, 6.9f); // The keyword "Grasp"
     action_dnf.set_input_element(GRASP, 6.9f); // The action "Grasp"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Memorized Grasp");
     // Learning "Pick" (Up)
     keywords_dnf.reset_input();
     action_dnf.reset_input();
-    keywords_dnf.set_input_element(23, 6.9f); // The keyword "Pick"
+    keywords_dnf.set_input_element(19, 6.9f); // The keyword "Pick"
     action_dnf.set_input_element(PICK_UP, 6.9f); // The action "Pick Up"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
-    
+    RCLCPP_INFO(this->get_logger(), "Memorized Pick Up");
     // Learning "Place" (Down)
     keywords_dnf.reset_input();
     action_dnf.reset_input();
-    keywords_dnf.set_input_element(24, 6.9f); // The keyword "Place"
+    keywords_dnf.set_input_element(20, 6.9f); // The keyword "Place"
     action_dnf.set_input_element(PLACE_DOWN, 6.9f); // The action "Place Down"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
-
+    RCLCPP_INFO(this->get_logger(), "Memorized Place Down");
     // Save KWxA DNF after learning
     write2DTensorCSV(keywords_action_dnf.get_activation(), log_path, "keywords_action_dnf_activation_after_learning.csv");
-
+    RCLCPP_INFO(this->get_logger(), "Saved KWxA DNF after learning");
     // // Memory extraction / Remembering phase - - - - - - - -
     // // Remembering move
     // keywords_dnf.reset_input();
@@ -293,7 +297,7 @@ private:
     color_circles_dnf.set_input_element(0, 6.9f); // The red color
     keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input()); //Set input for the 2D DNF
     keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Learned red");
     // Learning green
     keywords_dnf.reset_input();
     color_circles_dnf.reset_input();
@@ -301,7 +305,7 @@ private:
     color_circles_dnf.set_input_element(1, 6.9f); // The green color
     keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
     keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Learned green");
     // Learning blue
     keywords_dnf.reset_input();
     color_circles_dnf.reset_input();
@@ -309,7 +313,7 @@ private:
     color_circles_dnf.set_input_element(2, 6.9f); // The blue color
     keywords_color_dnf.set_input(keywords_dnf.get_input(), color_circles_dnf.get_input());
     keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f); //Get it into memory
-
+    RCLCPP_INFO(this->get_logger(), "Learned blue");
     // Save KWxC DNF after learning
     write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation_after_learning.csv");
 

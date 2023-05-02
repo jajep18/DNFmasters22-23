@@ -71,13 +71,13 @@ def generate_launch_description():
                 on_exit=[load_joint_position_controller],
             ),
         ),
-        # Load joint_effort_controller when joint_position_controller is loaded
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=load_joint_position_controller,
-                on_exit=[load_joint_effort_controller],
-            ),
-        ),
+        # # Load joint_effort_controller when joint_position_controller is loaded
+        # RegisterEventHandler(
+        #     event_handler=OnProcessExit(
+        #         target_action=load_joint_position_controller,
+        #         on_exit=[load_joint_effort_controller],
+        #     ),
+        # ),
         robot_state_publisher,      # Publish urdf to topic 'robot_description'
         spawn_entity_robot,         # Spawn robot in Gazebo
     ])
