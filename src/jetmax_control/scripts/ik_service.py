@@ -32,7 +32,8 @@ class JetmaxIKService(Node):
         """
         position = [request.x, request.y, request.z]
         ik_result= jetmax_kinematics.inverse_kinematics(position)
-        self.get_logger().info("Publishing for position: {}".format(position))
+        #self.get_logger().info("Publishing for position: {}".format(position))
+        self.get_logger().info("Recieved IK request: x: %.4f, y: %.4f, z: %.4f" % (request.x, request.y, request.z))
         if ik_result:
             fk_result = jetmax_kinematics.forward_kinematics(ik_result)
             if fk_result:
