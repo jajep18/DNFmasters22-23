@@ -46,7 +46,13 @@ class MovementCommandCenter(Node):
         # self._tf_buffer = Buffer()
         # self._tf_listener = TransformListener(self._tf_buffer, self, spin_thread=True)
         # self._subscriber_trans = self.create_subscription(TransformStamped, 'base_TCP_transform', self.get_tcp_transform, 10)
+
+        # Create callback groups
         self.callback_group = rclpy.callback_groups.ReentrantCallbackGroup()
+        self._cb_none = None
+        self._cb_timer= rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
+
+        # Create a subscriber to the triangulated circles
         self._subscriber_coords = self.create_subscription(TriangulatedCircleInfoArr, 'triangulated_circles', self.get_coordinates, 10, callback_group=self.callback_group)
         self._transform = None
         self._ball_coordinates =[[None, None, None], [None, None, None], [None, None, None]] # Red, Green, Blue
@@ -77,10 +83,11 @@ class MovementCommandCenter(Node):
         # self.get_logger().info("Decision Service is available")
 
         # Create a timer to call for decision making service, and perform the determined action
-        timer_period = 5  # seconds
+        timer_period = 10  # seconds
         # Get the clock of the node 
         self._clock = self.get_clock()
-        self._timer = self.create_timer(timer_period, self.timer_callback, callback_group=self.callback_group, clock=self._clock)
+        self._timer = self.create_timer(timer_period, self.timer_callback, callback_group=self._cb_timer)
+        # self._timer = self.create_timer(timer_period, self.timer_callback, callback_group=self.callback_group, clock=self._clock)
 
             
         
@@ -128,9 +135,9 @@ class MovementCommandCenter(Node):
 
 
         if self.executor is None:
-            rclpy.spin_until_future_complete(self, self.future, timeout_sec=5)
+            rclpy.spin_until_future_complete(self, self.future, timeout_sec=2)
         else:
-            self.executor.spin_until_future_complete(self.future, timeout_sec=1)
+            self.executor.spin_until_future_complete(self.future, timeout_sec=0.5)
         
         # rclpy.spin_until_future_complete(self, self.future, timeout_sec=5)
         #self.executor.spin_until_future_complete(self.future)
@@ -156,18 +163,6 @@ class MovementCommandCenter(Node):
             self.get_logger().info("Gripper Request failed %r" % (self.future.exception(),)) 
             return self.future.exception()
         return self.future.result().success
-    
-    # def send_fk_request(self, _angle_rotate: float, _angle_left: float, _angle_right: float):
-    #     self._fk_req.angle_rotate = _angle_rotate
-    #     self._fk_req.angle_left = _angle_left
-    #     self._fk_req.angle_right = _angle_right
-    #     self.future = self._fk_client.call_async(self._fk_req)
-    #     rclpy.spin_until_future_complete(self, self.future)
-    #     if self.future.result() is not None:
-    #         self.get_logger().info("FK Request sent, Result: %s" % self.future.result().result)
-    #     else:
-    #         self.get_logger().info("FK Request failed %r" % (self.future.exception(),)) 
-    #     return self.future.result().result
 
     def get_tcp_transform(self, msg):
         if msg is not None:
@@ -205,6 +200,7 @@ class MovementCommandCenter(Node):
         Move to the pick up position and turn on gripper
         @param pick_pos: The position to pick up at in the form [x, y, z]
         '''
+
         above_pick_pos = [pick_pos[0], pick_pos[1], pick_pos[2] + self.above_offset]
         
         # Move above the pick up position
@@ -232,13 +228,15 @@ class MovementCommandCenter(Node):
             return
         
         self.get_logger().info('Moving to (%s, %s, %s)' % (move_pos[0], move_pos[1], move_pos[2]))
-        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=10)#= 500)
+        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=200)#= 500)
         
         # Loop through the path and send movement commands
         for positions in path:
             self.send_ik_request(positions[0], positions[1], positions[2])
+            time.sleep(0.08)
             
         self.get_logger().info('Move successful')
+        time.sleep(3)
         self.current_position = move_pos
         
     def action_placedown(self):
@@ -310,11 +308,13 @@ class MovementCommandCenter(Node):
         '''
         try:
             target_pos = self._ball_coordinates[int(target)]
+            #self.get_logger().info('Target: %s, Ball coordinates: %s' % (target.name, target_pos))
         except:
             # Print the targets int value, and the length of the ball coordinates
             self.get_logger().info('Exception occured during target_pos')
             self.get_logger().info('Target: %s, Ball coordinates: %s' % (target.name, len(self._ball_coordinates)))
             return
+
         
         # If target_pos is NoneType, return
         if target_pos[0] is None or target_pos[1] is None or target_pos[2] is None:
@@ -366,11 +366,17 @@ class MovementCommandCenter(Node):
         # self.get_logger().info('Response action: %s. Response target: %s' % (response.actions, response.targets))
         # action = response.actions
         # target = response.targets
-        action = Action(self._count_actions % 7)
+        # action = Action(self._count_actions % 7)
+        action = Action.PICK_UP
         target = Color.RED
         
         # Currenty action
         self.get_logger().info('Action: %s, Target: %s' % (action.name, target.name))
+
+        if self._count_actions != 0:
+            self.get_logger().info('This is not the first action. Quitting the timer cb')
+            self.get_logger().info('- - - - - - - - - - - - - - - - - - - - - - - - ')
+            return
 
         self._count_actions += 1
 
@@ -418,10 +424,17 @@ def main(args=None):
     # Spin / Start the node
     # create a single threaded executor to prevent multiple threads from being created
     
-    my_executor = SingleThreadedExecutor()
-    #my_executor = MultiThreadedExecutor()
+    #my_executor = SingleThreadedExecutor()
+    my_executor = MultiThreadedExecutor()
     my_executor.add_node(node)
     my_executor.spin()
+
+    # # Print 10 times
+    # for i in range(10):
+    #     print("Spin once...")
+    #     my_executor.spin_once()
+    #     print("Spinned once")
+
     rclpy.shutdown()
     # try:
     #     my_executor = MultiThreadedExecutor()
@@ -489,8 +502,8 @@ def main(args=None):
     #rclpy.spin(node)
 
     # Destroy the node explicitly (optional)
-    node.destroy_node()
-    rclpy.shutdown()
+    #node.destroy_node()
+    #rclpy.shutdown()
     #thread.join()
 
 

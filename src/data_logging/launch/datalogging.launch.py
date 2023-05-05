@@ -21,18 +21,13 @@ def generate_launch_description():
 
     package_name     = 'data_logging'
 
-    node_listener = Node(
+    IK_data_logging_node = Node(
         package=package_name,
-        executable='my_listener'
+        executable='datalog_IK'
     )
 
-    node_talker = Node(
-        package=package_name,
-        executable='my_talker'
-    )
 
 
     return LaunchDescription([
-        node_listener,
-        node_talker 
+        IK_data_logging_node
     ])

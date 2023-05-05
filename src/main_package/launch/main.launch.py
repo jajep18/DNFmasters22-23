@@ -131,4 +131,7 @@ def generate_launch_description():
             period=10.0, # Delay in seconds
             actions=[home_command_jetmax]
         )
+        # On exit of gazebo, launch home command jetmax
+        
+        
     ])
