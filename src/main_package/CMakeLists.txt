@@ -23,8 +23,8 @@ list(APPEND CMAKE_PREFIX_PATH "/usr/lib/x86_64-linux-gnu/gazebo-11")
 
 #####################################################################################################
 # --------------------------------------- Find Dependencies --------------------------------------- #
-find_package(gazebo REQUIRED)
 find_package(ament_cmake REQUIRED)
+find_package(gazebo REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS highgui imgcodecs imgproc videoio)

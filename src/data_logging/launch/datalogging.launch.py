@@ -23,11 +23,21 @@ def generate_launch_description():
 
     IK_data_logging_node = Node(
         package=package_name,
-        executable='datalog_IK'
+        executable='datalog_IK.py'
     )
 
+    keyword_data_logging_node = Node(
+        package=package_name,
+        executable='datalog_keyword.py'
+    )
 
+    triangulation_data_logging_node = Node(
+        package=package_name,
+        executable='datalog_triangulation.py'
+    )
 
     return LaunchDescription([
-        IK_data_logging_node
+        IK_data_logging_node,
+        keyword_data_logging_node,
+        triangulation_data_logging_node
     ])
