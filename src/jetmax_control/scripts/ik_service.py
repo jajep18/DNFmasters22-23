@@ -7,9 +7,10 @@ import jetmax_kinematics
 from jetmax_control.srv import IK #, IKRequest, IKResponse
 from rclpy.node import Node
 import numpy as np
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, Float32MultiArray
 
 NUM_OF_JOINTS = 9
+NUM_OF_ACTIVE_JOINTS = 3
 joints_publishers = []
 ik_service = None
 
@@ -22,7 +23,15 @@ class JetmaxIKService(Node):
 
         # Create a publisher to /joint_position_controller/commands
         self.pub = self.create_publisher(Float64MultiArray, '/joint_position_controller/commands', 1)
-        self.get_logger().info("Publisher created")
+        self.get_logger().info("Joint publisher created")
+
+        # Create a publisher to /datalog_IK
+        self.pub_datalog = self.create_publisher(Float32MultiArray, '/datalog_IK', 10)
+        self.get_logger().info("Datalog publisher created")
+
+        # Create dummy FK and IK results to pad the datalogging when kinematics fail
+        self.dummy_fk = [0] * NUM_OF_JOINTS
+        self.dummy_ik = [0] * NUM_OF_ACTIVE_JOINTS
 
     def ik_callback(self, request, response):
         """
@@ -41,21 +50,29 @@ class JetmaxIKService(Node):
                 # Set the arm joint angles / Publish the joint angles to the robot
                 self.publish_joint_angles(joint_angles)
                 self.res.success = True
+                self.publish_datalog(position, ik_result, fk_result, 1)
             else:
                 self.get_logger().info("FK(on IK) failed! Result: {}".format(fk_result))
                 self.res.success = False
+                self.publish_datalog(position, ik_result, self.dummy_fk, 0)
         else:
             self.get_logger().info("IK failed! Result: {}".format(ik_result))
             self.res.success = False
+            self.publish_datalog(position, self.dummy_ik, self.dummy_fk, -1)
 
         return self.res
     
     def publish_joint_angles(self, joint_angles):
-        self.get_logger().info("Publishing joint angles...")
         msg = Float64MultiArray()
         msg.data = joint_angles
         self.pub.publish(msg)
         self.get_logger().info("Published joint angles: %s" % msg.data)
+
+    def publish_datalog(self, position_cartesian, ik_result, fk_result, success):
+        msg = Float32MultiArray()
+        msg.data = [position_cartesian, ik_result, fk_result, success]
+        self.pub_datalog.publish(msg)
+        self.get_logger().info("Published datalog: %s" % msg.data)
 
     # def __del__(self):
     #     self.get_logger().info("Destroying Jetmax IK service")
