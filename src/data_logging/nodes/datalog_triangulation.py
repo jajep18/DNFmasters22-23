@@ -11,7 +11,7 @@ import glob
 import numpy as np
 import rclpy
 
-from custom_msgs.msg import TriangulatedCircleInfo, TriangulatedCircleInfoArray
+from custom_msgs.msg import TriangulatedCircleInfo, TriangulatedCircleInfoArr
 
 
 class DataLogTriangulation(Node):
@@ -19,7 +19,7 @@ class DataLogTriangulation(Node):
         super().__init__('datalog_triangulation_node')
 
         # Create subscripton to topic /ktriangulated_circles
-        self.subscriber = self.create_subscription(TriangulatedCircleInfoArray, '/triangulated_circles', self.subscriber_callback, qos_profile=2)
+        self.subscriber = self.create_subscription(TriangulatedCircleInfoArr, '/triangulated_circles', self.subscriber_callback, qos_profile=2)
         self.get_logger().info('Data log Tri. node has been launched.')
         
         # Count the amount of files in the ik_datalogs folder (For a unique new filename)
@@ -29,12 +29,13 @@ class DataLogTriangulation(Node):
         n_files = str(n_files).zfill(4) # Fill with zeros to get a 4 digit number
         
         # Create a unique filename
-        rec_filename = "triangulation_recording_" + str(n_files) + ".csv"
-        filename = dir_path + "/" + rec_filename
+        rec_filename  = "triangulation_recording_" + str(n_files) + ".csv"
+        self.filename = dir_path + "/" + rec_filename
 
         # Create a new file with the unique filename
-        self.file = open(filename, "w")
+        self.file = open(self.filename, "w")
         self.file.write("x,y,color,bgr_mean(1),bgr_mean(2),bgr_mean(3),bgr_var(1),bgr_var(2),bgr_var(3)\n")
+        self.file.close()
 
         # Last received message
         self.last_msg = None
@@ -47,6 +48,9 @@ class DataLogTriangulation(Node):
         # If the last message is the same as the current message, don't write it to the file
         if self.last_msg == msg:
             return
+        
+        # Open the file in append mode
+        self.file = open(self.filename, "a")
         
         # Print triangulated circles to csv
         for i in range(len(msg.circles)):
@@ -79,16 +83,31 @@ class DataLogTriangulation(Node):
         # Save the last received message
         self.last_msg = msg
 
-
-    # The desctructor, when the object is destroyed:
-    def __del__(self):
+        # Close the file
         self.file.close()
-        self.get_logger().info('Data log Keyword node has been destroyed.')
+
+
+    # # The desctructor, when the object is destroyed:
+    # def __del__(self):
+    #     self.driver.close()
+    #     self.get_logger().info('Data log Keyword destruction started.')
+    #     self.file.close()
+    #     self.get_logger().info('Data log Keyword node has been destroyed.')
 
 def main(args=None):
-    rclpy.init(args=args)                       # Initialize the node
-    datalog_tri_node = DataLogTriangulation()   # Create the node
-    rclpy.spin(datalog_tri_node)                # Spin the node
-    datalog_tri_node.destroy_node()             # Destroy the node (explicitly)
-    rclpy.shutdown()                            # Shutdown rclpy
+    # Initialize the node
+    rclpy.init(args=args)
+    
+    # Create the node
+    node = DataLogTriangulation()
+
+    # Spin the node
+    rclpy.spin(node)
+
+    # Destroy the node (explicitly)
+    node.destroy_node()
+    rclpy.shutdown()
+    
+if __name__ == "__main__":
+    main()
     

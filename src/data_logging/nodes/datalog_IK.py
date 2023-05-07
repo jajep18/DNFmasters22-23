@@ -33,6 +33,7 @@ class DataLogIK(Node):
         self.file = open(filename, "w")
         #self.file = open("datalog_ik.txt", "w")
         self.file.write("x,y,z,0,1,2,0,1,2,3,4,5,6,7,8\n")
+        self.file.close()
 
  
     def subscriber_callback(self, msg):
@@ -46,6 +47,9 @@ class DataLogIK(Node):
             Successful movement         1 if successful, 0 or -1 if not (fk or ik failed).
         Output: Writes same string msg to file, csv comma seperated.
         '''
+        # Open the file in append mode
+        self.file = open(self.filename, "a")
+        
         # print each element of the msg.data array to the file, comma seperated
         for i in range(len(msg.data)):
             self.file.write(str(msg.data[i]))
@@ -54,15 +58,28 @@ class DataLogIK(Node):
         self.file.write("\n")
         self.get_logger().info('IK datalog has been written to file.')
 
+        # Close the file
+        self.file.close()
+
     # The desctructor, when the object is destroyed:
     def __del__(self):
         self.file.close()
         self.get_logger().info('Data log IK node has been destroyed.')
 
 def main(args=None):
-    rclpy.init(args=args)           # Initialize the node
-    datalog_ik_node = DataLogIK()   # Create the node
-    rclpy.spin(datalog_ik_node)     # Spin the node
-    datalog_ik_node.destroy_node()  # Destroy the node (explicitly)
-    rclpy.shutdown()                # Shutdown rclpy
+    # Initialize the node
+    rclpy.init(args=args)
+    
+    # Create the node
+    node = DataLogIK()
+
+    # Spin the node
+    rclpy.spin(node)
+
+    # Destroy the node (explicitly)
+    #node.destroy_node()
+    rclpy.shutdown()
+    
+if __name__ == "__main__":
+    main()
     
