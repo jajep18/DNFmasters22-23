@@ -114,6 +114,11 @@ def generate_launch_description():
         package='jetmax_control',
         executable='go_home_ik_client.py',
     )
+
+    node_datalogging_ik = Node(
+        package='data_logging',
+        executable='datalog_IK.py'
+    )
     
 
     return LaunchDescription([
@@ -127,6 +132,7 @@ def generate_launch_description():
         robot_control_launch,       # Launch robot control launch file and spawn robot in gazebo
         node_triangulation,         # Launch triangulation node
         #jetmax_tcp_listener         # Launch jetmax tcp listener - get TCP position and orientation from gazebo
+        #node_datalogging_ik,
         TimerAction( # Delayed node launch ( Strongly discouraged to use, but it works - should be replaced with states )
             period=10.0, # Delay in seconds
             actions=[home_command_jetmax]

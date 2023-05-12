@@ -56,7 +56,7 @@ class DataLogIK(Node):
             if i != len(msg.data)-1:
                 self.file.write(",")
         self.file.write("\n")
-        self.get_logger().info('IK datalog has been written to file.')
+        #self.get_logger().info('IK datalog has been written to file.')
 
         # Close the file
         self.file.close()

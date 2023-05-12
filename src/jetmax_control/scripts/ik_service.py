@@ -72,11 +72,13 @@ class JetmaxIKService(Node):
         msg = Float32MultiArray()
 
         #"flatten" the lists [position_cartesian, ik_result, fk_result, success] into one Float32MultiArray
-        non_flat = [position_cartesian, ik_result, fk_result, success]
-        flat_list = Float32MultiArray()
+        non_flat = [position_cartesian, ik_result, fk_result, [success]]
+        flat_list = []
         for sublist in non_flat:
             for item in sublist:
-                flat_list.append(item)
+                flat_list.append(float(item))
+
+        #msg = Float32MultiArray(non_flat, axis=0)
 
         msg.data = flat_list
         self.pub_datalog.publish(msg)

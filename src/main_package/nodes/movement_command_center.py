@@ -83,10 +83,11 @@ class MovementCommandCenter(Node):
         # self.get_logger().info("Decision Service is available")
 
         # Create a timer to call for decision making service, and perform the determined action
-        timer_period = 10  # seconds
+        self.timer_period = 10  # seconds
+        timer_period_init = 1 #seconds
         # Get the clock of the node 
         self._clock = self.get_clock()
-        self._timer = self.create_timer(timer_period, self.timer_callback, callback_group=self._cb_timer)
+        self._timer = self.create_timer(timer_period_init, self.timer_callback, callback_group=self._cb_timer)
         # self._timer = self.create_timer(timer_period, self.timer_callback, callback_group=self.callback_group, clock=self._clock)
 
             
@@ -129,7 +130,7 @@ class MovementCommandCenter(Node):
         self._ik_req.x = float(scale * _x)
         self._ik_req.y = float(scale * _y)
         self._ik_req.z = float(scale * _z)
-        self.get_logger().info("Sending IK request with x: %.2f, y: %.2f, z: %.2f" % (self._ik_req.x, self._ik_req.y, self._ik_req.z))
+        #self.get_logger().info("Sending IK request with x: %.2f, y: %.2f, z: %.2f" % (self._ik_req.x, self._ik_req.y, self._ik_req.z))
         # self.get_logger().info("Sending IK request with x: %s, y: %s, z: %s" % (self._ik_req.x, self._ik_req.y, self._ik_req.z))
         self.future = self._ik_client.call_async(self._ik_req)
 
@@ -144,9 +145,10 @@ class MovementCommandCenter(Node):
 
 
         if self.future.result() is not None:
-            self.get_logger().info("IK Request sent, Result: %s" % self.future.result().success)
+            #self.get_logger().info("IK Request sent, Result: %s" % self.future.result().success)
+            temp = 1
         else:
-            self.get_logger().info("IK Request failed %r" % (self.future.exception(),)) 
+            #self.get_logger().info("IK Request failed %r" % (self.future.exception(),)) 
             return self.future.exception()
         return self.future.result().success
         # return await self._ik_client.call_async(self._ik_req)
@@ -154,15 +156,23 @@ class MovementCommandCenter(Node):
     def send_gripper_request(self, _open_data: bool):
         self.get_logger().info("Sending Gripper: %s. Gripper is currently in state: %s" % (_open_data, self.gripper_state))
         self._gripper_req.data = _open_data
-        self.future = self._gripper_client.call_async(self._gripper_req)
-        rclpy.spin_until_future_complete(self, self.future, timeout_sec=5)
-        if self.future.result() is not None:
-            self.get_logger().info("Gripper Request sent, Result: %s" % self.future.result().success)
+        self.future_grip = self._gripper_client.call_async(self._gripper_req)
+
+        # Wait until future is complete, but not block the timer callback
+        if self.executor is None:
+            rclpy.spin_until_future_complete(self, self.future_grip, timeout_sec=2)
+        else:
+            self.executor.spin_until_future_complete(self.future_grip, timeout_sec=0.5)
+        #rclpy.spin_until_future_complete(self, self.future_grip, timeout_sec=5)
+        
+
+        if self.future_grip.result() is not None:
+            self.get_logger().info("Gripper Request sent, Result: %s" % self.future_grip.result().success)
             self.gripper_state = _open_data
         else:
-            self.get_logger().info("Gripper Request failed %r" % (self.future.exception(),)) 
-            return self.future.exception()
-        return self.future.result().success
+            self.get_logger().info("Gripper Request failed %r" % (self.future_grip.exception(),)) 
+            return self.future_grip.exception()
+        return self.future_grip.result().success
 
     def get_tcp_transform(self, msg):
         if msg is not None:
@@ -228,7 +238,7 @@ class MovementCommandCenter(Node):
             return
         
         self.get_logger().info('Moving to (%s, %s, %s)' % (move_pos[0], move_pos[1], move_pos[2]))
-        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=200)#= 500)
+        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=10)#= 500)
         
         # Loop through the path and send movement commands
         for positions in path:
@@ -373,10 +383,10 @@ class MovementCommandCenter(Node):
         # Currenty action
         self.get_logger().info('Action: %s, Target: %s' % (action.name, target.name))
 
-        if self._count_actions != 0:
-            self.get_logger().info('This is not the first action. Quitting the timer cb')
-            self.get_logger().info('- - - - - - - - - - - - - - - - - - - - - - - - ')
-            return
+        # if self._count_actions != 0:
+        #     self.get_logger().info('This is not the first action. Quitting the timer cb')
+        #     self.get_logger().info('- - - - - - - - - - - - - - - - - - - - - - - - ')
+        #     return
 
         self._count_actions += 1
 
@@ -388,6 +398,11 @@ class MovementCommandCenter(Node):
 
         # self.get_logger().info('Timer stress test commencing (waste time for 10 seconds)')
         # time.sleep(10)
+
+        # Reset the timer before creating a new one, to ensure that any delays in the prev. execution do not affect the interval between subsequent executions
+        # Restart the timer for the next execution
+        self._timer.cancel() # Cancel previous timer (in case of delays)
+        self._timer = self.create_timer(self.timer_period, self.timer_callback, callback_group=self._cb_timer)
         
         self.get_logger().info('Is timer ready: %s' % self._timer.is_ready())
         self.get_logger().info('Is timer canceled: %s' % self._timer.is_canceled())
@@ -419,6 +434,7 @@ def main(args=None):
 
     # Delay
     # time.sleep(2)
+    #node.get_logger().info("")
     node.get_logger().info("Testing actions - - - - - - - - - - - - - - - - - - - -")
 
     # Spin / Start the node
@@ -496,15 +512,6 @@ def main(args=None):
     #     time.sleep(5)
     # node.get_logger().info('Sending decision request')
     # node.send_decision_request()
-
-
-    # Spin the node
-    #rclpy.spin(node)
-
-    # Destroy the node explicitly (optional)
-    #node.destroy_node()
-    #rclpy.shutdown()
-    #thread.join()
 
 
 if __name__ == "__main__":
