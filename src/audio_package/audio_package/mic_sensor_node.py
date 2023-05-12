@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # Sensor specific publisher node. 
 #   Publishes the data from the microphone sensor. 
-#   Currently set up with an example from a accelerometer sensor.
-#   https://docs.edgeimpulse.com/experts/machine-learning-prototype-projects/ros2-part1-pubsub-node
-#   The sensor specific code is marked with "Sensor specific" comments.
-#   The code marked "Always" is the same for all sensor nodes.
-#   The code marked "Board specific" is specific to the board used.
 
 # Imports
 #import board # Sensor specific
@@ -19,6 +14,7 @@ import src.mute_alsa as mute_alsa
 import os
 import glob
 import wave
+import numpy as np
 #import adafruit_mpu6050 # Sensor specific
 
 # Include the system library: import sys
@@ -104,6 +100,13 @@ class MicSensorNode(Node):
             stream.close()
             audio.terminate()
         self.get_logger().info("Finished recording")
+
+        # Check if the recording contains only background noise
+        rms_amp = np.sqrt(np.mean(np.square(np.frombuffer(b''.join(frames), dtype=np.int16))))
+        if rms_amp < 0.1:  # adjust threshold as needed
+            self.get_logger().info("Recording contains only background noise.")
+            os.remove(wav_output_filename)  # delete the file
+            return
         
         # Count the amount of files in the audio_files folder (For a unique new filename)
         dir_path = os.path.abspath("./src/audio_package/audio_files")

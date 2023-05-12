@@ -70,7 +70,15 @@ class JetmaxIKService(Node):
 
     def publish_datalog(self, position_cartesian, ik_result, fk_result, success):
         msg = Float32MultiArray()
-        msg.data = [position_cartesian, ik_result, fk_result, success]
+
+        #"flatten" the lists [position_cartesian, ik_result, fk_result, success] into one Float32MultiArray
+        non_flat = [position_cartesian, ik_result, fk_result, success]
+        flat_list = Float32MultiArray()
+        for sublist in non_flat:
+            for item in sublist:
+                flat_list.append(item)
+
+        msg.data = flat_list
         self.pub_datalog.publish(msg)
         self.get_logger().info("Published datalog: %s" % msg.data)
 
