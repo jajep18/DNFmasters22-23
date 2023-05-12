@@ -79,12 +79,12 @@ def generate_launch_description():
     #     executable="dnf_pubsub"
     # )
 
-    node_ik_client = Node(
+    node_ik_service = Node(
         package=jc_package_name,
         executable="ik_service.py"
     )
 
-    node_fk_client = Node(
+    node_fk_service = Node(
         package=jc_package_name,
         executable="fk_service.py"
     )
@@ -112,15 +112,15 @@ def generate_launch_description():
     # Simple service client node that moves the robot to a desired position (Home, outside the table)
     home_command_jetmax = Node(
         package='jetmax_control',
-        executable='ik_client.py',
+        executable='go_home_ik_client.py',
     )
     
 
     return LaunchDescription([
         environment,                # Set environment world file
         gazebo,                     # Launch gazebo
-        node_ik_client,             # Launch ik service
-        #node_fk_client,            # Launch fk service
+        node_ik_service,             # Launch ik service
+        #node_fk_service,            # Launch fk service
         node_campubsub,             # Launch camera publisher and subscriber
         #node_circlesub,             # Launch circle subscriber (triangulation in cpp)
         # node_dnf,                 # Launch DNF package node
