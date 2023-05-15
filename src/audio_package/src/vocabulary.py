@@ -35,7 +35,8 @@ class Keywords(np.int8, Enum):
     GRASP   = 13
     PICK    = 14
     PLACE   = 15
-    ERROR   = 16 # Should not be used, non-valid keywords for checks return this
+    RELEASE = 16
+    ERROR   = 17 # Should not be used, non-valid keywords for checks return this
 
 
     #FORWARD = 11

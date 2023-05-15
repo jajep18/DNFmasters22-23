@@ -60,21 +60,30 @@ void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
     // Update input
     m_input1 = input1;
     m_input2 = input2;
-    
-
-    // Update activation
-    // m_activation1 = (1.0f - dt) * m_activation1 + dt * (m_input1 - m_activation1 + m_interaction_kernel.matmul(m_activation1));
-    // m_activation2 = (1.0f - dt) * m_activation2 + dt * (m_input2 - m_activation2 + m_interaction_kernel.matmul(m_activation2));
-
-    // Test the unsqueeze thingamajig
-    //auto input1_unsqueezed = m_input1.unsqueeze(1);
-    //auto input2_unsqueezed = m_input2.unsqueeze(0);
-    //RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "input1_unsqueezed dimensions: %d %d", input1_unsqueezed.sizes()[0], input1_unsqueezed.sizes()[1]);
-    //RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "input2_unsqueezed dimensions: %d %d", input2_unsqueezed.sizes()[0], input2_unsqueezed.sizes()[1]);
 
     // Update m_activation
-    m_activation = (1.0f - dt) * m_activation + dt * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)));
     // m_activation = (1.0f - dt) * m_activation + dt * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)) - m_activation + m_interaction_kernel.matmul(m_activation));
+    //m_activation = (1.0f - dt) * m_activation + dt * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)));
+    // m_activation_upd = m_activation * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)))  ;
+
+    // The target color (known) should be correlated with all input keywords
+    torch::Tensor activation_corr = m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)); // 1 at all correlations, 0 elsewhere
+
+    // All other target colors should be anti-correlated with all input keywords. Only the column of the target color should be 1, 0 elsewhere
+    torch::Tensor activation_anticorr = 1.0 - m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)); // 0 at all correlations, 1 elsewhere
+
+    // All non-input keywords AND non-target, to find the non-relevant locations we should not update (decay)
+    torch::Tensor input1_flipped = torch::ones({m_dimensions1}) - m_input1; // 1 at all non-input keywords, 0 at input keywords
+    torch::Tensor input2_flipped = torch::ones({m_dimensions2}) - m_input2; // 1 at all non-targets, 0 at targets
+    torch::Tensor activation_nonrelevance = input1_flipped.unsqueeze(1).matmul(input2_flipped.unsqueeze(0)); // 1 at all non-relevant locations, 0 elsewhere
+
+    // Combine the above two tensors and update m_activation
+    // activation_corr - activation_anticorr // 1 at all correlations, -1 elsewhere
+    m_activation = (1.0f - dt) * m_activation + dt * (activation_corr - activation_anticorr + activation_nonrelevance);
+
+    // Normalize m_activation
+    m_activation = m_activation / m_activation.max();
+    
 
     // Update output
     // TODO: Check if this is correct

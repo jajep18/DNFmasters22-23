@@ -20,7 +20,7 @@ learning_trial::learning_trial(std::vector<int> _keywords, int _target_color, in
     keywords = _keywords;
     target_color = _target_color;
     correct_action = _correct_action;
-    RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "learning_trial constructor called - Happy learning!");
+    // RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "learning_trial constructor called - Happy learning!");
 }
 
 // Getters

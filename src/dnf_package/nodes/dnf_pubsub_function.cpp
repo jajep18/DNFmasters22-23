@@ -36,7 +36,7 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-#define VOCAB_SIZE 25 //The size of the keyword vocabulary
+#define VOCAB_SIZE 17 //The size of the keyword vocabulary
 #define ACTION_AMOUNT 8 //The size of the action vocabulary
 
 class DNFNode : public rclcpp::Node
@@ -48,9 +48,9 @@ public:
     color_circles_dnf(3,true),        //Contains the color of the circles. This is an input
     pos_x_circle_dnf(3,true),         //Contains the x position of the circles. This is an input
     pos_y_circle_dnf(3,true),         //Contains the y position of the circles. This is an input
-    action_dnf(ACTION_AMOUNT,true),            //Contains the actions, this is the output of the network
-    keywords_color_dnf(VOCAB_SIZE,3,true),     //Combined DNF Keywords+Color½int index_input, int index_element,
-    keywords_action_dnf(VOCAB_SIZE, 5, true),   //Combined DNF Keywords+Action
+    action_dnf(ACTION_AMOUNT, true),                        //Contains the actions, this is the output of the network
+    keywords_color_dnf(VOCAB_SIZE,3,true),                  //Combined DNF Keywords+Color½int index_input, int index_element,
+    keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true),   //Combined DNF Keywords+Action
     color_expanded_dnf(256, true) //Test of "complex" dnf, color with 256 neurons
   {
     // Create a subscriber to the detected circles
@@ -82,7 +82,7 @@ public:
     // Perform the (test) learning
     //test_dnf_setup();
     //RCLCPP_INFO(this->get_logger(), "DNF (Test/manual) setup complete");
-    dnf_learning();
+    dnf_learning(100);
     RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
 
   }
@@ -192,14 +192,43 @@ private:
     
     // - - - - - - - - - - - - - - - - - - - Keyword x Action test- - - - - - - - - - - - - - - - - - - 
     // Learning / Memorization phase - - - - - - - - 
-    // Learning "Move"
+    // Learning "Move left"
     keywords_dnf.reset_input();
     action_dnf.reset_input();
     keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
-    action_dnf.set_input_element(MOVE_RIGHT, 6.9f); // The action "Move"
+    keywords_dnf.set_input_element(5, 6.9f); // The keyword "left"
+    action_dnf.set_input_element(MOVE_LEFT, 6.9f); // The action "Move left"
     keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
     keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
-    RCLCPP_INFO(this->get_logger(), "Memorized Move");
+    RCLCPP_INFO(this->get_logger(), "Memorized Move left");
+    // Learning "Move right"
+    keywords_dnf.reset_input();
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
+    keywords_dnf.set_input_element(6, 6.9f); // The keyword "right"
+    action_dnf.set_input_element(MOVE_RIGHT, 6.9f); // The action "Move right"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
+    RCLCPP_INFO(this->get_logger(), "Memorized Move right");
+    // Learning "Move back"
+    keywords_dnf.reset_input();
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
+    keywords_dnf.set_input_element(10, 6.9f); // The keyword "away"
+    action_dnf.set_input_element(MOVE_BACK, 6.9f); // The action "Move forward"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
+    RCLCPP_INFO(this->get_logger(), "Memorized Move forward");
+    // Learning "Move forward"
+    keywords_dnf.reset_input();
+    action_dnf.reset_input();
+    keywords_dnf.set_input_element(0, 6.9f); // The keyword "Move"
+    keywords_dnf.set_input_element(9, 6.9f); // The keyword "closer"
+    action_dnf.set_input_element(MOVE_FORWARD, 6.9f); // The action "Move forward"
+    keywords_action_dnf.set_input(keywords_dnf.get_input(), action_dnf.get_input()); // Set the input of the combined DNF
+    keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f); //Get it into memory
+    RCLCPP_INFO(this->get_logger(), "Memorized Move forward");
+
     // Learning "Release"
     keywords_dnf.reset_input();
     action_dnf.reset_input();
@@ -364,35 +393,54 @@ private:
     // Create learning trials list
     std::vector<learning_trial> learning_trials;
 
-    // Trial: Move the red ball left
-    std::vector<int> trial_keywords = {0, 1, 4, 2, 7}; // "Move", "The", "Red", "Ball", "Left"
-    learning_trial trial_mrbl(trial_keywords, /*_target_color =*/ 0, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mrbl);
+    // Loop through the different target colors, and create every type of learning trial for each color
+    // Keywords:    2: red, 3: green, 4: blue
+    // Colors:      0: red, 1: green, 2: blue
+    for (int i = 2; i <= 4; i++){
+      int target_color = i-2; // Set the target color for the learning trials
+
+      // Trial: Move the X ball to the left
+      std::vector<int> trial_keywords = {0, i, 1, 5}; // "Move", TARGET COLOR, "Ball", "Left"
+      learning_trial trial_mxbl(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ MOVE_LEFT);
+      learning_trials.push_back(trial_mxbl);
+      
+      // Trial: Move the X ball to the right
+      trial_keywords = {0, i, 1, 6}; // "Move", TARGET COLOR, "Ball", "Right"
+      learning_trial trial_mxbr(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ MOVE_RIGHT);
+      learning_trials.push_back(trial_mxbr);
+
+      // Trial: Move the X ball away
+      trial_keywords = {0, i, 1, 10}; // "Move", TARGET COLOR, "Ball", "Away"
+      learning_trial trial_mxba(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ MOVE_BACK);
+      learning_trials.push_back(trial_mxba);
+
+      // Trial: Move the X ball closer / towards the arm
+      trial_keywords = {0, i, 1, 9}; // "Move", TARGET COLOR, "Ball", "Closer"
+      learning_trial trial_mxbc(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ MOVE_FORWARD);
+      learning_trials.push_back(trial_mxbc);
+
+      // Trial: Pick up the X ball
+      trial_keywords = {14, 7, i, 1}; // "Pick", "Up", TARGET COLOR, "Ball"
+      learning_trial trial_pux(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ PICK_UP);
+      learning_trials.push_back(trial_pux);
+
+      // Trial: Place down the X ball
+      trial_keywords = {15, 8, i, 1}; // "Place", "Down", TARGET COLOR, "Ball"
+      learning_trial trial_plx(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ PLACE_DOWN);
+      learning_trials.push_back(trial_plx);
+
+      // Trial: Grasp the X ball
+      trial_keywords = {13, i, 1}; // "Grasp", TARGET COLOR, "Ball"
+      learning_trial trial_grx(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ GRASP);
+      learning_trials.push_back(trial_grx);
+
+      // Trial: Release the X ball
+      trial_keywords = {16, i, 1}; // "Release", TARGET COLOR, "Ball"
+      learning_trial trial_rlx(trial_keywords, /*_target_color =*/ target_color, /*_correct_action =*/ RELEASE);
+      learning_trials.push_back(trial_rlx);
+    }
     
-    // Trial: Move the red ball right
-    trial_keywords = {0, 1, 4, 2, 8}; // "Move", "The", "Red", "Ball", "Right"
-    learning_trial trial_mrbr(trial_keywords, /*_target_color =*/ 0, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mrbr);
-
-    // Trial: Move the green ball left
-    trial_keywords = {0, 1, 5, 2, 7}; // "Move", "The", "Green", "Ball", "Left"
-    learning_trial trial_mgbl(trial_keywords, /*_target_color =*/ 1, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mgbl);
-
-    // Trial: Move the green ball right
-    trial_keywords = {0, 1, 5, 2, 8}; // "Move", "The", "Green", "Ball", "Right"
-    learning_trial trial_mgbr(trial_keywords, /*_target_color =*/ 1, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mgbr);
-
-    // Trial: Move the blue ball left
-    trial_keywords = {0, 1, 6, 2, 7}; // "Move", "The", "Blue", "Ball", "Left"
-    learning_trial trial_mlbl(trial_keywords, /*_target_color =*/ 2, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mlbl);
-
-    // Trial: Move the blue ball right
-    trial_keywords = {0, 1, 6, 2, 8}; // "Move", "The", "Blue", "Ball", "Right"
-    learning_trial trial_mlbr(trial_keywords, /*_target_color =*/ 2, /*_correct_action =*/ 2);
-    learning_trials.push_back(trial_mlbr);
+    RCLCPP_INFO(this->get_logger(), "DNF learning trials created");
 
     // Perform the learning trials
     for (int i = 0; i < learning_iterations; i++){
@@ -404,15 +452,23 @@ private:
         keywords_dnf.reset_input();
         std::vector<int> keywords = learning_trials[j].get_keywords();
         for (size_t k = 0; k < keywords.size(); k++){
-          keywords_dnf.set_input_element(keywords[k], 6.9f);
+          keywords_dnf.set_input_element(keywords[k], 1.0f);
         }
 
-        // Set the color
+        // Set the target color
         color_circles_dnf.reset_input();
-        color_circles_dnf.set_input_element(learning_trials[j].get_target(), 6.9f);
+        color_circles_dnf.set_input_element(learning_trials[j].get_target(), 1.0f);
 
-        // Step the DNF
+        // Set the correct action
+        action_dnf.reset_input();
+        action_dnf.set_input_element(learning_trials[j].get_action(), 1.0f); // The action "Place Down"
+
+        // Step the Keyword x Color DNF
         keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f);
+
+        // Step the Keyword x Action DNF
+        keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f);
+
         // Get the response
         //torch::Tensor response = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
         // Get the error
@@ -420,7 +476,19 @@ private:
         // Backpropagate the error
         //keywords_color_dnf.backpropagate_DNF(error);
       }
+      
+      RCLCPP_INFO(this->get_logger(), "DNF learning epoch {%d}/{%d} complete", i+1, learning_iterations);
     }
+
+    RCLCPP_INFO(this->get_logger(), "DNF learning complete!");
+
+    // Save KWxA DNF after learning
+    write2DTensorCSV(keywords_action_dnf.get_activation(), log_path, "keywords_action_dnf_activation_after_learning.csv");
+
+    // Save KWxC DNF after learning
+    write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_activation_after_learning.csv");
+
+    RCLCPP_INFO(this->get_logger(), "DNFs saved to csv");
   }
 
   
