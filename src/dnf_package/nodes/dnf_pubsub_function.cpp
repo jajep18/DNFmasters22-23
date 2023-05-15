@@ -82,7 +82,7 @@ public:
     // Perform the (test) learning
     //test_dnf_setup();
     //RCLCPP_INFO(this->get_logger(), "DNF (Test/manual) setup complete");
-    dnf_learning(100);
+    dnf_learning(1);
     RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
 
   }
