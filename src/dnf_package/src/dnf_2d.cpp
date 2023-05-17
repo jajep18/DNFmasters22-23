@@ -83,6 +83,11 @@ void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
     //m_activation = (1.0f - dt) * m_activation + dt * (activation_corr - activation_anticorr + activation_nonrelevance);
     //Hebbian style update rule
     m_activation = m_activation + (activation_corr - activation_anticorr + activation_nonrelevance); 
+    
+    // Rapport figure print only subproccess:
+    // m_activation = m_activation + activation_corr;
+    // m_activation = m_activation - activation_anticorr;
+    // m_activation = m_activation + activation_nonrelevance;
 
     // Normalize m_activation
     //m_activation = m_activation / m_activation.max();

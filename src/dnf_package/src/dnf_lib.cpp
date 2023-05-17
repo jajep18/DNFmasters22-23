@@ -278,6 +278,12 @@ inline torch::Tensor normalizeColumns(torch::Tensor& matrix) {
     
     // Find the maximum value in the column
     auto [maxValue, maxIdx] = column.max(0);
+
+    // If maxValue is less than or equal to one, then the column is already normalized. Also avoids dividing by zero
+    if (maxValue.item<float>() <= 1.0) {
+      normalizedMatrix.slice(/*dim=*/1, col, col + 1).copy_(column);
+      continue;
+    }
     
     // Normalize each element in the column by dividing it by the maximum value
     auto normalizedColumn = column / maxValue;

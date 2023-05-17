@@ -67,18 +67,6 @@ public:
     // Get the path to the dnf logs folder
     get_log_path();
 
-    // Test the HSV-RGB conversion
-    // Example of circle BGR values 0.000000 210.000000 0.000000
-    // Should HSV: 120, 100, 82
-    // float b = 0.0f, g = 210.0f, r = 0.0f;
-    // RCLCPP_INFO(this->get_logger(), "Color(BGR) of test circle %f %f %f", b, g, r);
-    // float h, s, v;
-    // RGBtoHSV(b, g, r, h, s, v);
-    // RCLCPP_INFO(this->get_logger(), "HSV of test circle %f %f %f", h, s, v);
-
-    // - - - - - - - - - - - - - - - - - - - Large (256 neurons) DNF test- - - - - - - - - - - - - - - - - - - 
-    // color_expanded_dnf.set_input_element(0, 6.9f); // Needs an alternative, "Stimulate input neurons at ()" function
-
     // --------------- Test column normalization ---------------
     // // Create a sample matrix
     // torch::Tensor matrix = torch::tensor({{1.0, 2.0, 3.0},
@@ -93,10 +81,33 @@ public:
     // std::cout << "Normalized Matrix:\n" << matrix << std::endl;
     // write2DTensorCSV(normalizedMatrix, log_path, "colnorm_post.csv");
 
+    // --------------- Create dnf csv of simple step-sub operations for rapport ---------------
+    // {
+    //   // Set the input keywords
+    //   keywords_dnf.reset_input();
+    //   std::vector<int> keywords = {0, 2, 1, 5}; // "Move", "Red", "Ball", "Left"
+    //   for (size_t k = 0; k < keywords.size(); k++){
+    //     keywords_dnf.set_input_element(keywords[k], 1.0f);
+    //   }
+    //   // Set the target color
+    //   color_circles_dnf.reset_input();
+    //   color_circles_dnf.set_input_element(0, 1.0f);
+    //   // Set the correct action
+    //   action_dnf.reset_input();
+    //   action_dnf.set_input_element(MOVE_LEFT, 1.0f); // The action "Place Down"
+    //   // Step the Keyword x Color DNF
+    //   keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f);
+    //   // Step the Keyword x Action DNF
+    //   keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f);
+    //   // Save DNFs after 1 trial
+    //   write2DTensorCSV(keywords_action_dnf.get_activation(), log_path, "kw_act_dnf_nonrel.csv");
+    //   write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "kw_col_dnf_nonrel.csv");
+    // }
+
     // Perform the (test) learning
     //test_dnf_setup();
     //RCLCPP_INFO(this->get_logger(), "DNF (Test/manual) setup complete");
-    dnf_learning(50);
+    //dnf_learning(50);
     RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
 
   }
