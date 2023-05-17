@@ -79,10 +79,16 @@ void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
 
     // Combine the above two tensors and update m_activation
     // activation_corr - activation_anticorr // 1 at all correlations, -1 elsewhere
-    m_activation = (1.0f - dt) * m_activation + dt * (activation_corr - activation_anticorr + activation_nonrelevance);
+    //QLearning style update rule
+    //m_activation = (1.0f - dt) * m_activation + dt * (activation_corr - activation_anticorr + activation_nonrelevance);
+    //Hebbian style update rule
+    m_activation = m_activation + (activation_corr - activation_anticorr + activation_nonrelevance); 
 
     // Normalize m_activation
-    m_activation = m_activation / m_activation.max();
+    //m_activation = m_activation / m_activation.max();
+
+    // Normalize each column of m_activation by the maximum value of that column
+    m_activation = normalizeColumns(m_activation);
     
 
     // Update output

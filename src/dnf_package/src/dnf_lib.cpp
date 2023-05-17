@@ -268,4 +268,24 @@ inline torch::Tensor read2DTensorCSV(std::string log_path, std::string filename)
     return tensor;
 }
 
+inline torch::Tensor normalizeColumns(torch::Tensor& matrix) {
+  int numColumns = matrix.size(1);  // Get the number of columns in the matrix
+  torch::Tensor normalizedMatrix = torch::zeros_like(matrix);  // Create a new tensor with zeros of the same shape
+  
+  for (int col = 0; col < numColumns; ++col) {
+    // Select the column by slicing the matrix
+    auto column = matrix.slice(/*dim=*/1, col, col + 1);
+    
+    // Find the maximum value in the column
+    auto [maxValue, maxIdx] = column.max(0);
+    
+    // Normalize each element in the column by dividing it by the maximum value
+    auto normalizedColumn = column / maxValue;
+    
+    // Copy the normalized column to the corresponding column in the new tensor
+    normalizedMatrix.slice(/*dim=*/1, col, col + 1).copy_(normalizedColumn);
+  }
+  return normalizedMatrix;
+}
+
 #endif // DNF_UTILS_CPP
