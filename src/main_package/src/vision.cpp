@@ -102,8 +102,8 @@ custom_msgs::msg::CircleInfoArr detect_circles(cv::Mat &image){
     
     cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1,
                  gray.rows/16,  // change this value to detect circles with different distances to each other
-                 100, 25,
-                  9, 30 // (min_radius & max_radius) to detect larger circles
+                 100, 15,  //100, 25,
+                  9, 16 // (min_radius & max_radius) to detect larger circles
     );
 
 

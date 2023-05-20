@@ -62,7 +62,7 @@ private:
         try {
             // src.copyTo(right);
             m_circleInfoArr_right = detect_circles(src);
-            //cv::imshow("Right cam", src);
+            cv::imshow("Right cam", src);
         } catch (const cv_bridge::Exception & e) {
             auto logger = rclcpp::get_logger("my_subscriber");
             RCLCPP_ERROR_STREAM(this->get_logger(), "Could not convert from " << msg_image->encoding.c_str() << " to 'bgr8'.");
@@ -76,7 +76,7 @@ private:
         try {
             src.copyTo(src);
             m_circleInfoArr_left = detect_circles(src);
-            //cv::imshow("Left cam", src);
+            cv::imshow("Left cam", src);
         } catch (const cv_bridge::Exception & e) {
             auto logger = rclcpp::get_logger("my_subscriber");
             RCLCPP_ERROR_STREAM(this->get_logger(), "Could not convert from " << msg_image->encoding.c_str() << " to 'bgr8'.");
