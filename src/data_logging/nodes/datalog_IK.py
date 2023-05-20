@@ -27,12 +27,13 @@ class DataLogIK(Node):
         
         # Create a unique filename
         rec_filename = "IK_recording_" + str(n_files) + ".csv"
-        filename = dir_path + "/" + rec_filename
+        self.filename = dir_path + "/" + rec_filename
 
         # Create a new file with the unique filename
-        self.file = open(filename, "w")
+        self.file = open(self.filename, "w")
         #self.file = open("datalog_ik.txt", "w")
-        self.file.write("x,y,z,0,1,2,0,1,2,3,4,5,6,7,8\n")
+        # self.file.write("x,y,z,0,1,2,0,1,2,3,4,5,6,7,8,success\n")
+        self.file.write("x,y,z,IK0,IK1,IK2,FK0,FK1,FK2,FK3,FK4,FK5,FK6,FK7,FK8,success\n")
         self.file.close()
 
  

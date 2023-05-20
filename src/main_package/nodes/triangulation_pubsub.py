@@ -193,6 +193,7 @@ class TriangulationNode(Node):
             # Set the distortion coefficients d
             self.distortion_coeff_right = np.array(msg.d).reshape(1,5)
         
+        
 
     def triangulation_callback(self, msg):
         """

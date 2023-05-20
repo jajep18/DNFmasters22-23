@@ -56,7 +56,7 @@ class DataLogTriangulation(Node):
         self.max_x = 0.33
         self.min_y = -0.33
         self.max_y = -0.09
-        self.step = 0.06 # try 6
+        self.step = 0.05 # try 6
         self.service_client = self.create_client(SetEntityState, '/gazebo_msgs/set_entity_state')
         while not self.service_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
@@ -119,50 +119,50 @@ class DataLogTriangulation(Node):
             self.get_logger().info('Ball position is None')
             return
         
-        if self.last_msg != msg:
-            # Open the file in append mode
-            self.file = open(self.filename, "a")
+        # if self.last_msg != msg: 
+        # Open the file in append mode
+        self.file = open(self.filename, "a")
+        
+        # Print triangulated circles to csv
+        for i in range(len(msg.circles)):
+            self.file.write(str(msg.circles[i].x))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].y))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].color))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_mean[0]))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_mean[1]))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_mean[2]))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_var[0]))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_var[1]))
+            self.file.write(",")
+            self.file.write(str(msg.circles[i].bgr_var[2]))
+            self.file.write(",")
+            self.file.write(str(self.ball_position.x))
+            self.file.write(",")
+            self.file.write(str(self.ball_position.y))
+            self.file.write("\n")
             
-            # Print triangulated circles to csv
-            for i in range(len(msg.circles)):
-                self.file.write(str(msg.circles[i].x))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].y))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].color))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_mean[0]))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_mean[1]))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_mean[2]))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_var[0]))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_var[1]))
-                self.file.write(",")
-                self.file.write(str(msg.circles[i].bgr_var[2]))
-                self.file.write(",")
-                self.file.write(str(self.ball_position.x))
-                self.file.write(",")
-                self.file.write(str(self.ball_position.y))
-                self.file.write("\n")
-                
-            # # print each element of the msg.data array to the file, comma seperated
-            # for i in range(len(msg.data)):
-            #     self.file.write(str(msg.data[i]))
-            #     if i != len(msg.data)-1:
-            #         self.file.write(",")
-            # self.file.write("\n")
+        # # print each element of the msg.data array to the file, comma seperated
+        # for i in range(len(msg.data)):
+        #     self.file.write(str(msg.data[i]))
+        #     if i != len(msg.data)-1:
+        #         self.file.write(",")
+        # self.file.write("\n")
 
-            # Save the last received message
-            self.last_msg = msg
+        # Save the last received message
+        self.last_msg = msg
 
-            # Close the file
-            self.file.close()
+        # Close the file
+        self.file.close()
 
         # Check self.ball_pos_wait_count, if it is 10 or more, switch the ball position to the one marked by index self.ball_position_index
-        if self.ball_pos_wait_count >= 5:
+        if self.ball_pos_wait_count >= 10:
             self.ball_pos_wait_count = 0
             self.get_logger().info('Move debug.')
             self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])

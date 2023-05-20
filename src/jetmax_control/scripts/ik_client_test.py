@@ -3,6 +3,7 @@ import rclpy
 from rclpy.node import Node
 from jetmax_control.srv import IK #, IKRequest(use IK.Request instead in ROS2)
 import time
+import numpy as np
 
 class JetmaxIKClient(Node):
     def __init__(self):
@@ -48,12 +49,58 @@ def main(args=None):
     # node.get_logger().info("Response: %s" % response.success)
 
     # for loop from 120 to 200 in 10 steps
-    for i in range(120, 200, 5):
-        time.sleep(0.5)
-        position = [0, -175, i]
-        node.get_logger().info("Moving to Position: {}".format(position))
-        response = node.send_request(position[0], position[1], position[2])
-        node.get_logger().info("Response: %s" % response.success)
+    # for i in range(120, 200, 5):
+    #     time.sleep(0.5)
+    #     position = [0, -175, i]
+    #     node.get_logger().info("Moving to Position: {}".format(position))
+    #     response = node.send_request(position[0], position[1], position[2])
+    #     node.get_logger().info("Response: %s" % response.success)
+
+    # x_min = -0.5
+    # x_max = 0.5
+    # y_min = -0.5
+    # y_max = 0.5
+    # z_min = 0.1
+    # z_max = 0.5
+
+    # x_min = -166.6666717529297
+    # x_max =  166.6666717529297
+    # y_min = -166.6666717529297  
+    # y_max =  166.6666717529297
+    # z_min =  100
+    # z_max =  322
+
+    x_min = -300
+    x_max =  300
+    y_min = -300  
+    y_max =  300
+    z_min =  100
+    z_max =  400
+
+    n_points = 25
+    # Generate a grid of points
+    x_points = np.linspace(x_min, x_max, n_points) # X points between x_min and x_max
+    y_points = np.linspace(y_min, y_max, n_points) # X points between y_min and y_max   
+    z_points = np.linspace(z_min, z_max, n_points) # X points between z_min and z_max
+
+
+
+    # Scale
+
+
+
+
+    # Loop through x, y, z
+    for x in x_points:
+        for y in y_points:
+            for z in z_points:
+
+                position = [x, y, z] 
+                # print("Position: ", position)
+                node.get_logger().info("Moving to Position: {}".format(position))
+                response = node.send_request(position[0], position[1], position[2])
+                node.get_logger().info("Response: %s" % response.success)
+                
 
     # Spin the node
     #rclpy.spin(node)
