@@ -19,17 +19,18 @@ class DNF_2D
 public:
     // Constructors / Destructors
     DNF_2D(); // Explicit default constructor
-    DNF_2D(int _dimensions1, int _dimensions2, bool debug = true);
+    DNF_2D(int _dimensions1, int _dimensions2, bool debug = true, int _learningrule = 1, int _normalization = 1, int _suppression = 1, float _dt = 0.1);
     ~DNF_2D();
 
     // Process step
-    void step(torch::Tensor input1, torch::Tensor input2, float dt);
+    void step(torch::Tensor input1, torch::Tensor input2);
 
     // Getters
     torch::Tensor get_activation();
     torch::Tensor get_output();
     torch::Tensor get_input(int index_input);
     torch::Tensor extract_response_DNF(torch::Tensor input, int index_input = 0);
+    float get_activation_at(int index1, int index2);
 
     // Setters
     void set_activation(torch::Tensor activation);
@@ -57,7 +58,13 @@ private:
     torch::Tensor m_interaction_kernel;
     /* TODO: Set this as its own class thats passed to make
      * machine learning of architectures easier.
+     * INSTEAD: We pass the parameters for learning in the constructor to the variables below
      */
+
+    int learningrule;
+    int normalization;
+    int suppression;
+    float dt;
 };
 
 #endif 

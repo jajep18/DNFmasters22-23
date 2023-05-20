@@ -15,18 +15,22 @@ DNF_2D::DNF_2D() {
     m_dimensions2 = -1; //Debug value
 }
 
-
 // Constructor
-DNF_2D::DNF_2D(int _dimensions1, int _dimensions2, bool debug) {
+DNF_2D::DNF_2D(int _dimensions1, int _dimensions2, bool debug, int _learningrule, int _normalization, int _suppression, float _dt) {
     // Set dimensions
     m_dimensions1 = _dimensions1;
     m_dimensions2 = _dimensions2;
 
+    // Set learning parameters:
+    learningrule = _learningrule;
+    normalization = _normalization;
+    suppression = _suppression;
+    dt = _dt;
+
     // Check if dimensions are valid
     if ((m_dimensions1 < m_minimum_dims) || (m_dimensions2 < m_minimum_dims)) {
         RCLCPP_ERROR(rclcpp::get_logger("dnf_pubsub"), "Dimensions are too small. Minimum dimensions is %d", m_minimum_dims);
-        return;
-    }
+        return;}
 
     // Initialize tensors
     m_activation = torch::zeros({m_dimensions1, m_dimensions2});
@@ -45,9 +49,7 @@ DNF_2D::DNF_2D(int _dimensions1, int _dimensions2, bool debug) {
     m_interaction_kernel[2][2] = 1;
 
     // Debug
-    if (debug) {
-        RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Initialized DNF with dimensions: %d %d", m_dimensions1, m_dimensions2);
-    }
+    if (debug) {RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "Initialized DNF with dimensions: %d %d", m_dimensions1, m_dimensions2);}
 }
 
 // Destructor
@@ -55,17 +57,14 @@ DNF_2D::~DNF_2D() {
     RCLCPP_INFO(rclcpp::get_logger("dnf_pubsub"), "DNF_2D destructor called");
 }
 
-// Process step
-void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
+// Process step --------------------------------- IF YOU ARE LOOKING THROUGH THE CODE, THIS IS THE GOOD STUFF ---------------------------------
+// Updates the correlation matrix based on the type of learning rule, normalization, suppression and learning rate / alpha / dt
+void DNF_2D::step(torch::Tensor input1, torch::Tensor input2) {
     // Update input
     m_input1 = input1;
     m_input2 = input2;
 
-    // Update m_activation
-    // m_activation = (1.0f - dt) * m_activation + dt * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)) - m_activation + m_interaction_kernel.matmul(m_activation));
-    //m_activation = (1.0f - dt) * m_activation + dt * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)));
-    // m_activation_upd = m_activation * (m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)))  ;
-
+    // Calculate update step activation kernels:
     // The target color (known) should be correlated with all input keywords
     torch::Tensor activation_corr = m_input1.unsqueeze(1).matmul(m_input2.unsqueeze(0)); // 1 at all correlations, 0 elsewhere
 
@@ -76,26 +75,43 @@ void DNF_2D::step(torch::Tensor input1, torch::Tensor input2, float dt) {
     torch::Tensor input1_flipped = torch::ones({m_dimensions1}) - m_input1; // 1 at all non-input keywords, 0 at input keywords
     torch::Tensor input2_flipped = torch::ones({m_dimensions2}) - m_input2; // 1 at all non-targets, 0 at targets
     torch::Tensor activation_nonrelevance = input1_flipped.unsqueeze(1).matmul(input2_flipped.unsqueeze(0)); // 1 at all non-relevant locations, 0 elsewhere
-
-    // Combine the above two tensors and update m_activation
-    // activation_corr - activation_anticorr // 1 at all correlations, -1 elsewhere
-    //QLearning style update rule
-    //m_activation = (1.0f - dt) * m_activation + dt * (activation_corr - activation_anticorr + activation_nonrelevance);
-    //Hebbian style update rule
-    m_activation = m_activation + (activation_corr - activation_anticorr + activation_nonrelevance); 
-    
-    // Rapport figure print only subproccess:
-    // m_activation = m_activation + activation_corr;
-    // m_activation = m_activation - activation_anticorr;
-    // m_activation = m_activation + activation_nonrelevance;
-
-    // Normalize m_activation
-    //m_activation = m_activation / m_activation.max();
-
-    // Normalize each column of m_activation by the maximum value of that column
-    m_activation = normalizeColumns(m_activation);
+    torch::Tensor activation_suppr = activation_nonrelevance - activation_anticorr; // -1 at all elements that should be suppressed, 0 elsewhere
     
 
+    // Switch on suppression
+    torch::Tensor activation_update = torch::zeros({m_dimensions1, m_dimensions2});
+    if (suppression == 1){
+        activation_update = activation_corr + activation_suppr;
+    } else if (suppression == 0){
+        activation_update = activation_corr;
+    } else {
+        RCLCPP_ERROR(rclcpp::get_logger("dnf_pubsub"), "Invalid suppression %d", suppression);
+    }
+
+    // Update activation depending on learning rule
+    if (learningrule == 0){
+        // Classical machine learning / QLearning style update rule
+        m_activation = (1.0f - dt) * m_activation + dt * activation_update;
+    } else if (learningrule == 1){
+        // Hebbian style update rule
+        m_activation = m_activation + dt * activation_update;
+    } else {
+        RCLCPP_ERROR(rclcpp::get_logger("dnf_pubsub"), "Invalid learning rule %d", learningrule);
+    }
+
+    // Normalize m_activation depending on normalization rule
+    if (normalization == 0){
+        // No normalization
+    } else if (normalization == 1){
+        // Normalize m_activation by maximum value
+        m_activation = m_activation / m_activation.max();
+    } else if (normalization == 2){
+        // Normalize each column of m_activation by the maximum value of that column
+        m_activation = normalizeColumns(m_activation);
+    } else {
+        RCLCPP_ERROR(rclcpp::get_logger("dnf_pubsub"), "Invalid normalization rule %d", normalization);
+    }
+    
     // Update output
     // TODO: Check if this is correct
     //m_output = m_activation1.unsqueeze(1).matmul(m_activation2.unsqueeze(0)); Only 1 2d actiovation tensor now
@@ -202,4 +218,8 @@ torch::Tensor DNF_2D::extract_response_DNF(torch::Tensor input, int index_input)
     //printTensor(input2_response);
 
     return input2_response;
+}
+
+float DNF_2D::get_activation_at(int index1, int index2){
+    return m_activation[index1][index2].item<float>();
 }
