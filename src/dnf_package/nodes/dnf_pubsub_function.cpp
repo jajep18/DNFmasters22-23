@@ -372,7 +372,7 @@ private:
     RCLCPP_INFO(this->get_logger(), "DNFs saved to csv");
   }
 
-  void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){
+  void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){Possible values are: setup.bash, setup.sh, setup.zsh source /opt/ros/foxy/setup.bash.
     // Step all the KW_ACT_DNFs with the given inputs
     for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
       KW_ACT_DNF_list[i]->step(input1, input2);
