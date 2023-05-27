@@ -76,7 +76,7 @@ public:
     //Evaluator evaluator; Done in initialization list instead
 
     // --------------- Create lists of DNFs with different params for comparison. learning rule, norm, suppr, etc. ---------------
-    RCLCPP_INFO(this->get_logger(), "Setting up lists of DNFs for comparison");
+    RCLCPP_INFO(this->get_logger(), "Setting up list of Correlation matrices to be trained in tandem for comparison");
     // // Classical ML learning rule, no normalization, no suppression
     // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
     // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.2f));
@@ -144,7 +144,7 @@ public:
     // Print the comparison log to csv
     // Write tensor to file
     std::ofstream comp_file;
-    comp_file.open((comp_log_path + "comparison_log_Heb.csv").c_str());
+    comp_file.open((comp_log_path + "Eval_v1.csv").c_str());
     if(comp_file.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
     for (size_t i = 0; i < comp_log.size(); i++){
       for (size_t j = 0; j < comp_log[i].size(); j++){
@@ -154,7 +154,6 @@ public:
     }
     comp_file.close();
     RCLCPP_INFO(this->get_logger(), "Comp log complete");
-
   }
 
 private:
@@ -375,7 +374,6 @@ private:
 
     // Save KWxC DNF after learning
     write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_50_epoch.csv");
-
     RCLCPP_INFO(this->get_logger(), "DNFs saved to csv");
 
     // Test evaluate 
@@ -386,20 +384,29 @@ private:
     RCLCPP_INFO(this->get_logger(), "Evaluation softmax mean result: %f", eval_res);
   }
 
+
+
   void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){
     // Step all the KW_ACT_DNFs with the given inputs
     for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
       KW_ACT_DNF_list[i]->step(input1, input2);
     }
 
-    // Print the member m_activation of the 9th KW_ACT_DNF in the list for debugging purposes 
-    //RCLCPP_INFO(this->get_logger(), "KW_ACT_DNF 9th activation at (14,0): %f", KW_ACT_DNF_list[8]->get_activation_at(14,0));
-
     // Save the specific activation at (14,0) for each KW_ACT_DNF into comp_log
     std::vector<float> comp_log_row;
     for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
-      comp_log_row.push_back(KW_ACT_DNF_list[i]->get_activation_at(14,0));
+      int failed_evals = 0;
+      float eval_res = evaluator.evaluate_KWxA(KW_ACT_DNF_list[i]->get_activation(), failed_evals);
+
+      comp_log_row.push_back(float(failed_evals));
+      comp_log_row.push_back(eval_res);
     }
+
+    // // Save the specific activation at (14,0) for each KW_ACT_DNF into comp_log
+    // std::vector<float> comp_log_row;
+    // for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
+    //   comp_log_row.push_back(KW_ACT_DNF_list[i]->get_activation_at(14,0));
+    // }
     comp_log.push_back(comp_log_row);
   }
 

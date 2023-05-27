@@ -120,9 +120,6 @@ Evaluator::~Evaluator() {
 
 // Evaluate the given DNF
 double Evaluator::evaluate_KWxA(torch::Tensor correlation_matrix, int & _failed_trials){
-    
-    
-
     // Sanity check that evaluation_trials is of size 24
     if (evaluation_trials.size() != 24) {
         RCLCPP_ERROR(rclcpp::get_logger("dnf_evaluator"), "Evaluation trials is not of size 24");
@@ -139,29 +136,14 @@ double Evaluator::evaluate_KWxA(torch::Tensor correlation_matrix, int & _failed_
         torch::Tensor eval_trial = evaluation_trials[i];
         int correct_action = evaluation_actions[i];
 
-        // Print sizes of eval_trial and correlation_matrix
-        RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "eval_trial size: %d, %d", eval_trial.sizes()[0], eval_trial.sizes()[1]);
-        // RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "correlation_matrix size: %d, %d", correlation_matrix.sizes()[0], correlation_matrix.sizes()[1]);
-        
-        // Print eval_trial
-        //RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "eval_trial: %s", eval_trial.toString());
-        // std::cout << eval_trial << std::endl;
-        
-        // Print correlation_matrix
-        //RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "correlation_matrix: %s", correlation_matrix.toString());
-        // std::cout << correlation_matrix << std::endl;
-
         // Get trial response
         // torch::Tensor trial_response = eval_trial.matmul(correlation_matrix);
         torch::Tensor trial_response = torch::matmul(eval_trial.unsqueeze(0), correlation_matrix);
-
-        // Print trial response
-        //RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "Trial response: %s", trial_response.toString());
-        std::cout << "trial response: " << trial_response << std::endl;
+        // std::cout << "trial response: " << trial_response << std::endl;
         
         // Run argmax on the evaluation trial
         int argmax_result = torch::argmax(trial_response).item<int>();
-        RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "Argmax result: %d", argmax_result);
+        // RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "Argmax result: %d", argmax_result);
 
         // Check if the argmax result is equal to the correct action index
         if (argmax_result != correct_action) {
@@ -169,18 +151,12 @@ double Evaluator::evaluate_KWxA(torch::Tensor correlation_matrix, int & _failed_
         }
 
         // Get softmax of the evaluation trial
-        torch::Tensor softmax_vec = torch::softmax(trial_response, 1); 
-
-        // Print softmax_vec
-        //RCLCPP_INFO(rclcpp::get_logger("dnf_evaluator"), "Softmax vector: %s", softmax_vec.toString());
-        std::cout << "softmax_vec: " << softmax_vec << std::endl;
+        torch::Tensor softmax_vec = torch::softmax(trial_response, 1);
+        // std::cout << "softmax_vec: " << softmax_vec << std::endl;
 
         // Get softmax value of the correct action:
         softmax_results.push_back(softmax_vec[0][correct_action].item<double>());
-
-        std::cout << "softmax_result:" << softmax_vec[0][correct_action].item<double>() << std::endl;
-
-        // 
+        // std::cout << "softmax_result:" << softmax_vec[0][correct_action].item<double>() << std::endl;
     }
 
     // Get mean of softmax results
@@ -191,9 +167,42 @@ double Evaluator::evaluate_KWxA(torch::Tensor correlation_matrix, int & _failed_
 }
 
 double Evaluator::evaluate_KWxT(torch::Tensor correlation_matrix, int & _failed_trials){
-    // This has to do the exact same as above, but with the target color instead of the action
-    double WIP = 0;
-    _failed_trials = 0;
-    torch::Tensor noprint = correlation_matrix;
-    return WIP;
+        // Sanity check that evaluation_trials is of size 24
+    if (evaluation_trials.size() != 24) {
+        RCLCPP_ERROR(rclcpp::get_logger("dnf_evaluator"), "Evaluation trials is not of size 24");
+        //return -1;
+    }
+
+    // Go through all the trials (evaluation_trials)
+    int failed_trials = 0;
+    std::vector<double> softmax_results;
+    
+    for (size_t i = 0; i < evaluation_trials.size(); i++)
+    {
+        // Get the trial
+        torch::Tensor eval_trial = evaluation_trials[i];
+        int correct_target = evaluation_targets[i];
+
+        // Get trial response
+        torch::Tensor trial_response = torch::matmul(eval_trial.unsqueeze(0), correlation_matrix);
+
+        // Print trial response
+        // std::cout << "trial response: " << trial_response << std::endl;
+        
+        // Run argmax on the evaluation trial
+        int argmax_result = torch::argmax(trial_response).item<int>();
+
+        // Check if the argmax result is equal to the correct action index
+        if (argmax_result != correct_target) {
+            failed_trials++;
+        }
+        // Get softmax of the evaluation trial
+        torch::Tensor softmax_vec = torch::softmax(trial_response, 1); 
+        // Get softmax value of the correct action:
+        softmax_results.push_back(softmax_vec[0][correct_target].item<double>());
+    }
+    // Get mean of softmax results
+    double mean_softmax = std::accumulate(softmax_results.begin(), softmax_results.end(), 0.0) / double(softmax_results.size());
+    _failed_trials = failed_trials;
+    return mean_softmax;  
 }
