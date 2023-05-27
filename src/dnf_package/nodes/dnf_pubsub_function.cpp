@@ -14,6 +14,7 @@
 #include <iostream>
 #include "../src/dnf_lib.cpp"
 #include <torch/torch.h>
+#include <boost/shared_ptr.hpp>
 
 #include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
 // may throw ament_index_cpp::PackageNotFoundError exception
@@ -67,48 +68,85 @@ public:
     // Get the path to the dnf logs folder
     get_log_path();
 
-    // --------------- Test column normalization ---------------
-    // // Create a sample matrix
-    // torch::Tensor matrix = torch::tensor({{1.0, 2.0, 3.0},
-    //                                       {4.0, 5.0, 6.0},
-    //                                       {7.0, 8.0, 9.0}});
-    // // Print the original matrix
-    // std::cout << "Original Matrix:\n" << matrix << std::endl;
-    // write2DTensorCSV(matrix, log_path, "colnorm_pre.csv");
-    // // Normalize each column of the matrix
-    // torch::Tensor normalizedMatrix = normalizeColumns(matrix);
-    // // Print the normalized matrix
-    // std::cout << "Normalized Matrix:\n" << matrix << std::endl;
-    // write2DTensorCSV(normalizedMatrix, log_path, "colnorm_post.csv");
+    // --------------- Create lists of DNFs with different params for comparison. learning rule, norm, suppr, etc. ---------------
+    RCLCPP_INFO(this->get_logger(), "Setting up lists of DNFs for comparison");
+    // // Classical ML learning rule, no normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.2f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.3f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.4f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.6f));
+    // // Classical ML learning rule, reg. normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.1f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.2f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.3f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.4f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.6f));
+    // // Classical ML learning rule, no normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.1f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.2f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.3f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.4f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.6f));
+    // // Classical ML learning rule, reg. normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.1f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.2f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.3f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.4f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.6f));
+    // // Hebbian learning rule, no normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.25f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.75f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
+    // // Hebbian learning rule, reg. normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.25f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.75f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 1.0f));
+    // // Hebbian learning rule, column normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.25f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.5f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.75f));
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
 
-    // --------------- Create dnf csv of simple step-sub operations for rapport ---------------
-    // {
-    //   // Set the input keywords
-    //   keywords_dnf.reset_input();
-    //   std::vector<int> keywords = {0, 2, 1, 5}; // "Move", "Red", "Ball", "Left"
-    //   for (size_t k = 0; k < keywords.size(); k++){
-    //     keywords_dnf.set_input_element(keywords[k], 1.0f);
-    //   }
-    //   // Set the target color
-    //   color_circles_dnf.reset_input();
-    //   color_circles_dnf.set_input_element(0, 1.0f);
-    //   // Set the correct action
-    //   action_dnf.reset_input();
-    //   action_dnf.set_input_element(MOVE_LEFT, 1.0f); // The action "Place Down"
-    //   // Step the Keyword x Color DNF
-    //   keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f);
-    //   // Step the Keyword x Action DNF
-    //   keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f);
-    //   // Save DNFs after 1 trial
-    //   write2DTensorCSV(keywords_action_dnf.get_activation(), log_path, "kw_act_dnf_nonrel.csv");
-    //   write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "kw_col_dnf_nonrel.csv");
-    // }
+    // Hebbian learning rule, no normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 1.0f));
+    // Hebbian learning rule, reg. normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 1.0f));
+    // Hebbian learning rule, column normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 1.0f));
 
-    // Perform the (test) learning
-    //test_dnf_setup();
-    //RCLCPP_INFO(this->get_logger(), "DNF (Test/manual) setup complete");
-    //dnf_learning(50);
+    // Perform the learning set up
+    dnf_learning(50);
     RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
+
+    // Print the comparison log to csv
+    // Write tensor to file
+    std::ofstream comp_file;
+    comp_file.open((comp_log_path + "comparison_log_Heb.csv").c_str());
+    if(comp_file.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
+    for (size_t i = 0; i < comp_log.size(); i++){
+      for (size_t j = 0; j < comp_log[i].size(); j++){
+        comp_file << comp_log[i][j] << ",";
+      }
+      comp_file << "\n";
+    }
+    comp_file.close();
+    RCLCPP_INFO(this->get_logger(), "Comp log complete");
 
   }
 
@@ -204,9 +242,10 @@ private:
     dnf_log_path.append("src/dnf_package/dnf_logs/");
     RCLCPP_INFO(this->get_logger(), "Logs will be written to: %s", dnf_log_path.c_str());
     log_path = dnf_log_path;
+    comp_log_path = dnf_log_path.append("comparison/");
 
     //TODO: Combine this path with the appended path to the log directory, to get the full path
-    // Cleaner way than what we have know
+    // Cleaner way than what we have now
     //RCLCPP_INFO(this->get_logger(), "Filesystem: Current path: %s", std::filesystem::current_path().c_str());
     //std::filesystem::current_path() 
   }
@@ -286,13 +325,16 @@ private:
 
         // Set the correct action
         action_dnf.reset_input();
-        action_dnf.set_input_element(learning_trials[j].get_action(), 1.0f); // The action "Place Down"
+        action_dnf.set_input_element(learning_trials[j].get_action(), 1.0f); // The action in the learning trial
 
         // Step the Keyword x Color DNF
-        keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input(), 0.5f);
+        keywords_color_dnf.step(keywords_dnf.get_input(), color_circles_dnf.get_input());
 
         // Step the Keyword x Action DNF
-        keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input(), 0.5f);
+        keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input());
+
+        // Step all the KW_ACT_DNFs with the given inputs - These are for comparing the different learning parameters
+        step_all_test_KW_ACT_dnfs(keywords_dnf.get_input(), action_dnf.get_input());
 
         // If this is the first learning trial in the first epoch, save the initial activations
         if (i == 0 && j == 0){
@@ -330,10 +372,28 @@ private:
     RCLCPP_INFO(this->get_logger(), "DNFs saved to csv");
   }
 
+  void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){Possible values are: setup.bash, setup.sh, setup.zsh source /opt/ros/foxy/setup.bash.
+    // Step all the KW_ACT_DNFs with the given inputs
+    for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
+      KW_ACT_DNF_list[i]->step(input1, input2);
+    }
+
+    // Print the member m_activation of the 9th KW_ACT_DNF in the list for debugging purposes 
+    RCLCPP_INFO(this->get_logger(), "KW_ACT_DNF 9th activation at (14,0): %f", KW_ACT_DNF_list[8]->get_activation_at(14,0));
+
+    // Save the specific activation at (14,0) for each KW_ACT_DNF into comp_log
+    std::vector<float> comp_log_row;
+    for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
+      comp_log_row.push_back(KW_ACT_DNF_list[i]->get_activation_at(14,0));
+    }
+    comp_log.push_back(comp_log_row);
+  }
+
   
 
   // Member variables -------------------
   std::string log_path;
+  std::string comp_log_path;
   // Subscriptions
   rclcpp::Subscription<custom_msgs::msg::TriangulatedCircleInfoArr>::SharedPtr circle_subscription_;
   rclcpp::Subscription<std_msgs::msg::Int8MultiArray>::SharedPtr keyword_subscription_;
@@ -357,7 +417,10 @@ private:
 
   DNF_1D color_expanded_dnf; //Contains the color of the circles as a scalar. This is an input
 
-
+  // DNFs for learning - List of keyword x action DNFs, multiple so that learning comparisons can be made for the rapport
+  std::vector<DNF_2D*> KW_ACT_DNF_list;
+  // Create a storage variable for the element in the correlation matrix being compared:
+  std::vector<std::vector<float>> comp_log;
 };
 
 

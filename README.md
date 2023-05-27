@@ -1,5 +1,7 @@
 # DNFmasters22-23
-DNF master project between Erik Lindby and Jacob Fløe Jeppesen
+DNF master project between Erik Lindby and Jacob Fløe Jeppesen.
+
+This project aims to control a robot arm by verbal commands. A microphone picks up audio data, which is processed by pocketsphinx keyword spotting and sent to a ML decision making process, where learned correlations between keywords and actions are used to decide on an action, that will be performed by a JetMax arm. A target ball in the environment is also decided on in the decision making process, by correlations between keywords and colors. The balls are found in the environment using vision, and their triangulated positions are used to perform the robotic arm operations.
 
 # Launch Files
 ros2 launch main_package main.launch.py

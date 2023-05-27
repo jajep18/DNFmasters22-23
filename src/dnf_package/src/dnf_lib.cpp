@@ -32,6 +32,11 @@
 // #include <ament_index_cpp/get_package_share_directory.hpp> //For getting the package path
 // may throw ament_index_cpp::PackageNotFoundError exception
 
+enum enCol          { RED = 0,      GREEN = 1,  BLUE = 2 };
+enum enNorm         { NONE = 0,     NORM = 1,   COLNORM = 2};
+enum enLearn        { ML = 0,       HEBBIAN = 1};
+enum enSuppression  { NO_SUPP = 0,  SUPP = 1};
+
 inline void printTensor(torch::Tensor tensor){
     // Check if 1D or 2D tensor given
     if (tensor.sizes()[1] == 0){
