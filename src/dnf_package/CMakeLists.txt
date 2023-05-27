@@ -38,6 +38,8 @@ find_package(Torch REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 
+find_package(rclpy REQUIRED)
+
 # Torch setup flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -100,6 +102,14 @@ install(DIRECTORY
   DESTINATION include)
 include_directories(include)
 ament_export_include_directories(include)
+
+## Install Python scripts (Nodes)
+# install(
+#   PROGRAMS
+#     nodes/lava_dnf.py
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
 
 # ## Install Libraries
 # install(

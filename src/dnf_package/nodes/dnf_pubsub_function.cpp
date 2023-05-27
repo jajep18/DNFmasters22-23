@@ -33,6 +33,7 @@
 #include "../include/dnf_2d.hpp"
 #include "../src/hsvrgb.cpp"
 #include "../src/learning_trial.cpp"
+#include "../src/evaluator.cpp"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -50,9 +51,12 @@ public:
     pos_x_circle_dnf(3,true),         //Contains the x position of the circles. This is an input
     pos_y_circle_dnf(3,true),         //Contains the y position of the circles. This is an input
     action_dnf(ACTION_AMOUNT, true),                        //Contains the actions, this is the output of the network
-    keywords_color_dnf(VOCAB_SIZE,3,true),                  //Combined DNF Keywords+Color½int index_input, int index_element,
-    keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true),   //Combined DNF Keywords+Action
-    color_expanded_dnf(256, true) //Test of "complex" dnf, color with 256 neurons
+    keywords_color_dnf(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, NO_SUPP, 0.5f),      //Combined DNF Keywords+Color
+    keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true,  HEBBIAN, COLNORM, NO_SUPP, 0.5f),   //Combined DNF Keywords+Action HEBBIAN, NORM, SUPP, 0.5f
+    // keywords_color_dnf(VOCAB_SIZE,3,true),                  //Combined DNF Keywords+Color
+    // keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true),   //Combined DNF Keywords+Action
+    color_expanded_dnf(256, true), //Test of "complex" dnf, color with 256 neurons
+    evaluator(true) //Evaluator for evaluating the performance of the DNF
   {
     // Create a subscriber to the detected circles
     circle_subscription_ = this->create_subscription<custom_msgs::msg::TriangulatedCircleInfoArr>(
@@ -67,6 +71,9 @@ public:
 
     // Get the path to the dnf logs folder
     get_log_path();
+
+    // Create evaluator - Class that can evaluate the performance of a learned correlation matrix using 24 examples
+    //Evaluator evaluator; Done in initialization list instead
 
     // --------------- Create lists of DNFs with different params for comparison. learning rule, norm, suppr, etc. ---------------
     RCLCPP_INFO(this->get_logger(), "Setting up lists of DNFs for comparison");
@@ -370,16 +377,23 @@ private:
     write2DTensorCSV(keywords_color_dnf.get_activation(), log_path, "keywords_color_dnf_50_epoch.csv");
 
     RCLCPP_INFO(this->get_logger(), "DNFs saved to csv");
+
+    // Test evaluate 
+    int fails = 0;
+    double eval_res = evaluator.evaluate_KWxA(keywords_action_dnf.get_activation(), fails);
+    // Print fails
+    RCLCPP_INFO(this->get_logger(), "Evaluator fails: %d", fails);
+    RCLCPP_INFO(this->get_logger(), "Evaluation softmax mean result: %f", eval_res);
   }
 
-  void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){Possible values are: setup.bash, setup.sh, setup.zsh source /opt/ros/foxy/setup.bash.
+  void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){
     // Step all the KW_ACT_DNFs with the given inputs
     for (size_t i = 0; i < KW_ACT_DNF_list.size(); i++){
       KW_ACT_DNF_list[i]->step(input1, input2);
     }
 
     // Print the member m_activation of the 9th KW_ACT_DNF in the list for debugging purposes 
-    RCLCPP_INFO(this->get_logger(), "KW_ACT_DNF 9th activation at (14,0): %f", KW_ACT_DNF_list[8]->get_activation_at(14,0));
+    //RCLCPP_INFO(this->get_logger(), "KW_ACT_DNF 9th activation at (14,0): %f", KW_ACT_DNF_list[8]->get_activation_at(14,0));
 
     // Save the specific activation at (14,0) for each KW_ACT_DNF into comp_log
     std::vector<float> comp_log_row;
@@ -421,6 +435,9 @@ private:
   std::vector<DNF_2D*> KW_ACT_DNF_list;
   // Create a storage variable for the element in the correlation matrix being compared:
   std::vector<std::vector<float>> comp_log;
+
+  // Evaluator object
+  Evaluator evaluator;
 };
 
 
