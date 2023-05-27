@@ -17,6 +17,7 @@ from gazebo_msgs.msg import ModelStates
 
 from custom_msgs.msg import TriangulatedCircleInfo, TriangulatedCircleInfoArr
 
+import time
 
 class DataLogTriangulation(Node):
     def __init__(self):
@@ -36,7 +37,8 @@ class DataLogTriangulation(Node):
         self.filename = dir_path + "/" + rec_filename
         # Create a new file with the unique filename
         self.file = open(self.filename, "w")
-        self.file.write("x,y,color,bgr_mean(1),bgr_mean(2),bgr_mean(3),bgr_var(1),bgr_var(2),bgr_var(3),gt_x,gt_y\n")
+        # self.file.write("x,y,color,bgr_mean(1),bgr_mean(2),bgr_mean(3),bgr_var(1),bgr_var(2),bgr_var(3),gt_x,gt_y\n")
+        self.file.write("x,y,color,gt_x,gt_y\n")
         self.file.close()
         # Last received message
         self.last_msg = None
@@ -56,10 +58,13 @@ class DataLogTriangulation(Node):
         self.max_x = 0.33
         self.min_y = -0.33
         self.max_y = -0.09
-        self.step = 0.05 # try 6
+        self.step = 0.06 
         self.service_client = self.create_client(SetEntityState, '/gazebo_msgs/set_entity_state')
         while not self.service_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
+
+        self.avg_time = 0
+        self.n_msgs = 0
 
         
         # How to move the ball
@@ -78,6 +83,7 @@ class DataLogTriangulation(Node):
             for y in np.arange(self.min_y, self.max_y, self.step):
                 self.ball_positions.append([x,y])
         self.ball_position_index = 0
+
         
         self.ball_pos_wait_count = 0
         # # Move the ball to the first position
@@ -91,6 +97,9 @@ class DataLogTriangulation(Node):
         self.req.state.pose.position.z = 0.035
         self.future = self.service_client.call_async(self.req)
         # self.future.add_done_callback(self.service_callback)
+
+    def get_avg_time(self):
+        return self.avg_time/self.n_msgs
 
 
     def subscriber_callback_states(self, msg):
@@ -114,55 +123,59 @@ class DataLogTriangulation(Node):
         # If the last message is the same as the current message, don't write it to the file
         # if self.last_msg == msg:
         #     return
+        start_time = time.time()
         
         if self.ball_position == None:
             self.get_logger().info('Ball position is None')
             return
         
-        # if self.last_msg != msg: 
-        # Open the file in append mode
-        self.file = open(self.filename, "a")
-        
-        # Print triangulated circles to csv
-        for i in range(len(msg.circles)):
-            self.file.write(str(msg.circles[i].x))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].y))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].color))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_mean[0]))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_mean[1]))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_mean[2]))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_var[0]))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_var[1]))
-            self.file.write(",")
-            self.file.write(str(msg.circles[i].bgr_var[2]))
-            self.file.write(",")
-            self.file.write(str(self.ball_position.x))
-            self.file.write(",")
-            self.file.write(str(self.ball_position.y))
-            self.file.write("\n")
+        if self.last_msg != msg: 
+            # Create timer 
             
-        # # print each element of the msg.data array to the file, comma seperated
-        # for i in range(len(msg.data)):
-        #     self.file.write(str(msg.data[i]))
-        #     if i != len(msg.data)-1:
-        #         self.file.write(",")
-        # self.file.write("\n")
 
-        # Save the last received message
-        self.last_msg = msg
+            # Open the file in append mode
+            self.file = open(self.filename, "a")
+            
+            # Print triangulated circles to csv
+            for i in range(len(msg.circles)):
+                self.file.write(str(msg.circles[i].x))
+                self.file.write(",")
+                self.file.write(str(msg.circles[i].y))
+                self.file.write(",")
+                self.file.write(str(msg.circles[i].color))
+                self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_mean[0]))
+                # self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_mean[1]))
+                # self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_mean[2]))
+                # self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_var[0]))
+                # self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_var[1]))
+                # self.file.write(",")
+                # self.file.write(str(msg.circles[i].bgr_var[2]))
+                # self.file.write(",")
+                self.file.write(str(self.ball_position.x))
+                self.file.write(",")
+                self.file.write(str(self.ball_position.y))
+                self.file.write("\n")
+                
+            # # print each element of the msg.data array to the file, comma seperated
+            # for i in range(len(msg.data)):
+            #     self.file.write(str(msg.data[i]))
+            #     if i != len(msg.data)-1:
+            #         self.file.write(",")
+            # self.file.write("\n")
 
-        # Close the file
-        self.file.close()
+            # Save the last received message
+            # self.last_msg = msg
+
+            # Close the file
+            self.file.close()
 
         # Check self.ball_pos_wait_count, if it is 10 or more, switch the ball position to the one marked by index self.ball_position_index
-        if self.ball_pos_wait_count >= 10:
+        if self.ball_pos_wait_count >= 1:
             self.ball_pos_wait_count = 0
             self.get_logger().info('Move debug.')
             self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])
@@ -172,9 +185,13 @@ class DataLogTriangulation(Node):
             self.ball_pos_wait_count += 1
             self.get_logger().info('No movement.')
 
+        time_end = time.time()
 
-        
-
+        # Print the time it took to process the message
+        self.get_logger().info('Time to process message: ' + str(time_end - start_time))
+        self.avg_time += time_end - start_time
+        self.n_msgs += 1
+        print("Average time: " + str(self.get_avg_time()))
 
     # # The desctructor, when the object is destroyed:
     # def __del__(self):

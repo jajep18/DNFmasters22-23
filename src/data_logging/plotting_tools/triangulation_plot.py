@@ -8,7 +8,9 @@ import plotly.express as px
 
 def triangulation_sorted():
     # Read the data from the csv file
-    df = pd.read_csv('triangulation_datalog.csv')
+    # df = pd.read_csv('triangulation_datalog-all.csv')
+    df = pd.read_csv('triangulation_datalog_v2.csv')
+
 
     # Create the figure
     # fig = go.Figure()
@@ -21,11 +23,18 @@ def triangulation_sorted():
     colorscale = [[0, 'green'], [0.5, 'yellow'], [1, 'red']]
 
 
+    # Remove dist larger than 0.035
+    df = df[df['dist'] < 0.035]
+    
+
     # Add a size column to the dataframe
     df['size'] = 1
     max_dist = df['dist'].max()
     min_dist = df['dist'].min()
     dist_range = [min_dist, max_dist]
+
+    
+    
 
     fig = go.Figure()
     # Create a scatter plot of the triangulated circles with the ground truth
@@ -41,6 +50,17 @@ def triangulation_sorted():
         marker=dict(size=10, color='green'),
         name='Triangulated coordinates'
     ))
+
+    # Add line between ground truth and triangulated data in the scatter plot
+    fig.add_trace(go.Scatter(
+        x=[df['gt_x'], df['x']],
+        y=[df['gt_y'], df['y']],
+        mode='lines',
+        line=dict(color='black', width=2),
+        name='Distance between ground truth and triangulated coordinates'
+    ))
+
+
 
 
     # Add title 
@@ -163,7 +183,8 @@ def triangulation_sorted():
         
 def triangulation_unsorted():
 
-    df = pd.read_csv('triangulation_datalog-all.csv')
+    df = pd.read_csv('triangulation_datalog-noise007.csv')
+    # df = pd.read_csv('triangulation_datalog-all.csv')
     linewidth = 4
 
     # Create two line plots for the x and y coordinates and the ground truth
