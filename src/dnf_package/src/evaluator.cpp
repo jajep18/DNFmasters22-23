@@ -24,6 +24,7 @@ Evaluator::Evaluator(bool debug) { //Debug defaults to true
     float data_trial6[17]  = {0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}; // Place, Down, Red, Ball
     float data_trial7[17]  = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}; // Grasp, Red, Ball
     float data_trial8[17]  = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}; // Release, Red, Ball
+
     float data_trial9[17]  = {1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Left, Green
     float data_trial10[17] = {1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Right, Green
     float data_trial11[17] = {1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Closer, Green
@@ -32,6 +33,7 @@ Evaluator::Evaluator(bool debug) { //Debug defaults to true
     float data_trial14[17] = {0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0}; // Place, Down, Ball, Green
     float data_trial15[17] = {0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0}; // Grasp, Ball, Green
     float data_trial16[17] = {0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}; // Release, Ball, Green
+
     float data_trial17[17] = {1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Left, Blue
     float data_trial18[17] = {1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Right, Blue
     float data_trial19[17] = {1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0}; // Move, Ball, Closer, Blue
@@ -98,7 +100,9 @@ Evaluator::Evaluator(bool debug) { //Debug defaults to true
                             2, 2, 2, 2, 2, 2, 2, 2 };
 
     // Initialize evaluation trial actions (actions)
-    evaluation_actions = { 2, 3, 5, 4, 0, 1, 6, 7, 2, 3, 5, 4, 0, 1, 6, 7, 2, 3, 5, 4, 0, 1, 6, 7};
+    evaluation_actions = {  2, 3, 5, 4, 0, 1, 6, 7, 
+                            2, 3, 5, 4, 0, 1, 6, 7, 
+                            2, 3, 5, 4, 0, 1, 6, 7};
 
     // Create trial 1 from a known list of numbers [1 1 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
     //torch::Tensor trial1 = torch.tensor({1, 1, 1, 0, 0, 1,0, 0, 0, 0, 0, 0, 0, 0,0, 0}, torch::kFloat32);

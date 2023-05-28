@@ -77,65 +77,91 @@ public:
 
     // --------------- Create lists of DNFs with different params for comparison. learning rule, norm, suppr, etc. ---------------
     RCLCPP_INFO(this->get_logger(), "Setting up list of Correlation matrices to be trained in tandem for comparison");
-    // // Classical ML learning rule, no normalization, no suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.2f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.3f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.4f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.6f));
-    // // Classical ML learning rule, reg. normalization, no suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.1f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.2f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.3f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.4f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.6f));
-    // // Classical ML learning rule, no normalization, with suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.1f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.2f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.3f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.4f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.6f));
-    // // Classical ML learning rule, reg. normalization, with suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.1f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.2f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.3f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.4f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.6f));
-    // // Hebbian learning rule, no normalization, no suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.25f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.75f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
-    // // Hebbian learning rule, reg. normalization, no suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.25f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.75f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 1.0f));
-    // // Hebbian learning rule, column normalization, no suppression
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.25f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.5f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.75f));
-    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
-
     // Hebbian learning rule, no normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.1f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.25f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.5f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 0.75f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 1.0f));
     // Hebbian learning rule, reg. normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.1f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.25f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.5f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.75f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 1.0f));
     // Hebbian learning rule, column normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.1f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.25f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.5f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.75f));
     KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 1.0f));
+
+    // Hebbian learning rule, no normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
+    // Hebbian learning rule, reg. normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 1.0f));
+    // Hebbian learning rule, column normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.25f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 0.75f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
+
+
+
+    // Classical ML learning rule, no normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.6f));
+    // Classical ML learning rule, reg. normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.6f));
+    // Classical ML learning rule, column normalization, with suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, SUPP, 0.6f));
+
+    // // Classical ML learning rule, no normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.6f));
+    // Classical ML learning rule, reg. normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.6f));
+    // Classical ML learning rule, column normalization, no suppression
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.1f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.2f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.3f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.4f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.5f));
+    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.6f));
+
+
 
     // Perform the learning set up
     dnf_learning(50);

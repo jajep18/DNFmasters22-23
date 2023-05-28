@@ -35,7 +35,7 @@ class MicSensorNode(Node):
         self.publisher = self.create_publisher(String, 'audio_file', 1)
 
         self.frequency = 0.2 # Freq. pr. second; See "Impulse design" block in EI project
-        timer_period = 1 / self.frequency # Calculate period
+        timer_period = 10#1 / self.frequency # Calculate period
 
         # self.timer = self.create_timer(timer_period, self.dummy_callback) # Create timer for callback
         self.timer = self.create_timer(timer_period, self.save_mic_rec) # Create timer for callback
@@ -111,7 +111,7 @@ class MicSensorNode(Node):
         # Count the amount of files in the audio_files folder (For a unique new filename)
         dir_path = os.path.abspath("./src/audio_package/audio_files")
         glob_path = os.path.join(dir_path, "*.wav")
-        n_files = len(glob.glob(glob_path))
+        n_files = len(glob.glob(glob_path)) + 1
         n_files = str(n_files).zfill(4) # Fill with zeros to get a 4 digit number
         
         # Create a unique filename

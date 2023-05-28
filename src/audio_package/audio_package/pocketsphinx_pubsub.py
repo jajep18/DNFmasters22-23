@@ -27,7 +27,7 @@ class Pocketsphinx_Pubsub(Node):
         self.subscriber = self.create_subscription(String, 'audio_file', self.subscriber_callback, 1)
         timer_period = 3  # seconds
         self.timer_pub      = self.create_timer(timer_period, self.kwspotting_callback)
-        self.timer_pub_expl = self.create_timer(timer_period, self.kwspotting_callback_explicit)
+        #self.timer_pub_expl = self.create_timer(timer_period, self.kwspotting_callback_explicit)
         #self.timer_sub      = self.create_timer(timer_period_sub, self.subscriber_callback)
 
         self.audio_data = ""
@@ -126,6 +126,8 @@ class Pocketsphinx_Pubsub(Node):
         else: 
             self.get_logger().info('File does not exist')
             self.get_logger().info('File path: "%s"' % filename)
+
+        self.kwspotting_callback_explicit()
 
 
 
