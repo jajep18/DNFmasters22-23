@@ -77,10 +77,10 @@ class MovementCommandCenter(Node):
         self.get_logger().info("Gripper Service is available")
         
         # Create a client for the decision service
-        # self._decision_client = self.create_client(Decision, '/DNF/decision')
-        # while not self._decision_client.wait_for_service(timeout_sec=1.0):
-        #     self.get_logger().info("Decision Service not available, waiting again...")
-        # self.get_logger().info("Decision Service is available")
+        self._decision_client = self.create_client(Decision, '/DNF/decision')
+        while not self._decision_client.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info("Decision Service not available, waiting again...")
+        self.get_logger().info("Decision Service is available")
 
         # Create a timer to call for decision making service, and perform the determined action
         self.timer_period = 10  # seconds
@@ -102,7 +102,8 @@ class MovementCommandCenter(Node):
         # Create position storing variables
         self.home_position      = np.array([0.120, 0.0, 0.200])
         self.current_position   = np.array([0.120, 0.0, 0.200])
-        self.above_offset = 0.1
+        self.ball_offset = 0.13
+        self.above_offset = 0.05
 
         # Create gripper variable. True = open (sucking), False = closed
         self.gripper_state = True
@@ -238,15 +239,15 @@ class MovementCommandCenter(Node):
             return
         
         self.get_logger().info('Moving to (%s, %s, %s)' % (move_pos[0], move_pos[1], move_pos[2]))
-        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=10)#= 500)
+        path = linear_interpolation(start_pos=self.current_position, end_pos=move_pos, max_vel= 0.5, sample_rate=250)#= 500)
         
         # Loop through the path and send movement commands
         for positions in path:
             self.send_ik_request(positions[0], positions[1], positions[2])
-            time.sleep(0.08)
+            #time.sleep(0.0001)
             
         self.get_logger().info('Move successful')
-        time.sleep(3)
+        time.sleep(0.5)
         self.current_position = move_pos
         
     def action_placedown(self):
@@ -285,11 +286,11 @@ class MovementCommandCenter(Node):
         '''
         Pick up target ball. Move left 5cm. Place down target ball.
         '''
-        self.get_logger().info('Moving left')
-        pick_pos        = [target_pos[0], target_pos[1], target_pos[2]]
-        above_pick_pos  = [target_pos[0], target_pos[1], target_pos[2] + self.above_offset]
-        place_pos       = [target_pos[0] + place_offset_x, target_pos[1] + place_offset_y, target_pos[2]]
-        above_place_pos = [target_pos[0] + place_offset_x, target_pos[1] + place_offset_y, target_pos[2] + self.above_offset]
+        # self.get_logger().info('Moving left')
+        pick_pos        = [target_pos[0], target_pos[1], target_pos[2] + self.ball_offset]
+        above_pick_pos  = [target_pos[0], target_pos[1], target_pos[2] + self.ball_offset + self.above_offset]
+        place_pos       = [target_pos[0] + place_offset_x, target_pos[1] + place_offset_y, target_pos[2] + self.ball_offset]
+        above_place_pos = [target_pos[0] + place_offset_x, target_pos[1] + place_offset_y, target_pos[2] + self.ball_offset + self.above_offset]
 
         # Move to above pick up position
         self.action_move(above_pick_pos)
@@ -311,7 +312,7 @@ class MovementCommandCenter(Node):
         self.action_move(self.home_position)
         
     
-    def perform_action(self, action:Enum, target:Enum):
+    def perform_action(self, action, target):
         '''
         Takes an action as input and adds the action to a path if necessary.
         Target: what the target object for the action is (in color for simplification)
@@ -322,7 +323,7 @@ class MovementCommandCenter(Node):
         except:
             # Print the targets int value, and the length of the ball coordinates
             self.get_logger().info('Exception occured during target_pos')
-            self.get_logger().info('Target: %s, Ball coordinates: %s' % (target.name, len(self._ball_coordinates)))
+            self.get_logger().info('Target: %s, Ball coordinates: %s' % (target, len(self._ball_coordinates)))
             return
 
         
@@ -332,7 +333,7 @@ class MovementCommandCenter(Node):
             return
         
         # Print which action is going to be performed, along with what the target is
-        self.get_logger().info('Performing action: %s on the %s ball.' % (action.name, target.name))  
+        self.get_logger().info('Performing action: %s on the %s ball.' % (action, target))  
         # Print the target position
         self.get_logger().info('Target position: (%.2f, %.2f, %.2f)' % (target_pos[0], target_pos[1], target_pos[2]))
 
@@ -371,17 +372,17 @@ class MovementCommandCenter(Node):
         
 
         # Send request for decision making
-        # self.get_logger().info('Sending request for decision making')
-        # response = self.send_decision_request()
-        # self.get_logger().info('Response action: %s. Response target: %s' % (response.actions, response.targets))
-        # action = response.actions
-        # target = response.targets
+        self.get_logger().info('Sending request for decision making')
+        response = self.send_decision_request()
+        self.get_logger().info('Response action: %s. Response target: %s' % (response.actions, response.targets))
+        action = response.actions
+        target = response.targets
         # action = Action(self._count_actions % 7)
-        action = Action.PICK_UP
-        target = Color.RED
+        # action = Action.PICK_UP
+        # target = Color.RED
         
         # Currenty action
-        self.get_logger().info('Action: %s, Target: %s' % (action.name, target.name))
+        #self.get_logger().info('Action: %s, Target: %s' % (action.name, target.name))
 
         # if self._count_actions != 0:
         #     self.get_logger().info('This is not the first action. Quitting the timer cb')
@@ -404,9 +405,9 @@ class MovementCommandCenter(Node):
         self._timer.cancel() # Cancel previous timer (in case of delays)
         self._timer = self.create_timer(self.timer_period, self.timer_callback, callback_group=self._cb_timer)
         
-        self.get_logger().info('Is timer ready: %s' % self._timer.is_ready())
-        self.get_logger().info('Is timer canceled: %s' % self._timer.is_canceled())
-        self.get_logger().info('Timer callback function finished. Count: %s' % (self._count_actions-1))
+        # self.get_logger().info('Is timer ready: %s' % self._timer.is_ready())
+        # self.get_logger().info('Is timer canceled: %s' % self._timer.is_canceled())
+        # self.get_logger().info('Timer callback function finished. Count: %s' % (self._count_actions-1))
         self.get_logger().info('- - - - - - - - - - - - - - - - - - - - - - - - ')
 
 

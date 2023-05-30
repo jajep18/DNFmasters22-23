@@ -66,8 +66,8 @@ def generate_launch_description():
     
     # Description: Return the launch description
     return LaunchDescription([
-        movement_command_center_node,
-        #audio_recognition,
+        #movement_command_center_node,
+        audio_recognition,
         decision_making,
         #TimerAction(
         #    period=10.0,  # Delay in seconds

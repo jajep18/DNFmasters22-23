@@ -67,29 +67,29 @@ class DataLogTriangulation(Node):
         self.n_msgs = 0
 
         
-        # How to move the ball
-        self.req = SetEntityState.Request()
-        self.req.state.name = "red_ball"
-        # self.req.state.pose.position.x = 1.0
-        # self.req.state.pose.position.y = 0.0
-        # self.req.state.pose.position.z = 0.0
-        self.req.state.reference_frame = "world"
-        # self.future = self.service_client.call_async(self.req)
-        # self.future.add_done_callback(self.service_callback)
-
-        # Create a list of ball positions to cycle through
-        self.ball_positions = []
-        for x in np.arange(self.min_x, self.max_x, self.step):
-            for y in np.arange(self.min_y, self.max_y, self.step):
-                self.ball_positions.append([x,y])
-        self.ball_position_index = 0
-
-        
-        self.ball_pos_wait_count = 0
-        # # Move the ball to the first position
-        self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])
-        self.ball_position_index += 1
-        self.get_logger().info('Ball is moved to first position.')
+     #   # How to move the ball
+     #   self.req = SetEntityState.Request()
+     #   self.req.state.name = "red_ball"
+     #   # self.req.state.pose.position.x = 1.0
+     #   # self.req.state.pose.position.y = 0.0
+     #   # self.req.state.pose.position.z = 0.0
+     #   self.req.state.reference_frame = "world"
+     #   # self.future = self.service_client.call_async(self.req)
+     #   # self.future.add_done_callback(self.service_callback)
+#
+     #   # Create a list of ball positions to cycle through
+     #   self.ball_positions = []
+     #   for x in np.arange(self.min_x, self.max_x, self.step):
+     #       for y in np.arange(self.min_y, self.max_y, self.step):
+     #           self.ball_positions.append([x,y])
+     #   self.ball_position_index = 0
+#
+     #   
+     #   self.ball_pos_wait_count = 0
+     #   # # Move the ball to the first position
+     #   self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])
+     #   self.ball_position_index += 1
+     #   self.get_logger().info('Ball is moved to first position.')
 
     def send_ball_to_position(self, x, y):
         self.req.state.pose.position.x = x
@@ -174,24 +174,24 @@ class DataLogTriangulation(Node):
             # Close the file
             self.file.close()
 
-        # Check self.ball_pos_wait_count, if it is 10 or more, switch the ball position to the one marked by index self.ball_position_index
-        if self.ball_pos_wait_count >= 1:
-            self.ball_pos_wait_count = 0
-            self.get_logger().info('Move debug.')
-            self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])
-            self.ball_position_index += 1
-            self.get_logger().info('Moving the ball.')
-        else:
-            self.ball_pos_wait_count += 1
-            self.get_logger().info('No movement.')
+    #   # Check self.ball_pos_wait_count, if it is 10 or more, switch the ball position to the one marked by index self.ball_position_index
+    #   if self.ball_pos_wait_count >= 1:
+    #       self.ball_pos_wait_count = 0
+    #       self.get_logger().info('Move debug.')
+    #       self.send_ball_to_position(self.ball_positions[self.ball_position_index][0], self.ball_positions[self.ball_position_index][1])
+    #       self.ball_position_index += 1
+    #       self.get_logger().info('Moving the ball.')
+    #   else:
+    #       self.ball_pos_wait_count += 1
+    #       self.get_logger().info('No movement.')
 
-        time_end = time.time()
+    #   time_end = time.time()
 
-        # Print the time it took to process the message
-        self.get_logger().info('Time to process message: ' + str(time_end - start_time))
-        self.avg_time += time_end - start_time
-        self.n_msgs += 1
-        print("Average time: " + str(self.get_avg_time()))
+    #   # Print the time it took to process the message
+    #   self.get_logger().info('Time to process message: ' + str(time_end - start_time))
+    #   self.avg_time += time_end - start_time
+    #   self.n_msgs += 1
+    #   print("Average time: " + str(self.get_avg_time()))
 
     # # The desctructor, when the object is destroyed:
     # def __del__(self):

@@ -28,10 +28,10 @@ class DataLogKeywords(Node):
         
         # Create a unique filename
         rec_filename = "keyword_recording_" + str(n_files) + ".csv"
-        filename = dir_path + "/" + rec_filename
+        self.filename = dir_path + "/" + rec_filename
 
         # Create a new file with the unique filename
-        self.file = open(filename, "w")
+        self.file = open(self.filename, "w")
         self.file.write("keywords (variable len)\n")
         self.file.close()
  

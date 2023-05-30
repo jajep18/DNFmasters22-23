@@ -50,9 +50,9 @@ public:
     color_circles_dnf(3,true),        //Contains the color of the circles. This is an input
     pos_x_circle_dnf(3,true),         //Contains the x position of the circles. This is an input
     pos_y_circle_dnf(3,true),         //Contains the y position of the circles. This is an input
-    action_dnf(ACTION_AMOUNT, true),                        //Contains the actions, this is the output of the network
-    keywords_color_dnf(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, NO_SUPP, 0.5f),      //Combined DNF Keywords+Color
-    keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true,  HEBBIAN, COLNORM, NO_SUPP, 0.5f),   //Combined DNF Keywords+Action HEBBIAN, NORM, SUPP, 0.5f
+    action_dnf(ACTION_AMOUNT, true),  //Contains the actions, this is the output of the network
+    keywords_color_dnf(VOCAB_SIZE, 3, true, HEBBIAN, NONE, SUPP, 1.0f),      //Combined DNF Keywords+Color
+    keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true,  HEBBIAN, NONE, SUPP, 1.0f),   //Combined DNF Keywords+Action HEBBIAN, NORM, SUPP, 0.5f
     // keywords_color_dnf(VOCAB_SIZE,3,true),                  //Combined DNF Keywords+Color
     // keywords_action_dnf(VOCAB_SIZE, ACTION_AMOUNT, true),   //Combined DNF Keywords+Action
     color_expanded_dnf(256, true), //Test of "complex" dnf, color with 256 neurons
@@ -159,71 +159,71 @@ public:
     // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.5f));
     // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, COLNORM, NO_SUPP, 0.6f));
 
-    // // Classical ML learning rule, no normalization, no suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
-    // Classical ML learning rule, reg. normalization, no suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.1f));
-    // Classical ML learning rule, no normalization, with suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.1f));
-    // Classical ML learning rule, reg. normalization, with suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.1f));
+    // // // Classical ML learning rule, no normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, NO_SUPP, 0.1f));
+    // // Classical ML learning rule, reg. normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, NO_SUPP, 0.1f));
+    // // Classical ML learning rule, no normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NONE, SUPP, 0.1f));
+    // // Classical ML learning rule, reg. normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, ML, NORM, SUPP, 0.1f));
 
-    // Hebbian learning rule, no normalization, no suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
-    // Hebbian learning rule, reg. normalization, no suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.1f));
-    // Hebbian learning rule, column normalization, no suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
-    // Hebbian learning rule, no normalization, with suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 1.0f));
-    // Hebbian learning rule, reg. normalization, with suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.1f));
-    // Hebbian learning rule, column normalization, with suppression
-    KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.1f));
+    // // Hebbian learning rule, no normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
+    // // Hebbian learning rule, reg. normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, NO_SUPP, 0.1f));
+    // // Hebbian learning rule, column normalization, no suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
+    // // Hebbian learning rule, no normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NONE, SUPP, 1.0f));
+    // // Hebbian learning rule, reg. normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, NORM, SUPP, 0.1f));
+    // // Hebbian learning rule, column normalization, with suppression
+    // KW_ACT_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, ACTION_AMOUNT, true, HEBBIAN, COLNORM, SUPP, 0.1f));
 
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NONE, NO_SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NORM, NO_SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NONE, SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NORM, SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NORM, NO_SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NONE, SUPP, 1.0f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NORM, SUPP, 0.1f));
-    KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NONE, NO_SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NORM, NO_SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NONE, SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, ML, NORM, SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NONE, NO_SUPP, 1.0f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NORM, NO_SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, NO_SUPP, 1.0f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NONE, SUPP, 1.0f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, NORM, SUPP, 0.1f));
+    // KW_TAR_DNF_list.push_back(new DNF_2D(VOCAB_SIZE, 3, true, HEBBIAN, COLNORM, SUPP, 0.1f));
     
 
 
 
     // Perform the learning set up
-    dnf_learning(50);
+    dnf_learning(25);
     RCLCPP_INFO(this->get_logger(), "dnf-learning() setup complete");
 
-    // Print the comparison log to csv
-    // Write tensor to file
-    std::ofstream comp_file;
-    comp_file.open((comp_log_path + "Eval_v3.csv").c_str());
-    if(comp_file.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
-    for (size_t i = 0; i < comp_log.size(); i++){
-      for (size_t j = 0; j < comp_log[i].size(); j++){
-        comp_file << comp_log[i][j] << ",";
-      }
-      comp_file << "\n";
-    }
-    comp_file.close();
+    // // Print the comparison log to csv
+    // // Write tensor to file
+    // std::ofstream comp_file;
+    // comp_file.open((comp_log_path + "Eval_v3.csv").c_str());
+    // if(comp_file.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
+    // for (size_t i = 0; i < comp_log.size(); i++){
+    //   for (size_t j = 0; j < comp_log[i].size(); j++){
+    //     comp_file << comp_log[i][j] << ",";
+    //   }
+    //   comp_file << "\n";
+    // }
+    // comp_file.close();
 
-    //print the KW-TARGET comparisons
-    std::ofstream comp_file2;
-    comp_file2.open((comp_log_path + "Eval_Target_v1.csv").c_str());
-    if(comp_file2.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
-    for (size_t i = 0; i < comp_log2.size(); i++){
-      for (size_t j = 0; j < comp_log2[i].size(); j++){
-        comp_file2 << comp_log2[i][j] << ",";
-      }
-      comp_file2 << "\n";
-    }
-    comp_file2.close();
-    RCLCPP_INFO(this->get_logger(), "Comp log complete");
+    // //print the KW-TARGET comparisons
+    // std::ofstream comp_file2;
+    // comp_file2.open((comp_log_path + "Eval_Target_v1.csv").c_str());
+    // if(comp_file2.fail()){RCLCPP_ERROR(this->get_logger(), "Failed to open comparison log file");}
+    // for (size_t i = 0; i < comp_log2.size(); i++){
+    //   for (size_t j = 0; j < comp_log2[i].size(); j++){
+    //     comp_file2 << comp_log2[i][j] << ",";
+    //   }
+    //   comp_file2 << "\n";
+    // }
+    // comp_file2.close();
+    // RCLCPP_INFO(this->get_logger(), "Comp log complete");
   }
 
 private:
@@ -243,17 +243,23 @@ private:
 
     // Extract targets from the KW/Target(color) DNF
     torch::Tensor targets = keywords_color_dnf.extract_response_DNF(keywords_dnf.get_input());
-    RCLCPP_INFO(this->get_logger(), "Targets extracted: ");
-    printTensor(targets);
+    // RCLCPP_INFO(this->get_logger(), "Targets extracted: ");
+    // printTensor(targets);
     int best_target = targets.argmax().item().toInt();
     RCLCPP_INFO(this->get_logger(), "Best target: %d", best_target);
+    torch::Tensor target_softmax_vec = torch::softmax(targets, 1);
+    double target_confidence = target_softmax_vec[0][best_target].item().toDouble();
+    RCLCPP_INFO(this->get_logger(), "Target confidence: %f", target_confidence);
 
     // Extract actions from the KW/Action DNF
     torch::Tensor actions = keywords_action_dnf.extract_response_DNF(keywords_dnf.get_input());
-    RCLCPP_INFO(this->get_logger(), "Actions extracted: ");
-    printTensor(actions);
+    // RCLCPP_INFO(this->get_logger(), "Actions extracted: ");
+    // printTensor(actions);
     int best_action = actions.argmax().item().toInt();
     RCLCPP_INFO(this->get_logger(), "Best action: %d", best_action);
+    torch::Tensor action_softmax_vec = torch::softmax(actions, 1);
+    double action_confidence = action_softmax_vec[0][best_action].item().toDouble();
+    RCLCPP_INFO(this->get_logger(), "Action confidence: %f", action_confidence);
 
     // Convert at::Tensor to int for  response
     response->actions = (int) best_action;
@@ -267,7 +273,7 @@ private:
       keywords_dnf.reset_input();
       // Set the keywords
       for( size_t i = 0; i < msg->data.size(); i++){
-        keywords_dnf.set_input_element(msg->data[i], 69); // Set the places of the keywords to 69 for debugging purposes
+        keywords_dnf.set_input_element(msg->data[i], 1); // Set the places of the keywords to 69 for debugging purposes
       }
 
       // Print the keywords
@@ -409,11 +415,11 @@ private:
         // Step the Keyword x Action DNF
         keywords_action_dnf.step(keywords_dnf.get_input(), action_dnf.get_input());
 
-        // Step all the KW_ACT_DNFs with the given inputs - These are for comparing the different learning parameters
-        step_all_test_KW_ACT_dnfs(keywords_dnf.get_input(), action_dnf.get_input());
+        // // Step all the KW_ACT_DNFs with the given inputs - These are for comparing the different learning parameters
+        // step_all_test_KW_ACT_dnfs(keywords_dnf.get_input(), action_dnf.get_input());
 
-        // Step all the KW_TAR_DNFs with the given inputs - These are for comparing the different learning parameters
-        step_all_test_KW_TAR_dnfs(keywords_dnf.get_input(), color_circles_dnf.get_input());
+        // // Step all the KW_TAR_DNFs with the given inputs - These are for comparing the different learning parameters
+        // step_all_test_KW_TAR_dnfs(keywords_dnf.get_input(), color_circles_dnf.get_input());
 
         // If this is the first learning trial in the first epoch, save the initial activations
         if (i == 0 && j == 0){
@@ -456,8 +462,6 @@ private:
     RCLCPP_INFO(this->get_logger(), "Evaluator fails: %d", fails);
     RCLCPP_INFO(this->get_logger(), "Evaluation softmax mean result: %f", eval_res);
   }
-
-
 
   void step_all_test_KW_ACT_dnfs(torch::Tensor input1, torch::Tensor input2){
     // Step all the KW_ACT_DNFs with the given inputs
