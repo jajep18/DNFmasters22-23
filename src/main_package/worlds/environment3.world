@@ -25,21 +25,29 @@
     </include>
 
     <!-- Add a rectangle to serve as a table to the world -->
+
+    <!-- Max x 0.26428570556640624
+Min x -0.26428570556640624
+Max y 0.26428570556640624
+Min y -0.26428570556640624 -->
     <model name="table">
-      <pose>0 -0.22 -0.1 0 0 0</pose>
+      <!-- <pose>0 -0.22 -0.1 0 0 0</pose> -->
+      <pose>0 -0.175 -0.1 0 0 0</pose>
       <link name="table_link">
-        <pose>0 0 0 0 0 0</pose>
+        <!-- <pose>0 0 0 0 0 0</pose> -->
         <collision name="collision">
           <geometry>
             <box>
-              <size>0.7 0.3 0.01</size>
+              <!-- <size>0.7 0.3 0.01</size> -->
+              <!-- Set size to be within min and max -->
+              <size> 0.5 0.2 0.01 </size>
             </box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
             <box>
-              <size>0.7 0.3 0.01</size>
+              <size> 0.5 0.2 0.01 </size>
             </box>
           </geometry>
         </visual>

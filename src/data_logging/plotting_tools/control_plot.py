@@ -42,7 +42,7 @@ def plot_succeeded_pos():
                         )
                     )
             
-    fig.show()
+    # fig.show()
     
     # Count number of z points in each coordinate
     df['z_count'] = df.groupby(['x', 'y'])['z'].transform('count')
@@ -79,24 +79,91 @@ def plot_succeeded_pos():
     #                 ))
     
 
-    fig.show()
+    # fig.show()
 
 
     # df = pd.read_csv('control_datalog.csv')
-    df = df[df['success'] == 1]
+    # df = df[df['success'] == 1]
 
 
-    print("Number of reachable points: ", len(df))
+    # print("Number of reachable points: ", len(df))
     
 
     # Keep only the rows where the control succeeded
     df = df[df['success'] == 1]
-    print("Max x", df['x'].max())
-    print("Min x", df['x'].min())
-    print("Max y", df['y'].max())
-    print("Min y", df['y'].min())
-    print("Max z", df['z'].max())
-    print("Min z", df['z'].min())
+    print("Number of reachable points: ", len(df))
+    # print("Max x", df['x'].max())
+    # print("Min x", df['x'].min())
+    # print("Max y", df['y'].max())
+    # print("Min y", df['y'].min())
+    # print("Max z", df['z'].max())
+    # print("Min z", df['z'].min())
+
+# <size> 0.5 0.2 0.01 </size>
+    # Calculate the coverage presentage of the reachable points in a square of 0.5x0.2x0.01 with center in (0, -0.22, -0.1)
+    length = 0.5
+    width = 0.2
+    x_center = 0
+    y_center = -0.175
+    
+
+    df = df[df['x'] < x_center + length/2]
+    df = df[df['x'] > x_center - length/2]
+    df = df[df['y'] < y_center + width/2]
+    df = df[df['y'] > y_center - width/2]
+
+    # Print max and min values of the square calculated
+    print("Max x", x_center + length/2)
+    print("Min x", x_center - length/2)
+    print("Max y", y_center + width/2)
+    print("Min y", y_center - width/2)
+
+    # -0.075620
+    
+
+    print("Number of reachable points in square: ", len(df))
+
+
+
+    print("Number of reachable points in square: ", len(df))
+
+
+
+
+
+    # Plot the reachable points in the square in 2D
+    fig = px.scatter(df, x="x", y="y", color="z_count", size=("size"), color_continuous_scale='Aggrnyl_r', 
+                     title="2D Reachability on the worksurface", labels={'x':'x (m)', 'y':'y (m)', 'z_count':'Z Points'})
+    fig.update_layout(
+                    # Set font size to 35
+                    font=dict(
+                        family="Times New Roman",
+                        size=40,
+                        color="black",
+                    ),
+                    )
+    
+    # Plot a square in the plot 
+    fig.add_shape(type="rect",
+                x0=x_center-length/2, y0=y_center-width/2, x1=x_center+length/2, y1=y_center+width/2,
+                line=dict(
+                    color="RoyalBlue",
+                    width=2,
+                    dash="dashdot",
+                ),
+                )
+                  
+
+
+
+    
+    fig.show()
+   
+    
+
+
+    
+
 
 
 
